@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(node -c admin/index.html)",
+      "Bash(sed '1d;$d')",
+      "Bash(node --check /tmp/check.js)"
+    ]
+  }
+}

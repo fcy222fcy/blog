@@ -1,2 +1,77 @@
+# Go build
+bin/
+server
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+*.prof
+
+# Go dependency
+vendor/
+
+# Go cache
+.gocache/
+.gomodcache/
+.gopath/
+
+# Env / Config (敏感信息)
+.env
+.env.*
+!.env.example
+configs/*.yaml
+!configs/*.example.yaml
+
+# Logs
+logs/
+*.log
+log/
+
+# IDE
 .idea/
-.claude/
+.idea_bak/
+.vscode/
+.vscode-test/
+*.swp
+*.swo
+*~
+.project
+.classpath
+.settings/
+*.sublime-project
+*.sublime-workspace
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+Desktop.ini
+
+# Temp / Build artifacts
+tmp/
+temp/
+dist/
+build/
+coverage.html
+coverage.out
+*.prof
+*.cpu
+*.mem
+
+# Test
+*.test
+*.out
+_test/
+
+# Other
+*.bak
+*.tmp
+*.orig
+*.rej

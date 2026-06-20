@@ -1,0 +1,1235 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-scheme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>博客后台管理系统</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- 侧边栏 -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-avatar" id="sidebarAvatar" title="点击更换头像">
+                    <span id="avatarText">L</span>
+                    <div class="sidebar-avatar-edit">更换头像</div>
+                </div>
+                <input type="file" id="avatarFileInput" accept="image/*" style="display: none;">
+                <div class="sidebar-username" id="sidebarUsername">Liu Houliang</div>
+                <div class="sidebar-desc" id="sidebarDesc">日常落灰的个人博客<br>分享 Golang、AI 和 NAS 折腾经验</div>
+                <button class="sidebar-edit-btn" id="editProfileBtn">编辑资料</button>
+                <div class="sidebar-social" id="sidebarSocial">
+                    <!-- 社交链接将通过 JS 动态生成 -->
+                </div>
+            </div>
+            <nav class="sidebar-menu">
+                <div class="menu-item active" data-page="home">
+                    <span class="menu-item-icon"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg></span>
+                    <span class="menu-item-text">仪表盘</span>
+                </div>
+                <div class="menu-item" data-page="articles">
+                    <span class="menu-item-icon"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg></span>
+                    <span class="menu-item-text">文章</span>
+                </div>
+                <div class="menu-item" data-page="categories">
+                    <span class="menu-item-icon"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg></span>
+                    <span class="menu-item-text">分类</span>
+                </div>
+                <div class="menu-item" data-page="tags">
+                    <span class="menu-item-icon"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7.01" y2="7"></line></svg></span>
+                    <span class="menu-item-text">标签</span>
+                </div>
+                <div class="menu-item" data-page="comments">
+                    <span class="menu-item-icon"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg></span>
+                    <span class="menu-item-text">评论</span>
+                </div>
+                <div class="menu-item" data-page="links">
+                    <span class="menu-item-icon"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></span>
+                    <span class="menu-item-text">友链</span>
+                </div>
+                <div class="menu-item" data-page="media">
+                    <span class="menu-item-icon"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg></span>
+                    <span class="menu-item-text">媒体库</span>
+                </div>
+                <div class="menu-item" data-page="entertainment">
+                    <span class="menu-item-icon"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"></rect><line x1="7" y1="2" x2="7" y2="22"></line><line x1="17" y1="2" x2="17" y2="22"></line><line x1="2" y1="12" x2="22" y2="12"></line></svg></span>
+                    <span class="menu-item-text">娱乐</span>
+                </div>
+                <div class="menu-item" data-page="daily-question">
+                    <span class="menu-item-icon"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg></span>
+                    <span class="menu-item-text">每日一问</span>
+                </div>
+                <div class="menu-item" data-page="about">
+                    <span class="menu-item-icon"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg></span>
+                    <span class="menu-item-text">关于我</span>
+                </div>
+            </nav>
+
+            <!-- 功能区域 -->
+            <div class="sidebar-features">
+                <div class="feature-item" id="languageToggle">
+                    <span class="feature-item-icon"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg></span>
+                    <span>English</span>
+                </div>
+                <div class="feature-item" id="themeToggle">
+                    <span class="feature-item-icon"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg></span>
+                    <span>暗色模式</span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- 主内容区 -->
+        <div class="main-content">
+            <!-- 顶部导航 -->
+            <header class="header">
+                <div class="header-left">
+                    <button class="mobile-menu-btn" id="mobileMenuBtn">☰</button>
+                    <h1 class="page-title" id="pageTitle">仪表盘</h1>
+                </div>
+                <div class="header-right">
+                    <button class="header-btn" title="通知"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg></button>
+                </div>
+            </header>
+
+            <!-- 内容区域 -->
+            <main class="content-area">
+                <!-- ========== 文章列表页 ========== -->
+                <div class="page" id="page-articles">
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-label">文章总数</div>
+                            <div class="stat-value" id="statTotal">6</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">已发布</div>
+                            <div class="stat-value" id="statPublished">5</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">草稿</div>
+                            <div class="stat-value" id="statDraft">1</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">总浏览量</div>
+                            <div class="stat-value" id="statViews">1,050</div>
+                            <div class="stat-change">↑ 12% 较上月</div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">文章列表</div>
+                            <div style="display: flex; gap: 12px; flex-wrap: wrap; align-items: center;">
+                                <div class="search-box">
+                                    <span class="search-box-icon">⌕</span>
+                                    <input type="text" placeholder="搜索文章..." id="articleSearch">
+                                </div>
+                                <select class="form-select" style="width: auto; padding: 9px 32px 9px 12px;" id="categoryFilter">
+                                    <option value="">全部分类</option>
+                                    <option value="搭建网站">搭建网站</option>
+                                    <option value="软件开发">软件开发</option>
+                                    <option value="生活记录">生活记录</option>
+                                </select>
+                                <select class="form-select" style="width: auto; padding: 9px 32px 9px 12px;" id="statusFilter">
+                                    <option value="">全部状态</option>
+                                    <option value="published">已发布</option>
+                                    <option value="draft">草稿</option>
+                                </select>
+                                <button class="btn btn-primary" id="newArticleBtn">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                                    <span>新建文章</span>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="article-cards-container" id="articleCardsContainer">
+                            <!-- 文章卡片将通过 JS 动态生成 -->
+                        </div>
+                        <div class="card-body">
+                            <div class="pagination">
+                                <div class="pagination-info">
+                                    共 <span id="totalArticles">6</span> 篇文章
+                                </div>
+                                <div class="pagination-buttons">
+                                    <button class="pagination-btn" disabled>上一页</button>
+                                    <button class="pagination-btn active">1</button>
+                                    <button class="pagination-btn" disabled>下一页</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ========== 文章编辑页（两栏布局） ========== -->
+                <div class="page" id="page-edit">
+                    <!-- 顶部返回按钮 -->
+                    <div style="margin-bottom: 16px;">
+                        <button class="btn btn-secondary" id="backToListBtnTop">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+                            <span>返回列表</span>
+                        </button>
+                    </div>
+                    <div class="edit-layout">
+                        <!-- 左侧：Markdown 编辑器 -->
+                        <div class="edit-panel">
+                            <div class="card">
+                                <div class="card-header">
+                                    <div class="card-title">Markdown 编辑</div>
+                                </div>
+                                <div class="card-body">
+                                    <div class="form-group" style="margin-bottom: 12px;">
+                                        <input type="text" class="title-input" id="articleTitle" placeholder="输入文章标题...">
+                                    </div>
+                                    <div class="editor-toolbar">
+                                        <button class="toolbar-btn" title="加粗" data-action="bold"><b>B</b></button>
+                                        <button class="toolbar-btn" title="斜体" data-action="italic"><i>I</i></button>
+                                        <button class="toolbar-btn" title="删除线" data-action="strikethrough"><s>S</s></button>
+                                        <button class="toolbar-btn" title="高亮" data-action="highlight">H</button>
+                                        <div class="toolbar-divider"></div>
+                                        <button class="toolbar-btn" title="标题1" data-action="h1">H1</button>
+                                        <button class="toolbar-btn" title="标题2" data-action="h2">H2</button>
+                                        <button class="toolbar-btn" title="标题3" data-action="h3">H3</button>
+                                        <div class="toolbar-divider"></div>
+                                        <button class="toolbar-btn" title="无序列表" data-action="ul">☰</button>
+                                        <button class="toolbar-btn" title="有序列表" data-action="ol">≡</button>
+                                        <button class="toolbar-btn" title="任务列表" data-action="task">☑</button>
+                                        <button class="toolbar-btn" title="引用" data-action="quote">❝</button>
+                                        <div class="toolbar-divider"></div>
+                                        <button class="toolbar-btn" title="插入链接" data-action="link"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></button>
+                                        <button class="toolbar-btn" title="插入图片" data-action="image"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg></button>
+                                        <button class="toolbar-btn" title="插入代码" data-action="code">{ }</button>
+                                        <button class="toolbar-btn" title="插入表格" data-action="table">▦</button>
+                                        <button class="toolbar-btn" title="水平线" data-action="hr">—</button>
+                                    </div>
+                                    <textarea class="editor-content" id="articleContent" placeholder="在这里编写 Markdown 内容...">## 引言
+
+在这里编写文章内容...
+
+## 正文
+
+支持 **加粗**、*斜体*、`代码` 等 Markdown 语法。
+
+### 小标题
+
+- 列表项 1
+- 列表项 2
+- 列表项 3
+
+> 这是一段引用文字
+
+```go
+// 代码示例
+func main() {
+    fmt.Println("Hello, World!")
+}
+```</textarea>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 右侧：预览区域 -->
+                        <div class="edit-panel">
+                            <div class="card">
+                                <div class="card-header">
+                                    <div class="card-title">实时预览</div>
+                                </div>
+                                <div class="card-body">
+                                    <div class="preview-content" id="previewContent">
+                                        <!-- 预览内容将通过 JS 动态生成 -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 底部操作栏 -->
+                    <div style="margin-top: 16px; display: flex; gap: 12px; justify-content: flex-end;">
+                        <button class="btn btn-secondary" id="backToListBtn">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+                            <span>返回列表</span>
+                        </button>
+                        <button class="btn btn-secondary" id="saveDraftBtn">
+                            <span>💾</span>
+                            <span>保存草稿</span>
+                        </button>
+                        <button class="btn btn-primary" id="publishBtn">
+                            <span>🚀</span>
+                            <span>发布文章</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- ========== 分类管理页 ========== -->
+                <div class="page" id="page-categories">
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-label">分类总数</div>
+                            <div class="stat-value">3</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">文章总数</div>
+                            <div class="stat-value">6</div>
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 12px; margin-bottom: 20px; align-items: center; justify-content: space-between;">
+                        <div class="search-box">
+                            <span class="search-box-icon">⌕</span>
+                            <input type="text" placeholder="搜索分类...">
+                        </div>
+                        <button class="btn btn-primary" onclick="showCategoryModal()">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                            <span>新建分类</span>
+                        </button>
+                    </div>
+                    <div class="category-cards">
+                        <div class="category-card">
+                            <div class="category-card-cover" style="background: linear-gradient(135deg, #667eea, #764ba2);">
+                                <span class="category-card-cover-icon">🌐</span>
+                            </div>
+                            <div class="category-card-content">
+                                <div class="category-card-title">搭建网站</div>
+                                <div class="category-card-slug">build</div>
+                                <div class="category-card-desc">网站搭建、博客部署相关</div>
+                                <div class="category-card-footer">
+                                    <span class="category-card-count">3 篇文章</span>
+                                    <div class="category-card-actions">
+                                        <button class="action-btn btn-edit btn-sm">编辑</button>
+                                        <button class="action-btn btn-delete btn-sm">删除</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="category-card">
+                            <div class="category-card-cover" style="background: linear-gradient(135deg, #f093fb, #f5576c);">
+                                <span class="category-card-cover-icon">💻</span>
+                            </div>
+                            <div class="category-card-content">
+                                <div class="category-card-title">软件开发</div>
+                                <div class="category-card-slug">dev</div>
+                                <div class="category-card-desc">编程、开发工具、技术分享</div>
+                                <div class="category-card-footer">
+                                    <span class="category-card-count">2 篇文章</span>
+                                    <div class="category-card-actions">
+                                        <button class="action-btn btn-edit btn-sm">编辑</button>
+                                        <button class="action-btn btn-delete btn-sm">删除</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="category-card">
+                            <div class="category-card-cover" style="background: linear-gradient(135deg, #43e97b, #38f9d7);">
+                                <span class="category-card-cover-icon">🌱</span>
+                            </div>
+                            <div class="category-card-content">
+                                <div class="category-card-title">生活记录</div>
+                                <div class="category-card-slug">life</div>
+                                <div class="category-card-desc">日常生活、随笔感悟</div>
+                                <div class="category-card-footer">
+                                    <span class="category-card-count">2 篇文章</span>
+                                    <div class="category-card-actions">
+                                        <button class="action-btn btn-edit btn-sm">编辑</button>
+                                        <button class="action-btn btn-delete btn-sm">删除</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ========== 标签管理页 ========== -->
+                <div class="page" id="page-tags">
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-label">标签总数</div>
+                            <div class="stat-value">12</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">文章总数</div>
+                            <div class="stat-value">6</div>
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 12px; margin-bottom: 20px; align-items: center; justify-content: space-between;">
+                        <div class="search-box">
+                            <span class="search-box-icon">⌕</span>
+                            <input type="text" placeholder="搜索标签...">
+                        </div>
+                        <button class="btn btn-primary" onclick="showTagModal()">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                            <span>新建标签</span>
+                        </button>
+                    </div>
+                    <div class="tags-grid">
+                        <div class="tag-card">
+                            <div class="tag-card-name">Hugo</div>
+                            <div class="tag-card-count">3 篇文章</div>
+                            <div class="tag-card-actions">
+                                <button class="action-btn btn-edit btn-sm">编辑</button>
+                                <button class="action-btn btn-delete btn-sm">删除</button>
+                            </div>
+                        </div>
+                        <div class="tag-card">
+                            <div class="tag-card-name">Go</div>
+                            <div class="tag-card-count">2 篇文章</div>
+                            <div class="tag-card-actions">
+                                <button class="action-btn btn-edit btn-sm">编辑</button>
+                                <button class="action-btn btn-delete btn-sm">删除</button>
+                            </div>
+                        </div>
+                        <div class="tag-card">
+                            <div class="tag-card-name">AI</div>
+                            <div class="tag-card-count">2 篇文章</div>
+                            <div class="tag-card-actions">
+                                <button class="action-btn btn-edit btn-sm">编辑</button>
+                                <button class="action-btn btn-delete btn-sm">删除</button>
+                            </div>
+                        </div>
+                        <div class="tag-card">
+                            <div class="tag-card-name">开源</div>
+                            <div class="tag-card-count">2 篇文章</div>
+                            <div class="tag-card-actions">
+                                <button class="action-btn btn-edit btn-sm">编辑</button>
+                                <button class="action-btn btn-delete btn-sm">删除</button>
+                            </div>
+                        </div>
+                        <div class="tag-card">
+                            <div class="tag-card-name">Windows</div>
+                            <div class="tag-card-count">1 篇文章</div>
+                            <div class="tag-card-actions">
+                                <button class="action-btn btn-edit btn-sm">编辑</button>
+                                <button class="action-btn btn-delete btn-sm">删除</button>
+                            </div>
+                        </div>
+                        <div class="tag-card">
+                            <div class="tag-card-name">WinUI3</div>
+                            <div class="tag-card-count">1 篇文章</div>
+                            <div class="tag-card-actions">
+                                <button class="action-btn btn-edit btn-sm">编辑</button>
+                                <button class="action-btn btn-delete btn-sm">删除</button>
+                            </div>
+                        </div>
+                        <div class="tag-card">
+                            <div class="tag-card-name">Cloudflare</div>
+                            <div class="tag-card-count">1 篇文章</div>
+                            <div class="tag-card-actions">
+                                <button class="action-btn btn-edit btn-sm">编辑</button>
+                                <button class="action-btn btn-delete btn-sm">删除</button>
+                            </div>
+                        </div>
+                        <div class="tag-card">
+                            <div class="tag-card-name">Workers</div>
+                            <div class="tag-card-count">1 篇文章</div>
+                            <div class="tag-card-actions">
+                                <button class="action-btn btn-edit btn-sm">编辑</button>
+                                <button class="action-btn btn-delete btn-sm">删除</button>
+                            </div>
+                        </div>
+                        <div class="tag-card">
+                            <div class="tag-card-name">生活</div>
+                            <div class="tag-card-count">1 篇文章</div>
+                            <div class="tag-card-actions">
+                                <button class="action-btn btn-edit btn-sm">编辑</button>
+                                <button class="action-btn btn-delete btn-sm">删除</button>
+                            </div>
+                        </div>
+                        <div class="tag-card">
+                            <div class="tag-card-name">随笔</div>
+                            <div class="tag-card-count">1 篇文章</div>
+                            <div class="tag-card-actions">
+                                <button class="action-btn btn-edit btn-sm">编辑</button>
+                                <button class="action-btn btn-delete btn-sm">删除</button>
+                            </div>
+                        </div>
+                        <div class="tag-card">
+                            <div class="tag-card-name">焦虑</div>
+                            <div class="tag-card-count">1 篇文章</div>
+                            <div class="tag-card-actions">
+                                <button class="action-btn btn-edit btn-sm">编辑</button>
+                                <button class="action-btn btn-delete btn-sm">删除</button>
+                            </div>
+                        </div>
+                        <div class="tag-card">
+                            <div class="tag-card-name">思考</div>
+                            <div class="tag-card-count">1 篇文章</div>
+                            <div class="tag-card-actions">
+                                <button class="action-btn btn-edit btn-sm">编辑</button>
+                                <button class="action-btn btn-delete btn-sm">删除</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ========== 评论管理页 ========== -->
+                <div class="page" id="page-comments">
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-label">全部评论</div>
+                            <div class="stat-value">12</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">待审核</div>
+                            <div class="stat-value" style="color: var(--warning-color);">3</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">已通过</div>
+                            <div class="stat-value" style="color: var(--success-color);">8</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">已拒绝</div>
+                            <div class="stat-value" style="color: var(--danger-color);">1</div>
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 12px; margin-bottom: 20px; align-items: center; justify-content: space-between;">
+                        <select class="form-select" style="width: auto; padding: 9px 32px 9px 12px;">
+                            <option value="">全部状态</option>
+                            <option value="pending">待审核</option>
+                            <option value="approved">已通过</option>
+                            <option value="rejected">已拒绝</option>
+                        </select>
+                        <div class="search-box">
+                            <span class="search-box-icon">⌕</span>
+                            <input type="text" placeholder="搜索评论...">
+                        </div>
+                    </div>
+                    <div class="comment-cards">
+                        <div class="comment-card">
+                            <div class="comment-card-header">
+                                <div class="comment-card-user">
+                                    <div class="comment-avatar" style="background: rgba(var(--accent-color-rgb), 0.1); color: var(--accent-color);">张</div>
+                                    <div class="comment-user-info">
+                                        <div class="comment-user-name">张三</div>
+                                        <div class="comment-user-email">zhangsan@example.com</div>
+                                    </div>
+                                </div>
+                                <span class="status-badge status-pending">待审核</span>
+                            </div>
+                            <div class="comment-card-body">
+                                <p class="comment-content">很棒的文章，学到了很多！</p>
+                                <div class="comment-meta">
+                                    <span>评论于 <a href="#" style="color: var(--accent-color);">我的博客主题已开源</a></span>
+                                    <span>·</span>
+                                    <span>2 小时前</span>
+                                </div>
+                            </div>
+                            <div class="comment-card-footer">
+                                <button class="action-btn btn-edit btn-sm">通过</button>
+                                <button class="action-btn btn-hide btn-sm">拒绝</button>
+                                <button class="action-btn btn-delete btn-sm">删除</button>
+                            </div>
+                        </div>
+                        <div class="comment-card">
+                            <div class="comment-card-header">
+                                <div class="comment-card-user">
+                                    <div class="comment-avatar" style="background: rgba(16, 185, 129, 0.1); color: var(--success-color);">李</div>
+                                    <div class="comment-user-info">
+                                        <div class="comment-user-name">李四</div>
+                                        <div class="comment-user-email">lisi@example.com</div>
+                                    </div>
+                                </div>
+                                <span class="status-badge status-approved">已通过</span>
+                            </div>
+                            <div class="comment-card-body">
+                                <p class="comment-content">这个主题太好看了，请问怎么安装？</p>
+                                <div class="comment-meta">
+                                    <span>评论于 <a href="#" style="color: var(--accent-color);">我的博客主题已开源</a></span>
+                                    <span>·</span>
+                                    <span>5 小时前</span>
+                                </div>
+                            </div>
+                            <div class="comment-card-footer">
+                                <button class="action-btn btn-hide btn-sm">隐藏</button>
+                                <button class="action-btn btn-delete btn-sm">删除</button>
+                            </div>
+                        </div>
+                        <div class="comment-card">
+                            <div class="comment-card-header">
+                                <div class="comment-card-user">
+                                    <div class="comment-avatar" style="background: rgba(239, 68, 68, 0.1); color: var(--danger-color);">王</div>
+                                    <div class="comment-user-info">
+                                        <div class="comment-user-name">王五</div>
+                                        <div class="comment-user-email">wangwu@example.com</div>
+                                    </div>
+                                </div>
+                                <span class="status-badge status-rejected">已拒绝</span>
+                            </div>
+                            <div class="comment-card-body">
+                                <p class="comment-content">垃圾文章，浪费时间</p>
+                                <div class="comment-meta">
+                                    <span>评论于 <a href="#" style="color: var(--accent-color);">DesktopSnap 开源</a></span>
+                                    <span>·</span>
+                                    <span>1 天前</span>
+                                </div>
+                            </div>
+                            <div class="comment-card-footer">
+                                <button class="action-btn btn-edit btn-sm">恢复</button>
+                                <button class="action-btn btn-delete btn-sm">删除</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ========== 媒体库页（已有，保留） ========== -->
+                <!-- ========== 页面管理页（已有，保留） ========== -->
+
+                <!-- ========== 友情链接页 ========== -->
+                <div class="page" id="page-links">
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-label">友链总数</div>
+                            <div class="stat-value" id="linkCount">4</div>
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 12px; margin-bottom: 20px; align-items: center; justify-content: space-between;">
+                        <div class="search-box">
+                            <span class="search-box-icon">⌕</span>
+                            <input type="text" placeholder="搜索友链...">
+                        </div>
+                        <button class="btn btn-primary" id="newLinkBtn">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                            <span>添加链接</span>
+                        </button>
+                    </div>
+                    <div class="link-cards" id="linkCards">
+                        <div class="link-card">
+                            <div class="link-card-header">
+                                <div class="link-card-avatar" style="background: linear-gradient(135deg, #667eea, #764ba2);">🤖</div>
+                                <div class="link-card-info">
+                                    <div class="link-card-name">吴同学的笔记本</div>
+                                    <div class="link-card-url">https://www.wutongqi.cn</div>
+                                </div>
+                            </div>
+                            <div class="link-card-body">
+                                <p class="link-card-desc">全栈开发者，分享技术与生活</p>
+                            </div>
+                            <div class="link-card-footer">
+                                <button class="action-btn btn-edit btn-sm">编辑</button>
+                                <button class="action-btn btn-delete btn-sm">删除</button>
+                            </div>
+                        </div>
+                        <div class="link-card">
+                            <div class="link-card-header">
+                                <div class="link-card-avatar" style="background: linear-gradient(135deg, #f093fb, #f5576c);">👨‍💻</div>
+                                <div class="link-card-info">
+                                    <div class="link-card-name">张三的博客</div>
+                                    <div class="link-card-url">https://zhangsan.dev</div>
+                                </div>
+                            </div>
+                            <div class="link-card-body">
+                                <p class="link-card-desc">专注于 Go 语言和云原生技术</p>
+                            </div>
+                            <div class="link-card-footer">
+                                <button class="action-btn btn-edit btn-sm">编辑</button>
+                                <button class="action-btn btn-delete btn-sm">删除</button>
+                            </div>
+                        </div>
+                        <div class="link-card">
+                            <div class="link-card-header">
+                                <div class="link-card-avatar" style="background: linear-gradient(135deg, #43e97b, #38f9d7);">🎨</div>
+                                <div class="link-card-info">
+                                    <div class="link-card-name">设计笔记</div>
+                                    <div class="link-card-url">https://design-notes.com</div>
+                                </div>
+                            </div>
+                            <div class="link-card-body">
+                                <p class="link-card-desc">UI/UX 设计师的日常分享</p>
+                            </div>
+                            <div class="link-card-footer">
+                                <button class="action-btn btn-edit btn-sm">编辑</button>
+                                <button class="action-btn btn-delete btn-sm">删除</button>
+                            </div>
+                        </div>
+                        <div class="link-card">
+                            <div class="link-card-header">
+                                <div class="link-card-avatar" style="background: linear-gradient(135deg, #4facfe, #00f2fe);">📷</div>
+                                <div class="link-card-info">
+                                    <div class="link-card-name">摄影小站</div>
+                                    <div class="link-card-url">https://photo-blog.com</div>
+                                </div>
+                            </div>
+                            <div class="link-card-body">
+                                <p class="link-card-desc">用镜头记录生活的美好瞬间</p>
+                            </div>
+                            <div class="link-card-footer">
+                                <button class="action-btn btn-edit btn-sm">编辑</button>
+                                <button class="action-btn btn-delete btn-sm">删除</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ========== 媒体库页 ========== -->
+                <div class="page" id="page-media">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">媒体库</div>
+                            <div style="display: flex; gap: 12px; flex-wrap: wrap; align-items: center;">
+                                <div class="search-box">
+                                    <span class="search-box-icon">⌕</span>
+                                    <input type="text" placeholder="搜索文件..." id="mediaSearch">
+                                </div>
+                                <button class="btn btn-primary" id="uploadMediaBtn">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                                    <span>上传文件</span>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="upload-area" id="mediaUploadArea">
+                                <div class="upload-icon"><svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg></div>
+                                <div class="upload-text">
+                                    <strong>点击上传</strong> 或拖拽文件到此处<br>
+                                    支持 JPG、PNG、GIF、WebP、PDF，单文件最大 5MB
+                                </div>
+                            </div>
+                            <input type="file" id="mediaFileInput" accept="image/*,.pdf" multiple style="display: none;">
+                            <div id="mediaGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 16px; margin-top: 20px;">
+                                <!-- 媒体文件将通过 JS 动态生成 -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ========== 页面管理页 ========== -->
+                <div class="page" id="page-pages">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">页面管理</div>
+                            <button class="btn btn-primary" id="newPageBtn">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                                <span>新建页面</span>
+                            </button>
+                        </div>
+                        <div class="table-wrapper">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>页面标题</th>
+                                        <th>别名</th>
+                                        <th>状态</th>
+                                        <th>更新时间</th>
+                                        <th style="width: 120px;">操作</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="pageTableBody">
+                                    <!-- 页面列表将通过 JS 动态生成 -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ========== 系统设置页 ========== -->
+                <div class="page" id="page-settings">
+                    <div class="card" style="margin-bottom: 20px;">
+                        <div class="card-header">
+                            <div class="card-title">基本设置</div>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-group">
+                                <label class="form-label">博客名称 <span class="required">*</span></label>
+                                <input type="text" class="form-input" id="siteName" placeholder="输入博客名称">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">博客描述</label>
+                                <textarea class="form-textarea" id="siteDesc" placeholder="输入博客描述..." style="min-height: 80px;"></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">博客 URL</label>
+                                <input type="text" class="form-input" id="siteUrl" placeholder="https://example.com">
+                            </div>
+                            <div class="form-group" style="margin-bottom: 0;">
+                                <label class="form-label">每页文章数</label>
+                                <input type="number" class="form-input" id="pageSize" value="10" min="1" max="50" style="width: 120px;">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card" style="margin-bottom: 20px;">
+                        <div class="card-header">
+                            <div class="card-title">SEO 设置</div>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-group">
+                                <label class="form-label">SEO 标题</label>
+                                <input type="text" class="form-input" id="seoTitle" placeholder="输入 SEO 标题">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">SEO 描述</label>
+                                <textarea class="form-textarea" id="seoDesc" placeholder="输入 SEO 描述..." style="min-height: 80px;"></textarea>
+                            </div>
+                            <div class="form-group" style="margin-bottom: 0;">
+                                <label class="form-label">SEO 关键词</label>
+                                <input type="text" class="form-input" id="seoKeywords" placeholder="用逗号分隔，如：博客,技术,Golang">
+                            </div>
+                        </div>
+                    </div>
+                    <div style="display: flex; justify-content: flex-end;">
+                        <button class="btn btn-primary" id="saveSettingsBtn">
+                            <span>💾</span>
+                            <span>保存设置</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- ========== 每日一问管理页 ========== -->
+                <div class="page" id="page-daily-question">
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-label">问题总数</div>
+                            <div class="stat-value" id="dqStatTotal">0</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">启用问题</div>
+                            <div class="stat-value" id="dqStatEnabled">0</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">总浏览量</div>
+                            <div class="stat-value" id="dqStatViews">0</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">总点赞数</div>
+                            <div class="stat-value" id="dqStatLikes">0</div>
+                        </div>
+                    </div>
+
+                    <div class="card" style="margin-bottom: 20px;">
+                        <div class="card-header">
+                            <div class="card-title">问题管理</div>
+                            <div style="display: flex; gap: 12px; flex-wrap: wrap; align-items: center;">
+                                <div class="search-box">
+                                    <span class="search-box-icon">⌕</span>
+                                    <input type="text" placeholder="搜索问题..." id="dqSearch">
+                                </div>
+                                <select class="form-select" style="width: auto; padding: 9px 32px 9px 12px;" id="dqStatusFilter">
+                                    <option value="">全部状态</option>
+                                    <option value="1">启用</option>
+                                    <option value="0">禁用</option>
+                                </select>
+                                <button class="btn btn-primary" id="newDqBtn">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                                    <span>新建问题</span>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>问题</th>
+                                        <th>显示日期</th>
+                                        <th>状态</th>
+                                        <th>浏览/点赞</th>
+                                        <th>创建时间</th>
+                                        <th>操作</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="dqTableBody">
+                                    <!-- 问题列表将通过 JS 动态生成 -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- 评论管理 -->
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">评论管理</div>
+                            <select class="form-select" style="width: auto; padding: 9px 32px 9px 12px;" id="dqCommentFilter">
+                                <option value="">全部状态</option>
+                                <option value="0">待审核</option>
+                                <option value="1">已通过</option>
+                                <option value="2">已拒绝</option>
+                            </select>
+                        </div>
+                        <div class="card-body">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>问题</th>
+                                        <th>评论内容</th>
+                                        <th>用户</th>
+                                        <th>状态</th>
+                                        <th>时间</th>
+                                        <th>操作</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="dqCommentTableBody">
+                                    <!-- 评论列表将通过 JS 动态生成 -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ========== 仪表盘 ========== -->
+                <div class="page active" id="page-home">
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-label">文章总数</div>
+                            <div class="stat-value" id="homeStatTotal">6</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">已发布</div>
+                            <div class="stat-value" id="homeStatPublished">5</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">总浏览量</div>
+                            <div class="stat-value" id="homeStatViews">1,050</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">友情链接</div>
+                            <div class="stat-value" id="homeStatLinks">4</div>
+                        </div>
+                    </div>
+
+                    <!-- 管理卡片网格 -->
+                    <div class="dashboard-grid">
+                        <div class="dashboard-card" onclick="navigateTo('articles')">
+                            <div class="dashboard-card-icon">📝</div>
+                            <div class="dashboard-card-info">
+                                <div class="dashboard-card-title">文章管理</div>
+                                <div class="dashboard-card-desc">管理博客文章，发布、编辑、删除</div>
+                                <div class="dashboard-card-meta">共 6 篇文章</div>
+                            </div>
+                            <div class="dashboard-card-arrow">→</div>
+                        </div>
+
+                        <div class="dashboard-card" onclick="navigateTo('links')">
+                            <div class="dashboard-card-icon">🔗</div>
+                            <div class="dashboard-card-info">
+                                <div class="dashboard-card-title">友链管理</div>
+                                <div class="dashboard-card-desc">管理友情链接，添加、编辑、删除</div>
+                                <div class="dashboard-card-meta">共 4 个友链</div>
+                            </div>
+                            <div class="dashboard-card-arrow">→</div>
+                        </div>
+
+                        <div class="dashboard-card" onclick="navigateTo('media')">
+                            <div class="dashboard-card-icon">🖼️</div>
+                            <div class="dashboard-card-info">
+                                <div class="dashboard-card-title">媒体库</div>
+                                <div class="dashboard-card-desc">上传和管理图片、文件等媒体资源</div>
+                                <div class="dashboard-card-meta">图片、文档、视频</div>
+                            </div>
+                            <div class="dashboard-card-arrow">→</div>
+                        </div>
+
+                        <div class="dashboard-card" onclick="navigateTo('categories')">
+                            <div class="dashboard-card-icon">📂</div>
+                            <div class="dashboard-card-info">
+                                <div class="dashboard-card-title">分类管理</div>
+                                <div class="dashboard-card-desc">管理文章分类，建立内容结构</div>
+                                <div class="dashboard-card-meta">搭建网站、软件开发、生活记录</div>
+                            </div>
+                            <div class="dashboard-card-arrow">→</div>
+                        </div>
+
+                        <div class="dashboard-card" onclick="navigateTo('tags')">
+                            <div class="dashboard-card-icon">🏷️</div>
+                            <div class="dashboard-card-info">
+                                <div class="dashboard-card-title">标签管理</div>
+                                <div class="dashboard-card-desc">管理文章标签，方便内容检索</div>
+                                <div class="dashboard-card-meta">Hugo、Go、AI、开源</div>
+                            </div>
+                            <div class="dashboard-card-arrow">→</div>
+                        </div>
+
+                        <div class="dashboard-card" onclick="navigateTo('comments')">
+                            <div class="dashboard-card-icon">💬</div>
+                            <div class="dashboard-card-info">
+                                <div class="dashboard-card-title">评论管理</div>
+                                <div class="dashboard-card-desc">审核和管理读者评论</div>
+                                <div class="dashboard-card-meta">待审核、已通过、已拒绝</div>
+                            </div>
+                            <div class="dashboard-card-arrow">→</div>
+                        </div>
+
+                        <div class="dashboard-card" onclick="navigateTo('daily-question')">
+                            <div class="dashboard-card-icon">💡</div>
+                            <div class="dashboard-card-info">
+                                <div class="dashboard-card-title">每日一问</div>
+                                <div class="dashboard-card-desc">管理每日问答内容</div>
+                                <div class="dashboard-card-meta">今日问题已设置</div>
+                            </div>
+                            <div class="dashboard-card-arrow">→</div>
+                        </div>
+
+                        <div class="dashboard-card" onclick="navigateTo('about')">
+                            <div class="dashboard-card-icon">👤</div>
+                            <div class="dashboard-card-info">
+                                <div class="dashboard-card-title">关于我</div>
+                                <div class="dashboard-card-desc">编辑个人简介和社交信息</div>
+                                <div class="dashboard-card-meta">头像、简介、社交链接</div>
+                            </div>
+                            <div class="dashboard-card-arrow">→</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ========== 娱乐页 ========== -->
+                <div class="page" id="page-entertainment">
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-label">影视总数</div>
+                            <div class="stat-value">12</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">游戏总数</div>
+                            <div class="stat-value">5</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">今年目标</div>
+                            <div class="stat-value">20 部</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">已完成</div>
+                            <div class="stat-value" style="color: var(--success-color);">8 部</div>
+                        </div>
+                    </div>
+
+                    <!-- 分类切换 -->
+                    <div style="display: flex; gap: 10px; margin-bottom: 24px;">
+                        <button class="btn btn-primary">全部</button>
+                        <button class="btn btn-secondary">🎬 电影</button>
+                        <button class="btn btn-secondary">📺 剧集</button>
+                        <button class="btn btn-secondary">🎮 游戏</button>
+                    </div>
+
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                        <div class="search-box">
+                            <span class="search-box-icon">⌕</span>
+                            <input type="text" placeholder="搜索影视游戏...">
+                        </div>
+                        <button class="btn btn-primary">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                            <span>添加条目</span>
+                        </button>
+                    </div>
+
+                    <div class="media-cards">
+                        <div class="media-card">
+                            <div class="media-card-cover" style="background: linear-gradient(135deg, #667eea, #764ba2);">🎬</div>
+                            <div class="media-card-info">
+                                <div class="media-card-title">垫底辣妹</div>
+                                <div class="media-card-subtitle">Japanese Drama</div>
+                                <div class="media-card-meta">
+                                    <span class="media-card-tag" style="background: rgba(var(--accent-color-rgb), 0.1); color: var(--accent-color);">电影</span>
+                                    <span class="media-card-rating">⭐ 8.5</span>
+                                    <span class="media-card-year">2015</span>
+                                </div>
+                                <div class="media-card-status status-published">已看完</div>
+                            </div>
+                            <div class="media-card-actions">
+                                <button class="action-btn btn-edit btn-sm">编辑</button>
+                                <button class="action-btn btn-delete btn-sm">删除</button>
+                            </div>
+                        </div>
+                        <div class="media-card">
+                            <div class="media-card-cover" style="background: linear-gradient(135deg, #f093fb, #f5576c);">🎬</div>
+                            <div class="media-card-info">
+                                <div class="media-card-title">你的名字</div>
+                                <div class="media-card-subtitle">Your Name</div>
+                                <div class="media-card-meta">
+                                    <span class="media-card-tag" style="background: rgba(var(--accent-color-rgb), 0.1); color: var(--accent-color);">电影</span>
+                                    <span class="media-card-rating">⭐ 8.4</span>
+                                    <span class="media-card-year">2016</span>
+                                </div>
+                                <div class="media-card-status status-published">已看完</div>
+                            </div>
+                            <div class="media-card-actions">
+                                <button class="action-btn btn-edit btn-sm">编辑</button>
+                                <button class="action-btn btn-delete btn-sm">删除</button>
+                            </div>
+                        </div>
+                        <div class="media-card">
+                            <div class="media-card-cover" style="background: linear-gradient(135deg, #4facfe, #00f2fe);">📺</div>
+                            <div class="media-card-info">
+                                <div class="media-card-title">三体</div>
+                                <div class="media-card-subtitle">Three-Body</div>
+                                <div class="media-card-meta">
+                                    <span class="media-card-tag" style="background: rgba(139, 92, 246, 0.1); color: #8b5cf6;">剧集</span>
+                                    <span class="media-card-rating">⭐ 8.0</span>
+                                    <span class="media-card-year">2023</span>
+                                </div>
+                                <div class="media-card-status status-draft">在看</div>
+                            </div>
+                            <div class="media-card-actions">
+                                <button class="action-btn btn-edit btn-sm">编辑</button>
+                                <button class="action-btn btn-delete btn-sm">删除</button>
+                            </div>
+                        </div>
+                        <div class="media-card">
+                            <div class="media-card-cover" style="background: linear-gradient(135deg, #43e97b, #38f9d7);">🎮</div>
+                            <div class="media-card-info">
+                                <div class="media-card-title">塞尔达传说：王国之泪</div>
+                                <div class="media-card-subtitle">Zelda: TotK</div>
+                                <div class="media-card-meta">
+                                    <span class="media-card-tag" style="background: rgba(16, 185, 129, 0.1); color: #10b981;">游戏</span>
+                                    <span class="media-card-rating">⭐ 9.5</span>
+                                    <span class="media-card-year">2023</span>
+                                </div>
+                                <div class="media-card-status status-published">已通关</div>
+                            </div>
+                            <div class="media-card-actions">
+                                <button class="action-btn btn-edit btn-sm">编辑</button>
+                                <button class="action-btn btn-delete btn-sm">删除</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ========== 关于我页 ========== -->
+                <div class="page" id="page-about">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">关于我</div>
+                            <button class="btn btn-primary" onclick="openProfileModal()" style="margin-left: auto;">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 6px; vertical-align: middle;"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                                编辑资料
+                            </button>
+                        </div>
+                        <div class="card-body">
+                            <div style="text-align: center; padding: 40px 20px;">
+                                <div class="sidebar-avatar" style="margin: 0 auto 20px; width: 120px; height: 120px; font-size: 48px;">
+                                    <span id="aboutAvatarText">L</span>
+                                </div>
+                                <h2 style="font-size: 24px; font-weight: 700; margin-bottom: 12px; color: var(--card-text-color-main);" id="aboutUsername">Liu Houliang</h2>
+                                <p style="color: var(--card-text-color-secondary); max-width: 500px; margin: 0 auto; line-height: 1.8;" id="aboutDesc">
+                                    日常落灰的个人博客，擅长面向搜索引擎编程。分享 Golang 开发、AI 和 NAS 折腾经验
+                                </p>
+                                <div class="sidebar-social" style="justify-content: center; margin-top: 24px;" id="aboutSocial">
+                                    <!-- 社交链接将通过 JS 动态生成 -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- 删除确认模态框 -->
+    <div class="modal-overlay" id="deleteModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title">确认删除</h3>
+                <button class="modal-close" id="closeDeleteModal">×</button>
+            </div>
+            <div class="modal-body">
+                <p>确定要删除这篇文章吗？此操作无法撤销。</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="cancelDelete">取消</button>
+                <button class="btn btn-danger" id="confirmDelete">删除</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 发布设置弹窗 -->
+    <div class="modal-overlay publish-modal" id="publishModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title">发布设置</h3>
+                <button class="modal-close" id="closePublishModal">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">分类 <span class="required">*</span></label>
+                    <select class="form-select" id="modalCategory">
+                        <option value="">选择分类</option>
+                        <option value="搭建网站">搭建网站</option>
+                        <option value="软件开发">软件开发</option>
+                        <option value="生活记录">生活记录</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">状态</label>
+                    <select class="form-select" id="modalStatus">
+                        <option value="published">发布</option>
+                        <option value="draft">存为草稿</option>
+                    </select>
+                </div>
+                <div class="form-group full-width">
+                    <label class="form-label">标签</label>
+                    <div class="tags-container" id="modalTagsContainer">
+                        <input type="text" class="tag-input" placeholder="输入后按回车..." id="modalTagInput">
+                    </div>
+                    <div class="form-hint">按 Enter 添加标签</div>
+                </div>
+                <div class="form-group full-width">
+                    <label class="form-label">封面图</label>
+                    <div class="upload-area" id="modalCoverUpload">
+                        <div class="upload-icon"><svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg></div>
+                        <div class="upload-text">
+                            <strong>点击上传</strong> 或拖拽图片到此处<br>
+                            支持 JPG、PNG，建议尺寸 1200×630
+                        </div>
+                    </div>
+                    <input type="file" id="modalCoverFileInput" accept="image/*" style="display: none;">
+                </div>
+                <div class="form-group full-width" style="margin-bottom: 0;">
+                    <label class="form-label">摘要</label>
+                    <textarea class="form-textarea" id="modalSummary" placeholder="输入文章摘要..." style="min-height: 80px;"></textarea>
+                    <div class="form-hint">留空将自动截取内容前 200 字</div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="cancelPublish">取消</button>
+                <button class="btn btn-primary" id="confirmPublish">
+                    <span>🚀</span>
+                    <span>确认发布</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 编辑个人资料弹窗 -->
+    <div class="modal-overlay" id="profileModal">
+        <div class="modal" style="max-width: 560px;">
+            <div class="modal-header">
+                <h3 class="modal-title">编辑个人资料</h3>
+                <button class="modal-close" id="closeProfileModal">×</button>
+            </div>
+            <div class="modal-body" style="display: block; max-height: 70vh; overflow-y: auto;">
+                <div class="form-group" style="text-align: center;">
+                    <label class="form-label">头像</label>
+                    <div class="sidebar-avatar" id="profileAvatarPreview" style="margin: 0 auto 12px; cursor: pointer;" title="点击更换头像">
+                        <span id="profileAvatarText">L</span>
+                        <div class="sidebar-avatar-edit">更换头像</div>
+                    </div>
+                    <input type="file" id="profileAvatarInput" accept="image/*" style="display: none;">
+                    <div class="form-hint">点击头像可更换图片</div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">用户名 <span class="required">*</span></label>
+                    <input type="text" class="form-input" id="profileUsername" placeholder="输入用户名">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">个人简介</label>
+                    <textarea class="form-textarea" id="profileDesc" placeholder="输入个人简介..." style="min-height: 80px;"></textarea>
+                    <div class="form-hint">简短的自我介绍，将显示在前台</div>
+                </div>
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label class="form-label">社交链接</label>
+                    <div class="social-list" id="socialList">
+                        <!-- 社交链接列表将通过 JS 动态生成 -->
+                    </div>
+                    <button class="btn btn-secondary btn-sm" id="addSocialBtn" style="margin-top: 12px;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                        <span>添加链接</span>
+                    </button>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="cancelProfile">取消</button>
+                <button class="btn btn-primary" id="saveProfile">
+                    <span>💾</span>
+                    <span>保存</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast 容器 -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script src="js/app.js"></script>
+</body>
+</html>

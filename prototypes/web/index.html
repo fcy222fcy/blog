@@ -1,0 +1,1034 @@
+<!doctype html>
+<html lang="zh-CN" data-scheme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Liu Houliang - 个人博客</title>
+  <meta name="description" content="日常落灰的个人博客，分享 Golang、AI 和 NAS 折腾经验。">
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    /* 自定义样式：调整页面宽度并去掉每日一问卡片的边框 */
+    .site-shell {
+      width: min(1500px, calc(100% - 80px)) !important;
+    }
+
+    .dq-daily-card {
+      border: none !important;
+    }
+
+    .dq-daily-card:hover {
+      box-shadow: var(--shadow-l2);
+    }
+  </style>
+</head>
+<body>
+  <header class="mobile-header">
+    <a class="mobile-brand" href="#home" aria-label="返回首页">
+      <img src="avatar.jpg" alt="Liu Houliang 头像">
+      <span>Liu Houliang</span>
+    </a>
+    <nav class="mobile-actions" aria-label="移动端操作">
+      <button class="icon-button theme-toggle" type="button" aria-label="切换主题" title="切换主题">☀</button>
+      <button class="icon-button" data-open-search type="button" aria-label="搜索" title="搜索">⌕</button>
+      <button class="icon-button menu-toggle" type="button" aria-label="打开菜单" title="菜单">☰</button>
+    </nav>
+  </header>
+
+  <div class="site-shell" id="home">
+    <aside class="left-sidebar">
+      <header>
+        <figure class="site-avatar">
+          <a href="#home">
+            <img src="avatar.jpg" class="site-logo" alt="Avatar">
+          </a>
+          <span class="avatar-badge">🤖</span>
+        </figure>
+        <div class="site-meta">
+          <h1 class="site-name"><a href="#home">Liu Houliang</a></h1>
+          <h2 class="site-description">日常落灰的个人博客，擅长面向搜索引擎编程。分享 Golang 开发、AI 和 NAS 折腾经验</h2>
+        </div>
+      </header>
+
+      <ol class="menu-social">
+        <li><a href="mailto:admin@liuhouliang.com" title="Email"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"></rect><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path></svg></a></li>
+        <li><a href="https://github.com/liu-houliang" title="GitHub"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"></path><path d="M9 18c-4.51 2-5-2-7-2"></path></svg></a></li>
+        <li><a href="https://x.com/liu_houliang" title="Twitter / X"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z"></path></svg></a></li>
+        <li><a href="https://t.me/liu_houliang" title="Telegram"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m22 2-7 20-4-9-9-4Z"></path><path d="M22 2 11 13"></path></svg></a></li>
+        <li><a href="#wechat" title="WeChat"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg></a></li>
+        <li><a href="https://liuhouliang.com/en/index.xml" title="RSS"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11a9 9 0 0 1 9 9"></path><path d="M4 4a16 16 0 0 1 16 16"></path><circle cx="5" cy="19" r="1"></circle></svg></a></li>
+      </ol>
+
+      <div class="sidebar-search" data-open-search>
+        <input type="text" placeholder="输入关键词..." readonly>
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+      </div>
+
+      <nav class="menu" id="main-menu">
+        <li><a class="active" href="#home"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg><span>主页</span></a></li>
+        <li><a href="#archives"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"></path></svg><span>文章</span></a></li>
+        <li><a href="#links"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg><span>友链</span></a></li>
+        <li><a href="#media"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m16 13 5.223 3.482a.5.5 0 0 0 .777-.416V7.87a.5.5 0 0 0-.752-.432L16 10.5"></path><rect x="2" y="6" width="14" height="12" rx="2"></rect></svg><span>娱乐</span></a></li>
+        <li><a href="#about"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg><span>关于我</span></a></li>
+      </nav>
+
+      <div class="sidebar-bottom">
+        <button class="sidebar-bottom-item" type="button"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="2" x2="22" y1="12" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>English</button>
+        <button class="sidebar-bottom-item theme-toggle" type="button"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path></svg>暗色模式</button>
+        <div class="site-runtime" id="siteRuntime">
+          <span class="site-runtime-icon">🕐</span> 计算中...
+        </div>
+      </div>
+    </aside>
+
+    <main class="content-area">
+
+      <!-- ==================== Home：文章卡片列表 ==================== -->
+      <section class="page-view" id="view-home">
+
+        <!-- 每日一问小卡片（跟文章一样的样式） -->
+        <article class="article-card dq-daily-card">
+          <a class="card-link dq-daily-link">
+            <div class="dq-daily-header">
+              <span class="category-pill category-life">每日一问</span>
+              <div class="dq-daily-nav">
+                <button class="dq-daily-nav-btn" id="dqPrevBtn" onclick="dqPrev()">◀ 前一天</button>
+                <button class="dq-daily-date-btn" id="dqDailyDateBtn" onclick="dqToggleDatePicker()">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"></rect><line x1="16" x2="16" y1="2" y2="6"></line><line x1="8" x2="8" y1="2" y2="6"></line><line x1="3" x2="21" y1="10" y2="10"></line></svg>
+                  <span id="dqDailyDateText">2026-06-15</span>
+                </button>
+                <button class="dq-daily-nav-btn" id="dqNextBtn" onclick="dqNext()">后一天 ▶</button>
+              </div>
+            </div>
+
+            <!-- 自定义日期选择器 -->
+            <div class="dq-calendar" id="dqCalendar" style="display: none;">
+              <div class="dq-calendar-header">
+                <button class="dq-calendar-nav-btn" onclick="dqCalendarPrevMonth()">◀</button>
+                <span class="dq-calendar-title" id="dqCalendarTitle">2026年6月</span>
+                <button class="dq-calendar-nav-btn" onclick="dqCalendarNextMonth()">▶</button>
+              </div>
+              <div class="dq-calendar-weekdays">
+                <span>日</span>
+                <span>一</span>
+                <span>二</span>
+                <span>三</span>
+                <span>四</span>
+                <span>五</span>
+                <span>六</span>
+              </div>
+              <div class="dq-calendar-days" id="dqCalendarDays">
+                <!-- 日期将通过 JS 动态生成 -->
+              </div>
+            </div>
+            <h2 class="dq-daily-title" id="dqDailyTitle">什么是最好的编程语言？</h2>
+            <div class="dq-daily-answer-wrapper">
+              <p class="dq-daily-preview" id="dqDailyPreview">
+                没有最好的编程语言，只有最适合的。Python 适合数据科学，JavaScript 适合 Web 开发，Go 适合后端服务。
+              </p>
+              <div class="dq-daily-mask" id="dqDailyMask" onclick="dqToggleAnswer()">
+                <span class="dq-daily-mask-text">👉 点击查看答案</span>
+              </div>
+              <div class="dq-daily-hide-btn" id="dqDailyHideBtn" style="display: none;" onclick="dqToggleAnswer()">
+                <span class="dq-daily-hide-text">👈 点击收起答案</span>
+              </div>
+            </div>
+            <div class="dq-daily-footer">
+              <button class="dq-daily-like-btn" id="dqDailyLikeBtn" onclick="dqLike()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+                <span id="dqDailyLikeCount">42</span>
+              </button>
+              <button class="dq-daily-comment-btn">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                <span>8</span>
+              </button>
+            </div>
+          </a>
+        </article>
+
+        <style>
+        /* 每日一问卡片样式（与文章卡片完全一致，更紧凑） */
+        .dq-daily-card {
+          position: relative;
+          /* 与其他文章卡片一样的宽度 */
+        }
+
+        .dq-daily-card:hover {
+          box-shadow: var(--shadow-l2);
+          transform: translateY(-2px);
+        }
+
+        .dq-daily-card .card-link {
+          display: block;
+          /* 与其他文章卡片一致的内边距 */
+        }
+
+        /* 允许日历溢出显示 */
+        .dq-daily-card {
+          overflow: visible !important;
+        }
+
+        .dq-daily-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 12px;
+        }
+
+        .dq-daily-nav {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+        }
+
+        .dq-daily-nav-btn {
+          background: none;
+          border: 1px solid var(--card-separator-color);
+          padding: 4px 8px;
+          font-size: 11px;
+          color: var(--card-text-color-secondary);
+          cursor: pointer;
+          border-radius: 4px;
+          transition: all 0.2s ease;
+        }
+
+        .dq-daily-nav-btn:hover {
+          border-color: var(--accent-color);
+          color: var(--accent-color);
+        }
+
+        .dq-daily-nav-btn:disabled {
+          opacity: 0.5;
+          cursor: not-allowed;
+        }
+
+        .dq-daily-date-btn {
+          display: flex;
+          align-items: center;
+          gap: 4px;
+          background: none;
+          border: 1px solid var(--card-separator-color);
+          padding: 4px 8px;
+          font-size: 12px;
+          color: var(--card-text-color-secondary);
+          cursor: pointer;
+          border-radius: 4px;
+          transition: all 0.2s ease;
+        }
+
+        .dq-daily-date-btn:hover {
+          border-color: var(--accent-color);
+          color: var(--accent-color);
+        }
+
+        /* 自定义日期选择器样式 */
+        .dq-calendar {
+          position: absolute;
+          top: 60px;
+          right: 0;
+          background: var(--card-background);
+          border: 1px solid var(--card-separator-color);
+          border-radius: 8px;
+          padding: 12px;
+          box-shadow: var(--shadow-l2);
+          z-index: 100;
+          min-width: 280px;
+        }
+
+        .dq-calendar-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 12px;
+        }
+
+        .dq-calendar-title {
+          font-size: 14px;
+          font-weight: 600;
+          color: var(--card-text-color-main);
+        }
+
+        .dq-calendar-nav-btn {
+          background: none;
+          border: none;
+          padding: 4px 8px;
+          font-size: 12px;
+          color: var(--card-text-color-secondary);
+          cursor: pointer;
+          border-radius: 4px;
+          transition: all 0.2s ease;
+        }
+
+        .dq-calendar-nav-btn:hover {
+          background: var(--body-background);
+          color: var(--accent-color);
+        }
+
+        .dq-calendar-weekdays {
+          display: grid;
+          grid-template-columns: repeat(7, 1fr);
+          gap: 4px;
+          margin-bottom: 8px;
+        }
+
+        .dq-calendar-weekdays span {
+          text-align: center;
+          font-size: 11px;
+          color: var(--card-text-color-tertiary);
+          padding: 4px;
+        }
+
+        .dq-calendar-days {
+          display: grid;
+          grid-template-columns: repeat(7, 1fr);
+          gap: 4px;
+        }
+
+        .dq-calendar-day {
+          text-align: center;
+          padding: 8px 4px;
+          font-size: 12px;
+          color: var(--card-text-color-secondary);
+          cursor: pointer;
+          border-radius: 4px;
+          transition: all 0.2s ease;
+        }
+
+        .dq-calendar-day:hover {
+          background: var(--body-background);
+          color: var(--accent-color);
+        }
+
+        .dq-calendar-day.today {
+          background: #117361;
+          color: #fff;
+        }
+
+        .dq-calendar-day.selected {
+          background: rgba(17, 115, 97, 0.15);
+          color: #117361;
+        }
+
+        .dq-calendar-day.other-month {
+          color: var(--card-text-color-tertiary);
+          opacity: 0.5;
+        }
+
+        .dq-daily-answer-wrapper {
+          position: relative;
+          margin: 10px 0;
+        }
+
+        .dq-daily-preview {
+          font-size: 13px;
+          color: var(--card-text-color-secondary);
+          line-height: 1.5;
+          padding: 10px;
+          background: var(--body-background);
+          border-radius: 6px;
+          border-left: 3px solid var(--accent-color);
+        }
+
+        .dq-daily-mask {
+          position: absolute;
+          inset: 0;
+          background: linear-gradient(180deg, transparent 0%, var(--card-background) 40%, var(--card-background) 100%);
+          display: flex;
+          align-items: flex-end;
+          justify-content: center;
+          padding-bottom: 10px;
+          cursor: pointer;
+          border-radius: 6px;
+          transition: opacity 0.3s ease;
+        }
+
+        .dq-daily-mask:hover .dq-daily-mask-text {
+          color: var(--accent-color);
+        }
+
+        .dq-daily-mask-text {
+          font-size: 13px;
+          color: var(--card-text-color-secondary);
+          transition: color 0.2s ease;
+        }
+
+        .dq-daily-hide-btn {
+          text-align: center;
+          margin-top: 10px;
+          cursor: pointer;
+          transition: all 0.2s ease;
+        }
+
+        .dq-daily-hide-btn:hover .dq-daily-hide-text {
+          color: var(--accent-color);
+        }
+
+        .dq-daily-hide-text {
+          font-size: 13px;
+          color: var(--card-text-color-secondary);
+          transition: color 0.2s ease;
+        }
+
+        .dq-daily-footer {
+          display: flex;
+          gap: 16px;
+          margin-top: 12px;
+          padding-top: 12px;
+          border-top: 1px solid var(--card-separator-color);
+        }
+
+        .dq-daily-like-btn,
+        .dq-daily-comment-btn {
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          background: none;
+          border: none;
+          padding: 6px 12px;
+          font-size: 13px;
+          color: var(--card-text-color-secondary);
+          cursor: pointer;
+          transition: all 0.2s ease;
+          border-radius: 6px;
+        }
+
+        .dq-daily-like-btn:hover,
+        .dq-daily-comment-btn:hover {
+          color: var(--accent-color);
+          background: rgba(var(--accent-color-rgb, 0.08));
+        }
+
+        .dq-daily-like-btn.liked {
+          color: var(--accent-color);
+          background: rgba(var(--accent-color-rgb, 0.1));
+        }
+        </style>
+
+        <script>
+        // 每日一问数据
+        const dqQuestions = [
+          {
+            id: 1,
+            date: '2026-06-15',
+            question: '什么是最好的编程语言？',
+            answer: '没有最好的编程语言，只有最适合的。Python 适合数据科学，JavaScript 适合 Web 开发，Go 适合后端服务。选择语言要根据具体需求和项目类型。',
+            like_count: 42,
+            comment_count: 8
+          },
+          {
+            id: 2,
+            date: '2026-06-14',
+            question: '如何成为一名优秀的软件工程师？',
+            answer: '成为优秀软件工程师的关键：1. 扎实的基础知识；2. 持续学习新技术；3. 多写代码多实践；4. 阅读优秀源码；5. 参与开源项目；6. 培养解决问题的能力；7. 良好的沟通和团队协作能力。',
+            like_count: 128,
+            comment_count: 15
+          },
+          {
+            id: 3,
+            date: '2026-06-13',
+            question: '远程办公的优缺点是什么？',
+            answer: '优点：1. 灵活的工作时间；2. 节省通勤时间；3. 更好的工作生活平衡；4. 可以在全球任何地方工作。缺点：1. 缺乏面对面交流；2. 容易分心；3. 工作和生活界限模糊；4. 团队协作可能受影响。',
+            like_count: 89,
+            comment_count: 12
+          },
+          {
+            id: 4,
+            date: '2026-06-12',
+            question: '学习编程的最佳方法是什么？',
+            answer: '学习编程的最佳方法：1. 从基础开始，循序渐进；2. 多动手实践，写代码；3. 遇到问题多思考，多搜索；4. 阅读优秀的开源代码；5. 参与项目实战；6. 保持学习热情，持续学习新技术。',
+            like_count: 156,
+            comment_count: 20
+          },
+          {
+            id: 5,
+            date: '2026-06-11',
+            question: '如何看待人工智能的发展？',
+            answer: '人工智能正在快速发展，它将改变我们的生活和工作方式。我们应该：1. 拥抱技术变革；2. 学习相关知识；3. 思考如何利用 AI 提高效率；4. 关注 AI 伦理和安全问题；5. 保持开放的心态。',
+            like_count: 234,
+            comment_count: 28
+          }
+        ];
+
+        let currentDqIndex = 0;
+        let isDqAnswerVisible = false;
+        let isDqLiked = localStorage.getItem('dq_card_liked') === 'true';
+        let dqCalendarDate = new Date(dqQuestions[0].date);
+        let dqSelectedDate = new Date(dqQuestions[0].date);
+
+        // 初始化每日一问卡片
+        function initDqCard() {
+          renderDqQuestion(dqQuestions[currentDqIndex]);
+          updateDqLikeButton();
+          dqRenderCalendar();
+        }
+
+        // 渲染问题
+        function renderDqQuestion(data) {
+          document.getElementById('dqDailyTitle').textContent = data.question;
+          document.getElementById('dqDailyPreview').textContent = data.answer;
+          document.getElementById('dqDailyDateText').textContent = data.date;
+          document.getElementById('dqDailyLikeCount').textContent = data.like_count;
+
+          // 更新按钮状态
+          document.getElementById('dqPrevBtn').disabled = currentDqIndex >= dqQuestions.length - 1;
+          document.getElementById('dqNextBtn').disabled = currentDqIndex <= 0;
+
+          // 重置遮罩状态
+          document.getElementById('dqDailyMask').style.display = 'flex';
+          document.getElementById('dqDailyMask').style.opacity = '1';
+          document.getElementById('dqDailyHideBtn').style.display = 'none';
+          isDqAnswerVisible = false;
+
+          // 更新点赞状态
+          isDqLiked = localStorage.getItem('dq_card_liked_' + data.id) === 'true';
+          updateDqLikeButton();
+        }
+
+        // 切换答案显示（遮罩切换）
+        function dqToggleAnswer() {
+          const mask = document.getElementById('dqDailyMask');
+          const hideBtn = document.getElementById('dqDailyHideBtn');
+
+          if (isDqAnswerVisible) {
+            // 隐藏答案，显示遮罩
+            mask.style.display = 'flex';
+            mask.style.opacity = '1';
+            hideBtn.style.display = 'none';
+            isDqAnswerVisible = false;
+          } else {
+            // 显示答案，隐藏遮罩
+            mask.style.opacity = '0';
+            setTimeout(() => {
+              mask.style.display = 'none';
+            }, 300);
+            hideBtn.style.display = 'block';
+            isDqAnswerVisible = true;
+          }
+        }
+
+        // 前一天
+        function dqPrev() {
+          if (currentDqIndex < dqQuestions.length - 1) {
+            currentDqIndex++;
+            renderDqQuestion(dqQuestions[currentDqIndex]);
+          }
+        }
+
+        // 后一天
+        function dqNext() {
+          if (currentDqIndex > 0) {
+            currentDqIndex--;
+            renderDqQuestion(dqQuestions[currentDqIndex]);
+          }
+        }
+
+        // 切换日期选择器显示
+        function dqToggleDatePicker() {
+          const calendar = document.getElementById('dqCalendar');
+          if (calendar.style.display === 'none') {
+            calendar.style.display = 'block';
+            dqRenderCalendar();
+          } else {
+            calendar.style.display = 'none';
+          }
+        }
+
+        // 渲染日历
+        function dqRenderCalendar() {
+          const year = dqCalendarDate.getFullYear();
+          const month = dqCalendarDate.getMonth();
+
+          // 更新标题
+          document.getElementById('dqCalendarTitle').textContent = `${year}年${month + 1}月`;
+
+          // 获取月份第一天和最后一天
+          const firstDay = new Date(year, month, 1);
+          const lastDay = new Date(year, month + 1, 0);
+          const startDay = firstDay.getDay();
+
+          // 获取上个月最后几天
+          const prevMonthLastDay = new Date(year, month, 0).getDate();
+
+          // 生成日期格子
+          let daysHtml = '';
+
+          // 上个月的日期
+          for (let i = startDay - 1; i >= 0; i--) {
+            const day = prevMonthLastDay - i;
+            const date = new Date(year, month - 1, day);
+            const dateStr = dqFormatDate(date);
+            daysHtml += `<div class="dq-calendar-day other-month" onclick="dqSelectDate('${dateStr}')">${day}</div>`;
+          }
+
+          // 本月的日期
+          for (let i = 1; i <= lastDay.getDate(); i++) {
+            const date = new Date(year, month, i);
+            const dateStr = dqFormatDate(date);
+            const isToday = dqIsToday(date);
+            const isSelected = dqIsSameDate(date, dqSelectedDate);
+            let className = 'dq-calendar-day';
+            if (isToday) className += ' today';
+            if (isSelected) className += ' selected';
+            daysHtml += `<div class="${className}" onclick="dqSelectDate('${dateStr}')">${i}</div>`;
+          }
+
+          // 下个月的日期
+          const totalCells = Math.ceil((startDay + lastDay.getDate()) / 7) * 7;
+          for (let i = 1; i <= totalCells - startDay - lastDay.getDate(); i++) {
+            const date = new Date(year, month + 1, i);
+            const dateStr = dqFormatDate(date);
+            daysHtml += `<div class="dq-calendar-day other-month" onclick="dqSelectDate('${dateStr}')">${i}</div>`;
+          }
+
+          document.getElementById('dqCalendarDays').innerHTML = daysHtml;
+        }
+
+        // 格式化日期
+        function dqFormatDate(date) {
+          const year = date.getFullYear();
+          const month = String(date.getMonth() + 1).padStart(2, '0');
+          const day = String(date.getDate()).padStart(2, '0');
+          return `${year}-${month}-${day}`;
+        }
+
+        // 判断是否是今天
+        function dqIsToday(date) {
+          const today = new Date();
+          return dqIsSameDate(date, today);
+        }
+
+        // 判断是否是同一天
+        function dqIsSameDate(date1, date2) {
+          return date1.getFullYear() === date2.getFullYear() &&
+                 date1.getMonth() === date2.getMonth() &&
+                 date1.getDate() === date2.getDate();
+        }
+
+        // 选择日期
+        function dqSelectDate(dateStr) {
+          dqSelectedDate = new Date(dateStr);
+          dqCalendarDate = new Date(dateStr);
+
+          // 查找对应日期的问题
+          const foundIndex = dqQuestions.findIndex(q => q.date === dateStr);
+          if (foundIndex !== -1) {
+            currentDqIndex = foundIndex;
+            renderDqQuestion(dqQuestions[currentDqIndex]);
+          } else {
+            // 如果没有找到对应日期，显示提示
+            alert('暂无该日期的问题');
+          }
+
+          // 关闭日历
+          document.getElementById('dqCalendar').style.display = 'none';
+        }
+
+        // 上个月
+        function dqCalendarPrevMonth() {
+          dqCalendarDate.setMonth(dqCalendarDate.getMonth() - 1);
+          dqRenderCalendar();
+        }
+
+        // 下个月
+        function dqCalendarNextMonth() {
+          dqCalendarDate.setMonth(dqCalendarDate.getMonth() + 1);
+          dqRenderCalendar();
+        }
+
+        // 点赞
+        function dqLike() {
+          const data = dqQuestions[currentDqIndex];
+          if (isDqLiked) return;
+
+          data.like_count++;
+          document.getElementById('dqDailyLikeCount').textContent = data.like_count;
+
+          localStorage.setItem('dq_card_liked_' + data.id, 'true');
+          isDqLiked = true;
+          updateDqLikeButton();
+        }
+
+        // 更新点赞按钮状态
+        function updateDqLikeButton() {
+          const btn = document.getElementById('dqDailyLikeBtn');
+          if (isDqLiked) {
+            btn.classList.add('liked');
+          } else {
+            btn.classList.remove('liked');
+          }
+        }
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', function() {
+          initDqCard();
+        });
+        </script>
+
+        <article class="article-card">
+          <a href="#post-open-source-theme" class="card-link">
+            <span class="category-pill category-build" onclick="event.preventDefault(); searchByCategory('Web')">搭建网站</span>
+            <h2>我的博客主题已开源，欢迎使用</h2>
+            <p>基于 Hugo Theme Stack 打造的开箱即用博客模板，包含多项美化和功能增强。如果你喜欢我的博客样式，不妨试试它！</p>
+            <dl class="article-meta">
+              <div><dt>日期</dt><dd><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"></rect><line x1="16" x2="16" y1="2" y2="6"></line><line x1="8" x2="8" y1="2" y2="6"></line><line x1="3" x2="21" y1="10" y2="10"></line></svg> 2026-04-24</dd></div>
+              <div><dt>时长</dt><dd><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg> 3 分钟</dd></div>
+              <div><dt>浏览量</dt><dd><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path><circle cx="12" cy="12" r="3"></circle></svg> 252</dd></div>
+              <div><dt>语言</dt><dd><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="2" x2="22" y1="12" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg> 中文</dd></div>
+            </dl>
+          </a>
+        </article>
+        <article class="article-card">
+          <a href="#post-desktopsnap" class="card-link">
+            <span class="category-pill category-dev" onclick="event.preventDefault(); searchByCategory('Software')">软件开发</span>
+            <h2>DesktopSnap：开源轻量、一键恢复，解决 Windows 桌面图标错乱的烦恼</h2>
+            <p>基于 WinUI3 开发的轻量级桌面工具。支持多显示器布局一键备份与恢复，已上架微软商店。</p>
+            <dl class="article-meta">
+              <div><dt>日期</dt><dd><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"></rect><line x1="16" x2="16" y1="2" y2="6"></line><line x1="8" x2="8" y1="2" y2="6"></line><line x1="3" x2="21" y1="10" y2="10"></line></svg> 2026-03-12</dd></div>
+              <div><dt>时长</dt><dd><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg> 3 分钟</dd></div>
+              <div><dt>浏览量</dt><dd><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path><circle cx="12" cy="12" r="3"></circle></svg> 327</dd></div>
+              <div><dt>语言</dt><dd><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="2" x2="22" y1="12" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg> 中文</dd></div>
+            </dl>
+          </a>
+        </article>
+        <article class="article-card">
+          <a href="#post-cloudflare-ai" class="card-link">
+            <span class="category-pill category-build" onclick="event.preventDefault(); searchByCategory('Web')">搭建网站</span>
+            <h2>用 Cloudflare Workers 免费给博客增加一个带有知识库的 AI 助手</h2>
+            <p>利用 Cloudflare Workers 和 AI 能力，为博客添加智能问答功能。</p>
+            <dl class="article-meta">
+              <div><dt>日期</dt><dd><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"></rect><line x1="16" x2="16" y1="2" y2="6"></line><line x1="8" x2="8" y1="2" y2="6"></line><line x1="3" x2="21" y1="10" y2="10"></line></svg> 2026-04-21</dd></div>
+              <div><dt>时长</dt><dd><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg> 6 分钟</dd></div>
+              <div><dt>浏览量</dt><dd><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path><circle cx="12" cy="12" r="3"></circle></svg> 160</dd></div>
+              <div><dt>语言</dt><dd><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="2" x2="22" y1="12" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg> 中文</dd></div>
+            </dl>
+          </a>
+        </article>
+        <article class="article-card">
+          <a href="#post-holiday" class="card-link">
+            <span class="category-pill category-life" onclick="event.preventDefault(); searchByCategory('Life')">生活记录</span>
+            <h2>清明假期：收拾家务、整理心情</h2>
+            <p>清明假期的日常记录，整理家务，调整心态。</p>
+            <dl class="article-meta">
+              <div><dt>日期</dt><dd><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"></rect><line x1="16" x2="16" y1="2" y2="6"></line><line x1="8" x2="8" y1="2" y2="6"></line><line x1="3" x2="21" y1="10" y2="10"></line></svg> 2026-04-04</dd></div>
+              <div><dt>时长</dt><dd><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg> 9 分钟</dd></div>
+              <div><dt>浏览量</dt><dd><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path><circle cx="12" cy="12" r="3"></circle></svg> 100</dd></div>
+            </dl>
+          </a>
+        </article>
+        <article class="article-card">
+          <a href="#post-ai-anxiety" class="card-link">
+            <span class="category-pill category-life" onclick="event.preventDefault(); searchByCategory('Life')">生活记录</span>
+            <h2>逐渐难以逃离对于 AI 的焦虑</h2>
+            <p>养龙虾热潮让人们看到了 AI 的威力，也让人们更加因为没有用上 AI 技术而感到焦虑。</p>
+            <dl class="article-meta">
+              <div><dt>日期</dt><dd><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"></rect><line x1="16" x2="16" y1="2" y2="6"></line><line x1="8" x2="8" y1="2" y2="6"></line><line x1="3" x2="21" y1="10" y2="10"></line></svg> 2026-03-16</dd></div>
+              <div><dt>时长</dt><dd><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg> 10 分钟</dd></div>
+              <div><dt>浏览量</dt><dd><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path><circle cx="12" cy="12" r="3"></circle></svg> 114</dd></div>
+            </dl>
+          </a>
+        </article>
+        <article class="article-card">
+          <a href="#post-invoice" class="card-link">
+            <span class="category-pill category-dev" onclick="event.preventDefault(); searchByCategory('Software')">软件开发</span>
+            <h2>开发了一个2026有奖发票抽奖助手，方便合并发票凑齐100元</h2>
+            <p>实用工具开发分享，帮助用户管理发票。</p>
+            <dl class="article-meta">
+              <div><dt>日期</dt><dd><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"></rect><line x1="16" x2="16" y1="2" y2="6"></line><line x1="8" x2="8" y1="2" y2="6"></line><line x1="3" x2="21" y1="10" y2="10"></line></svg> 2026-03-15</dd></div>
+              <div><dt>时长</dt><dd><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg> 2 分钟</dd></div>
+              <div><dt>浏览量</dt><dd><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path><circle cx="12" cy="12" r="3"></circle></svg> 97</dd></div>
+            </dl>
+          </a>
+        </article>
+      </section>
+
+      <!-- ==================== Archives：年份归档 ==================== -->
+      <section class="page-view" id="view-archives" style="display:none;">
+        <h1 class="page-heading">文章归档</h1>
+        <div class="category-bar">
+          <a class="category-chip" href="#cat-software">软件开发</a>
+          <a class="category-chip" href="#cat-golang">Golang</a>
+          <a class="category-chip" href="#cat-share">知识分享</a>
+          <a class="category-chip" href="#cat-web">网站搭建</a>
+          <a class="category-chip" href="#cat-game">游戏</a>
+        </div>
+        <div class="year-group">
+          <h2 class="year-heading">2026</h2>
+          <ul class="archive-list">
+            <li><a href="#post-my-theme"><span class="archive-title">我的博客主题已开源，欢迎使用</span><span class="archive-date">2026-04-24</span></a></li>
+            <li><a href="#post-ai-assistant"><span class="archive-title">用 Cloudflare Workers 免费给博客增加一个带有知识库的 AI 助手</span><span class="archive-date">2026-04-21</span></a></li>
+            <li><a href="#post-desktop-snap"><span class="archive-title">DesktopSnap：开源轻量、一键恢复，解决 Windows 桌面图标错乱的烦恼</span><span class="archive-date">2026-03-12</span></a></li>
+            <li><a href="#post-holiday"><span class="archive-title">清明假期：收拾家务、整理心情</span><span class="archive-date">2026-04-04</span></a></li>
+            <li><a href="#post-ai-anxiety"><span class="archive-title">逐渐难以逃离对于 AI 的焦虑</span><span class="archive-date">2026-03-16</span></a></li>
+            <li><a href="#post-invoice"><span class="archive-title">开发了一个2026有奖发票抽奖助手，方便合并发票凑齐100元</span><span class="archive-date">2026-03-15</span></a></li>
+          </ul>
+        </div>
+        <div class="year-group">
+          <h2 class="year-heading">2025</h2>
+          <ul class="archive-list">
+            <li><a href="#post-komari"><span class="archive-title">分享一个服务器监控工具 - Komari</span><span class="archive-date">2025-10-24</span></a></li>
+            <li><a href="#post-metatube"><span class="archive-title">使用 Huggingface Space 免费部署 Metatube 后端服务</span><span class="archive-date">2025-09-12</span></a></li>
+            <li><a href="#post-game-record"><span class="archive-title">给 Hugo 博客增加游戏记录板块，自动获取游戏数据</span><span class="archive-date">2025-09-03</span></a></li>
+            <li><a href="#post-nextjs-adsense"><span class="archive-title">Next.js 网站接入 Google AdSense 并手动放置广告</span><span class="archive-date">2025-09-02</span></a></li>
+            <li><a href="#post-net-upgrade"><span class="archive-title">家庭网络升级方案：升级 2.5G 局域网 + 安装格力云控</span><span class="archive-date">2025-07-29</span></a></li>
+          </ul>
+        </div>
+        <div class="year-group">
+          <h2 class="year-heading">2024</h2>
+          <ul class="archive-list">
+            <li><a href="#post-adsense-verify"><span class="archive-title">终于验证了 AdSense 地址，收到了第一笔付款</span><span class="archive-date">2024-12-27</span></a></li>
+            <li><a href="#post-cloudflare-tunnel"><span class="archive-title">Cloudflare Tunnel 轻松实现内网穿透</span><span class="archive-date">2024-09-27</span></a></li>
+            <li><a href="#post-go-interface"><span class="archive-title">Go 组合与方法覆盖的坑</span><span class="archive-date">2024-09-04</span></a></li>
+            <li><a href="#post-black-wukong"><span class="archive-title">黑神话：悟空 初体验</span><span class="archive-date">2024-08-21</span></a></li>
+            <li><a href="#post-hugo-theme"><span class="archive-title">使用 Hugo-theme-stack 快速搭建博客</span><span class="archive-date">2024-02-20</span></a></li>
+          </ul>
+        </div>
+        <div class="year-group">
+          <h2 class="year-heading">2023</h2>
+          <ul class="archive-list">
+            <li><a href="#post-jellyfin-02"><span class="archive-title">NAS 上搭建 Jellyfin 媒体服务器（下）</span><span class="archive-date">2023-09-16</span></a></li>
+            <li><a href="#post-jellyfin-01"><span class="archive-title">NAS 上搭建 Jellyfin 媒体服务器（上）</span><span class="archive-date">2023-09-15</span></a></li>
+            <li><a href="#post-go-generic"><span class="archive-title">学习 Go 泛型</span><span class="archive-date">2023-07-10</span></a></li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- ==================== Links：友链 ==================== -->
+      <section class="page-view" id="view-links" style="display:none;">
+        <div class="page-hero">
+          <img src="https://liuhouliang.com/images/links-banner.jpg" alt="友链" class="page-hero-img">
+          <div class="page-hero-overlay">
+            <h1 class="page-heading">友链</h1>
+            <p class="page-hero-desc">我的朋友们</p>
+          </div>
+        </div>
+        <div class="friend-grid">
+          <a href="https://jimmycai.com/" class="friend-card" target="_blank">
+            <img class="friend-avatar-img" src="https://avatars.githubusercontent.com/u/5889006?v=4" alt="Jimmy Cai">
+            <h3>Jimmy Cai</h3>
+            <p>Author of Hugo Stack theme</p>
+          </a>
+          <a href="https://nan0in27.cn/" class="friend-card" target="_blank">
+            <img class="friend-avatar-img" src="https://nan0in27.cn/img/avatar_hu_85437ba0800ccf1d.png" alt="Nan0inPsyLog">
+            <h3>Nan0inPsyLog</h3>
+            <p>We love CS, thus we can pwn the world</p>
+          </a>
+          <a href="https://jolla.pp.ua/" class="friend-card" target="_blank">
+            <img class="friend-avatar-img" src="avatar.jpg" alt="Nanhu Shijie">
+            <h3>Nanhu Shijie</h3>
+            <p>一个生活爱好者!</p>
+          </a>
+          <a href="https://blog.liuzijian.com/" class="friend-card" target="_blank">
+            <img class="friend-avatar-img" src="avatar.jpg" alt="Liu Zijian's Blog">
+            <h3>Liu Zijian's Blog</h3>
+            <p>Keep on going never give up</p>
+          </a>
+        </div>
+        <div class="link-info-box">
+          <h2>🤝 交换友链</h2>
+          <p>如果你想出现在这个页面，请在下方留言。</p>
+          <p>为了帮助我更快地添加你的链接，请在评论中包含以下信息：</p>
+          <ul>
+            <li><strong>名称</strong>: 你的网站名称</li>
+            <li><strong>简介</strong>: 简短的描述</li>
+            <li><strong>网址</strong>: 你的网站地址</li>
+            <li><strong>图标</strong>: 你的网站图标/头像 URL</li>
+          </ul>
+          <h2>🚩 要求</h2>
+          <ul>
+            <li><strong>原创内容</strong>: 定期更新原创内容。</li>
+            <li><strong>合规</strong>: 内容符合相关法律法规。</li>
+            <li><strong>稳定访问</strong>: 网站可正常访问，且没有过多广告。</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- ==================== Media：影视游戏 ==================== -->
+      <section class="page-view" id="view-media" style="display:none;">
+        <h1 class="page-heading">影视游戏</h1>
+        <div class="media-year-bar">
+          <button class="year-btn active">2026</button>
+          <button class="year-btn">2025</button>
+          <button class="year-btn">2024</button>
+          <button class="year-btn">2023</button>
+        </div>
+
+        <h3 class="media-section-title">GAMES</h3>
+        <div class="media-grid">
+          <div class="media-item">
+            <img class="media-cover" src="https://liuhouliang.com/images/games/2026/slay-the-spire-2.jpg" alt="Slay the Spire 2">
+            <div class="media-body">
+              <p class="media-comment">看起来跟一代差不多，玩起来还是沉迷</p>
+              <h4>Slay the Spire 2 <span class="media-year">2026</span></h4>
+              <div class="media-stats"><span>RTG⭐ 9.6</span><span>PC</span><span>MY ⭐ 9.6</span><span>35H</span></div>
+            </div>
+          </div>
+          <div class="media-item">
+            <img class="media-cover" src="https://liuhouliang.com/images/games/2026/stellar-blade.jpg" alt="Stellar Blade">
+            <div class="media-body">
+              <p class="media-comment">动作暖暖游戏，喜欢这种不政治正确的审美</p>
+              <h4>Stellar Blade™ <span class="media-year">2026</span></h4>
+              <div class="media-stats"><span>RTG⭐ 9.4</span><span>PC</span><span>MY ⭐ 9.4</span><span>30H</span></div>
+            </div>
+          </div>
+        </div>
+
+        <h3 class="media-section-title">MOVIES</h3>
+        <div class="media-grid">
+          <a href="https://www.themoviedb.org/movie/687163" class="media-item" target="_blank">
+            <img class="media-cover" src="https://liuhouliang.com/images/movies/2026/project-hail-mary.jpg" alt="挽救计划">
+            <div class="media-body">
+              <p class="media-comment">男主演技很棒，非常好的科幻电影</p>
+              <h4>Project Hail Mary <span class="media-year">2026</span></h4>
+              <div class="media-stats"><span>RTG⭐ 8.2</span><span>MY ⭐ 8.8</span></div>
+            </div>
+          </a>
+          <a href="https://www.themoviedb.org/movie/1462229" class="media-item" target="_blank">
+            <img class="media-cover" src="https://liuhouliang.com/images/movies/2026/pegasus-3.jpg" alt="飞驰人生3">
+            <div class="media-body">
+              <p class="media-comment">大量的赛车镜头，非常的爽</p>
+              <h4>Pegasus 3 <span class="media-year">2026</span></h4>
+              <div class="media-stats"><span>RTG⭐ 8.0</span><span>MY ⭐ 8.7</span></div>
+            </div>
+          </a>
+        </div>
+      </section>
+
+      <!-- ==================== About：关于我 ==================== -->
+      <section class="page-view" id="view-about" style="display:none;">
+        <div class="about-hero">
+          <span class="about-wave">👋</span>
+          <span>你好，我是</span>
+          <h1>Liu Houliang</h1>
+          <p class="about-role">Go 开发者 / 独立游戏开发者</p>
+          <p class="about-bio">来自中国的程序员，擅长游戏和后端开发，喜欢玩游戏和骑自行车。</p>
+          <div class="skill-tags">
+            <span class="tag">Golang</span>
+            <span class="tag">Erlang</span>
+            <span class="tag">Unity</span>
+            <span class="tag">Docker</span>
+          </div>
+        </div>
+
+        <h2>🚀 项目 & 链接</h2>
+        <div class="project-grid">
+          <a href="https://github.com/liu-houliang" class="project-card" target="_blank">
+            <div class="project-icon-box">⌘</div>
+            <div><h3>GitHub</h3><p>我的 GitHub 主页，包含各种编程项目。</p></div>
+          </a>
+          <a href="https://desktopsnap.liuhouliang.com/" class="project-card" target="_blank">
+            <div class="project-icon-box">🖥</div>
+            <div><h3>DesktopSnap</h3><p>Windows 桌面图标保存和恢复工具。</p></div>
+          </a>
+          <a href="#gear" class="project-card">
+            <div class="project-icon-box">📦</div>
+            <div><h3>我的装备</h3><p>我的硬件、软件和数字产品集合。</p></div>
+          </a>
+          <a href="https://pricecalc.net/" class="project-card" target="_blank">
+            <div class="project-icon-box">🧮</div>
+            <div><h3>计算器工具</h3><p>一系列实用的在线计算器。</p></div>
+          </a>
+        </div>
+
+        <div class="about-two-col">
+          <div class="about-box">
+            <h2>👨 关于我</h2>
+            <dl class="about-dl">
+              <div><dt>💖 状态:</dt><dd>30岁的单身小伙</dd></div>
+              <div><dt>📍 所在地:</dt><dd>中国</dd></div>
+              <div><dt>💼 职业:</dt><dd>Go 开发者</dd></div>
+              <div><dt>🎮 爱好:</dt><dd>游戏 / 骑行</dd></div>
+              <div><dt>🛠 技术栈:</dt><dd>Go / Erlang / Unity</dd></div>
+              <div><dt>✉️ 邮箱:</dt><dd><a href="mailto:admin@liuhouliang.com">admin@liuhouliang.com</a></dd></div>
+            </dl>
+          </div>
+          <div class="about-box">
+            <h2>🏠 关于网站</h2>
+            <dl class="about-dl">
+              <div><dt>⚙️ 框架:</dt><dd><a href="https://gohugo.io/">Hugo</a></dd></div>
+              <div><dt>🎨 主题:</dt><dd><a href="https://stack.jimmycai.com/">Hugo Stack</a></dd></div>
+              <div><dt>💬 评论:</dt><dd><a href="https://waline.js.org/">Waline</a></dd></div>
+              <div><dt>☁️ 部署:</dt><dd>Cloudflare Pages</dd></div>
+            </dl>
+          </div>
+        </div>
+
+        <h2>⏳ 建站历程</h2>
+        <div class="about-content-container">
+          <div class="timeline-container">
+            <li class="timeline-item">
+              <div class="timeline-marker"></div>
+              <div class="timeline-content">
+                <p class="timeline-date">2024-01</p>
+                <div class="timeline-text">使用 Hugo 和 Stack 主题搭建了这个博客。</div>
+              </div>
+            </li>
+            <li class="timeline-item">
+              <div class="timeline-marker"></div>
+              <div class="timeline-content">
+                <p class="timeline-date">2024-02</p>
+                <div class="timeline-text">自定义主题并添加了新功能。</div>
+              </div>
+            </li>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== 文章详情 ==================== -->
+      <section class="page-view" id="view-post" style="display:none;">
+        <button class="back-btn" id="backToList">← 返回列表</button>
+        <div class="post-layout">
+          <article class="post-detail" id="postDetail">
+            <!-- 动态填充 -->
+          </article>
+          <aside class="post-toc" id="postToc">
+            <div class="toc-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="9" x2="20" y2="9"></line><line x1="4" y1="15" x2="20" y2="15"></line><line x1="10" y1="3" x2="8" y2="21"></line><line x1="16" y1="3" x2="14" y2="21"></line></svg>
+            </div>
+            <h2 class="toc-title">目录</h2>
+            <nav id="tocNav">
+              <!-- 动态生成 -->
+            </nav>
+          </aside>
+        </div>
+
+        <!-- 相关文章 -->
+        <div class="related-section" id="relatedSection">
+          <h2 class="related-title">相关文章</h2>
+          <div class="related-scroll" id="relatedScroll">
+            <!-- 动态生成 -->
+          </div>
+        </div>
+
+        <!-- 评论区 -->
+        <div id="waline" class="waline-container"></div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- 搜索弹窗 -->
+  <div class="search-modal" id="search-modal" aria-hidden="true">
+    <div class="search-backdrop" data-close-search></div>
+    <section class="search-panel" role="dialog" aria-modal="true" aria-labelledby="search-title">
+      <div class="search-header">
+        <h2 id="search-title">搜索文章</h2>
+        <button class="icon-button" data-close-search type="button" aria-label="关闭搜索">×</button>
+      </div>
+      <input id="searchInput" type="search" placeholder="输入关键词..." autocomplete="off">
+      <div class="search-results" id="searchResults"></div>
+    </section>
+  </div>
+
+  <!-- 回到顶部按钮（带进度） -->
+  <button class="back-to-top" id="backToTop" type="button" aria-label="回到顶部" title="回到顶部">
+    <svg class="back-to-top-progress" viewBox="0 0 38 38">
+      <circle class="progress-bg" cx="19" cy="19" r="18"></circle>
+      <circle class="progress-bar" id="progressBar" cx="19" cy="19" r="18"></circle>
+    </svg>
+    <svg class="back-to-top-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="18 15 12 9 6 15"></polyline>
+    </svg>
+  </button>
+
+  <script src="script.js"></script>
+</body>
+</html>
