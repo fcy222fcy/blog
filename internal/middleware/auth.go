@@ -1,0 +1,86 @@
+package middleware
+
+import (
+	"net/http"
+	"strings"
+
+	"blog/pkg/jwt"
+	"blog/pkg/response"
+
+	"github.com/gin-gonic/gin"
+)
+
+// Auth JWT 认证中间件
+func Auth() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		// 从请求头获取 Token
+		authHeader := c.GetHeader("Authorization")
+		if authHeader == "" {
+			response.Unauthorized(c, "缺少认证信息")
+			c.Abort()
+			return
+		}
+
+		// 解析 Bearer Token
+		parts := strings.SplitN(authHeader, " ", 2)
+		if len(parts) != 2 || parts[0] != "Bearer" {
+			response.Unauthorized(c, "认证格式错误")
+			c.Abort()
+			return
+		}
+
+		tokenString := parts[1]
+
+		// 解析 Token
+		jwtInstance := jwt.NewJWT(jwt.Config{
+			Secret:     "your-secret-key", // TODO: 从配置中获取
+			ExpireHour: 72,
+		})
+
+		claims, err := jwtInstance.ParseToken(tokenString)
+		if err != nil {
+			response.Unauthorized(c, "Token 无效或已过期")
+			c.Abort()
+			return
+		}
+
+		// 将用户信息存入上下文
+		c.Set("user_id", claims.UserID)
+		c.Set("username", claims.Username)
+
+		c.Next()
+	}
+}
+
+// GetUserID 从上下文获取用户 ID
+func GetUserID(c *gin.Context) uint {
+	if userID, exists := c.Get("user_id"); exists {
+		return userID.(uint)
+	}
+	return 0
+}
+
+// GetUsername 从上下文获取用户名
+func GetUsername(c *gin.Context) string {
+	if username, exists := c.Get("username"); exists {
+		return username.(string)
+	}
+	return ""
+}
+
+// CORS 跨域中间件
+func CORS() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		c.Header("Access-Control-Allow-Origin", "*")
+		c.Header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+		c.Header("Access-Control-Allow-Headers", "Content-Type, Authorization")
+		c.Header("Access-Control-Max-Age", "86400")
+
+		if c.Request.Method == http.MethodOptions {
+			c.AbortWithStatus(http.StatusNoContent)
+			return
+		}
+
+		c.Next()
+	}
+}

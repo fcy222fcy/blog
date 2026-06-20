@@ -1,0 +1,548 @@
+package docs
+
+// @title 博客系统 API
+// @version 1.0.0
+// @description 个人博客系统后端接口文档
+// @host localhost:8080
+// @BasePath /api/v1
+// @schemes http https
+
+// @securityDefinitions.apikey BearerAuth
+// @in header
+// @name Authorization
+// @description JWT Token，格式：Bearer {token}
+
+// ==================== 认证模块 ====================
+
+// @Summary 管理员登录
+// @Description 使用用户名和密码登录获取 Token
+// @Tags 认证
+// @Accept json
+// @Produce json
+// @Param request body request.LoginRequest true "登录请求"
+// @Success 200 {object} response.Response{data=response.LoginResponse}
+// @Router /auth/login [post]
+func Login() {}
+
+// @Summary 获取当前用户信息
+// @Description 获取当前登录用户的信息
+// @Tags 认证
+// @Security BearerAuth
+// @Produce json
+// @Success 200 {object} response.Response{data=response.UserProfileResponse}
+// @Router /auth/profile [get]
+func GetProfile() {}
+
+// @Summary 修改密码
+// @Description 修改当前用户的密码
+// @Tags 认证
+// @Security BearerAuth
+// @Accept json
+// @Produce json
+// @Param request body request.ChangePasswordRequest true "修改密码请求"
+// @Success 200 {object} response.Response
+// @Router /auth/password [put]
+func ChangePassword() {}
+
+// ==================== 文章模块 ====================
+
+// @Summary 获取文章列表（前台）
+// @Description 分页获取已发布的文章列表
+// @Tags 文章
+// @Produce json
+// @Param page query int false "页码" default(1)
+// @Param page_size query int false "每页数量" default(10)
+// @Param category query string false "分类 slug"
+// @Param tag query string false "标签 slug"
+// @Param keyword query string false "搜索关键词"
+// @Success 200 {object} response.Response{data=response.ArticleListResponse}
+// @Router /articles [get]
+func GetArticleList() {}
+
+// @Summary 获取文章归档
+// @Description 按年份获取文章归档
+// @Tags 文章
+// @Produce json
+// @Success 200 {object} response.Response{data=[]response.ArchiveResponse}
+// @Router /articles/archives [get]
+func GetArticleArchives() {}
+
+// @Summary 获取文章详情
+// @Description 根据 slug 获取文章详情
+// @Tags 文章
+// @Produce json
+// @Param slug path string true "文章 slug"
+// @Success 200 {object} response.Response{data=response.ArticleDetailResponse}
+// @Router /articles/{slug} [get]
+func GetArticleDetail() {}
+
+// @Summary 文章点赞
+// @Description 对文章进行点赞
+// @Tags 文章
+// @Produce json
+// @Param id path int true "文章 ID"
+// @Success 200 {object} response.Response{data=object{like_count=int}}
+// @Router /articles/{id}/like [post]
+func LikeArticle() {}
+
+// ==================== 后台文章管理 ====================
+
+// @Summary 获取文章列表（后台）
+// @Description 管理员获取所有文章列表（包括草稿）
+// @Tags 文章
+// @Security BearerAuth
+// @Produce json
+// @Param page query int false "页码" default(1)
+// @Param page_size query int false "每页数量" default(10)
+// @Param category_id query int false "分类 ID"
+// @Param status query string false "文章状态" Enums(published, draft)
+// @Param keyword query string false "搜索关键词"
+// @Success 200 {object} response.Response{data=response.AdminArticleListResponse}
+// @Router /admin/articles [get]
+func GetAdminArticleList() {}
+
+// @Summary 创建文章
+// @Description 创建新文章
+// @Tags 文章
+// @Security BearerAuth
+// @Accept json
+// @Produce json
+// @Param request body request.CreateArticleRequest true "创建文章请求"
+// @Success 200 {object} response.Response{data=object{id=int}}
+// @Router /admin/articles [post]
+func CreateArticle() {}
+
+// @Summary 获取文章详情（后台）
+// @Description 管理员获取文章详情（包括草稿）
+// @Tags 文章
+// @Security BearerAuth
+// @Produce json
+// @Param id path int true "文章 ID"
+// @Success 200 {object} response.Response{data=response.AdminArticleDetailResponse}
+// @Router /admin/articles/{id} [get]
+func GetAdminArticleDetail() {}
+
+// @Summary 更新文章
+// @Description 更新文章信息
+// @Tags 文章
+// @Security BearerAuth
+// @Accept json
+// @Produce json
+// @Param id path int true "文章 ID"
+// @Param request body request.UpdateArticleRequest true "更新文章请求"
+// @Success 200 {object} response.Response
+// @Router /admin/articles/{id} [put]
+func UpdateArticle() {}
+
+// @Summary 删除文章
+// @Description 删除指定文章
+// @Tags 文章
+// @Security BearerAuth
+// @Produce json
+// @Param id path int true "文章 ID"
+// @Success 200 {object} response.Response
+// @Router /admin/articles/{id} [delete]
+func DeleteArticle() {}
+
+// @Summary 批量删除文章
+// @Description 批量删除多篇文章
+// @Tags 文章
+// @Security BearerAuth
+// @Accept json
+// @Produce json
+// @Param request body object{ids=[]int} true "文章 ID 列表"
+// @Success 200 {object} response.Response
+// @Router /admin/articles/batch-delete [post]
+func BatchDeleteArticles() {}
+
+// ==================== 分类模块 ====================
+
+// @Summary 获取分类列表（前台）
+// @Description 获取所有分类
+// @Tags 分类
+// @Produce json
+// @Success 200 {object} response.Response{data=[]response.CategoryResponse}
+// @Router /categories [get]
+func GetCategoryList() {}
+
+// @Summary 获取分类列表（后台）
+// @Description 管理员获取所有分类
+// @Tags 分类
+// @Security BearerAuth
+// @Produce json
+// @Success 200 {object} response.Response{data=[]response.CategoryResponse}
+// @Router /admin/categories [get]
+func GetAdminCategoryList() {}
+
+// @Summary 创建分类
+// @Description 创建新分类
+// @Tags 分类
+// @Security BearerAuth
+// @Accept json
+// @Produce json
+// @Param request body request.CreateCategoryRequest true "创建分类请求"
+// @Success 200 {object} response.Response{data=object{id=int}}
+// @Router /admin/categories [post]
+func CreateCategory() {}
+
+// @Summary 更新分类
+// @Description 更新分类信息
+// @Tags 分类
+// @Security BearerAuth
+// @Accept json
+// @Produce json
+// @Param id path int true "分类 ID"
+// @Param request body request.UpdateCategoryRequest true "更新分类请求"
+// @Success 200 {object} response.Response
+// @Router /admin/categories/{id} [put]
+func UpdateCategory() {}
+
+// @Summary 删除分类
+// @Description 删除指定分类
+// @Tags 分类
+// @Security BearerAuth
+// @Produce json
+// @Param id path int true "分类 ID"
+// @Success 200 {object} response.Response
+// @Router /admin/categories/{id} [delete]
+func DeleteCategory() {}
+
+// ==================== 标签模块 ====================
+
+// @Summary 获取标签列表（前台）
+// @Description 获取所有标签
+// @Tags 标签
+// @Produce json
+// @Success 200 {object} response.Response{data=[]response.TagResponse}
+// @Router /tags [get]
+func GetTagList() {}
+
+// @Summary 获取标签列表（后台）
+// @Description 管理员获取所有标签
+// @Tags 标签
+// @Security BearerAuth
+// @Produce json
+// @Success 200 {object} response.Response{data=[]response.TagResponse}
+// @Router /admin/tags [get]
+func GetAdminTagList() {}
+
+// @Summary 创建标签
+// @Description 创建新标签
+// @Tags 标签
+// @Security BearerAuth
+// @Accept json
+// @Produce json
+// @Param request body request.CreateTagRequest true "创建标签请求"
+// @Success 200 {object} response.Response{data=object{id=int}}
+// @Router /admin/tags [post]
+func CreateTag() {}
+
+// @Summary 更新标签
+// @Description 更新标签信息
+// @Tags 标签
+// @Security BearerAuth
+// @Accept json
+// @Produce json
+// @Param id path int true "标签 ID"
+// @Param request body request.UpdateTagRequest true "更新标签请求"
+// @Success 200 {object} response.Response
+// @Router /admin/tags/{id} [put]
+func UpdateTag() {}
+
+// @Summary 删除标签
+// @Description 删除指定标签
+// @Tags 标签
+// @Security BearerAuth
+// @Produce json
+// @Param id path int true "标签 ID"
+// @Success 200 {object} response.Response
+// @Router /admin/tags/{id} [delete]
+func DeleteTag() {}
+
+// ==================== 评论模块 ====================
+
+// @Summary 获取文章评论列表
+// @Description 获取指定文章的评论列表
+// @Tags 评论
+// @Produce json
+// @Param article_id path int true "文章 ID"
+// @Param page query int false "页码" default(1)
+// @Param page_size query int false "每页数量" default(10)
+// @Success 200 {object} response.Response{data=response.CommentListResponse}
+// @Router /articles/{article_id}/comments [get]
+func GetCommentList() {}
+
+// @Summary 提交评论
+// @Description 提交文章评论
+// @Tags 评论
+// @Accept json
+// @Produce json
+// @Param article_id path int true "文章 ID"
+// @Param request body request.CreateCommentRequest true "创建评论请求"
+// @Success 200 {object} response.Response{data=object{id=int}}
+// @Router /articles/{article_id}/comments [post]
+func CreateComment() {}
+
+// @Summary 获取评论列表（后台）
+// @Description 管理员获取所有评论
+// @Tags 评论
+// @Security BearerAuth
+// @Produce json
+// @Param page query int false "页码" default(1)
+// @Param page_size query int false "每页数量" default(10)
+// @Param status query string false "评论状态" Enums(pending, approved, rejected)
+// @Param article_id query int false "文章 ID"
+// @Success 200 {object} response.Response{data=response.CommentListResponse}
+// @Router /admin/comments [get]
+func GetAdminCommentList() {}
+
+// @Summary 审核评论
+// @Description 审核评论状态
+// @Tags 评论
+// @Security BearerAuth
+// @Accept json
+// @Produce json
+// @Param id path int true "评论 ID"
+// @Param request body request.UpdateCommentStatusRequest true "更新评论状态请求"
+// @Success 200 {object} response.Response
+// @Router /admin/comments/{id}/status [put]
+func UpdateCommentStatus() {}
+
+// @Summary 删除评论
+// @Description 删除指定评论
+// @Tags 评论
+// @Security BearerAuth
+// @Produce json
+// @Param id path int true "评论 ID"
+// @Success 200 {object} response.Response
+// @Router /admin/comments/{id} [delete]
+func DeleteComment() {}
+
+// ==================== 友链模块 ====================
+
+// @Summary 获取友链列表（前台）
+// @Description 获取所有已审核的友链
+// @Tags 友链
+// @Produce json
+// @Success 200 {object} response.Response{data=[]response.LinkResponse}
+// @Router /links [get]
+func GetLinkList() {}
+
+// @Summary 申请友链
+// @Description 提交友链申请
+// @Tags 友链
+// @Accept json
+// @Produce json
+// @Param request body request.ApplyLinkRequest true "申请友链请求"
+// @Success 200 {object} response.Response
+// @Router /links/apply [post]
+func ApplyLink() {}
+
+// @Summary 获取友链列表（后台）
+// @Description 管理员获取所有友链
+// @Tags 友链
+// @Security BearerAuth
+// @Produce json
+// @Param page query int false "页码" default(1)
+// @Param page_size query int false "每页数量" default(10)
+// @Param status query string false "友链状态" Enums(pending, approved, rejected)
+// @Success 200 {object} response.Response{data=[]response.LinkResponse}
+// @Router /admin/links [get]
+func GetAdminLinkList() {}
+
+// @Summary 创建友链
+// @Description 创建新友链
+// @Tags 友链
+// @Security BearerAuth
+// @Accept json
+// @Produce json
+// @Param request body request.CreateLinkRequest true "创建友链请求"
+// @Success 200 {object} response.Response{data=object{id=int}}
+// @Router /admin/links [post]
+func CreateLink() {}
+
+// @Summary 更新友链
+// @Description 更新友链信息
+// @Tags 友链
+// @Security BearerAuth
+// @Accept json
+// @Produce json
+// @Param id path int true "友链 ID"
+// @Param request body request.UpdateLinkRequest true "更新友链请求"
+// @Success 200 {object} response.Response
+// @Router /admin/links/{id} [put]
+func UpdateLink() {}
+
+// @Summary 删除友链
+// @Description 删除指定友链
+// @Tags 友链
+// @Security BearerAuth
+// @Produce json
+// @Param id path int true "友链 ID"
+// @Success 200 {object} response.Response
+// @Router /admin/links/{id} [delete]
+func DeleteLink() {}
+
+// @Summary 审核友链
+// @Description 审核友链状态
+// @Tags 友链
+// @Security BearerAuth
+// @Accept json
+// @Produce json
+// @Param id path int true "友链 ID"
+// @Param request body request.UpdateLinkStatusRequest true "更新友链状态请求"
+// @Success 200 {object} response.Response
+// @Router /admin/links/{id}/status [put]
+func UpdateLinkStatus() {}
+
+// ==================== 每日一问模块 ====================
+
+// @Summary 获取今日问题
+// @Description 获取今天的每日一问
+// @Tags 每日一问
+// @Produce json
+// @Success 200 {object} response.Response{data=response.DailyQuestionResponse}
+// @Router /daily-questions/today [get]
+func GetTodayQuestion() {}
+
+// @Summary 获取指定日期问题
+// @Description 获取指定日期的每日一问
+// @Tags 每日一问
+// @Produce json
+// @Param date path string true "日期，格式：2026-06-15"
+// @Success 200 {object} response.Response{data=response.DailyQuestionResponse}
+// @Router /daily-questions/{date} [get]
+func GetQuestionByDate() {}
+
+// @Summary 每日一问点赞
+// @Description 对每日一问进行点赞
+// @Tags 每日一问
+// @Produce json
+// @Param id path int true "问题 ID"
+// @Success 200 {object} response.Response{data=object{like_count=int}}
+// @Router /daily-questions/{id}/like [post]
+func LikeDailyQuestion() {}
+
+// @Summary 获取问题列表（后台）
+// @Description 管理员获取所有每日一问
+// @Tags 每日一问
+// @Security BearerAuth
+// @Produce json
+// @Param page query int false "页码" default(1)
+// @Param page_size query int false "每页数量" default(10)
+// @Param status query int false "状态 0-禁用 1-启用" Enums(0, 1)
+// @Param keyword query string false "搜索关键词"
+// @Success 200 {object} response.Response{data=[]response.DailyQuestionResponse}
+// @Router /admin/daily-questions [get]
+func GetAdminQuestionList() {}
+
+// @Summary 创建问题
+// @Description 创建新的每日一问
+// @Tags 每日一问
+// @Security BearerAuth
+// @Accept json
+// @Produce json
+// @Param request body request.CreateDailyQuestionRequest true "创建问题请求"
+// @Success 200 {object} response.Response{data=object{id=int}}
+// @Router /admin/daily-questions [post]
+func CreateDailyQuestion() {}
+
+// @Summary 更新问题
+// @Description 更新每日一问
+// @Tags 每日一问
+// @Security BearerAuth
+// @Accept json
+// @Produce json
+// @Param id path int true "问题 ID"
+// @Param request body request.UpdateDailyQuestionRequest true "更新问题请求"
+// @Success 200 {object} response.Response
+// @Router /admin/daily-questions/{id} [put]
+func UpdateDailyQuestion() {}
+
+// @Summary 删除问题
+// @Description 删除指定每日一问
+// @Tags 每日一问
+// @Security BearerAuth
+// @Produce json
+// @Param id path int true "问题 ID"
+// @Success 200 {object} response.Response
+// @Router /admin/daily-questions/{id} [delete]
+func DeleteDailyQuestion() {}
+
+// ==================== 媒体库模块 ====================
+
+// @Summary 上传文件
+// @Description 上传媒体文件
+// @Tags 媒体库
+// @Security BearerAuth
+// @Accept multipart/form-data
+// @Produce json
+// @Param file formData file true "文件（JPG、PNG、GIF、WebP、PDF）"
+// @Success 200 {object} response.Response{data=response.MediaResponse}
+// @Router /admin/media/upload [post]
+func UploadMedia() {}
+
+// @Summary 获取媒体列表
+// @Description 获取媒体文件列表
+// @Tags 媒体库
+// @Security BearerAuth
+// @Produce json
+// @Param page query int false "页码" default(1)
+// @Param page_size query int false "每页数量" default(10)
+// @Param type query string false "文件类型" Enums(image, document)
+// @Param keyword query string false "搜索关键词"
+// @Success 200 {object} response.Response{data=[]response.MediaResponse}
+// @Router /admin/media [get]
+func GetMediaList() {}
+
+// @Summary 删除媒体文件
+// @Description 删除指定媒体文件
+// @Tags 媒体库
+// @Security BearerAuth
+// @Produce json
+// @Param id path int true "媒体文件 ID"
+// @Success 200 {object} response.Response
+// @Router /admin/media/{id} [delete]
+func DeleteMedia() {}
+
+// ==================== 系统设置模块 ====================
+
+// @Summary 获取系统设置
+// @Description 获取博客系统设置
+// @Tags 系统设置
+// @Security BearerAuth
+// @Produce json
+// @Success 200 {object} response.Response{data=response.SettingsResponse}
+// @Router /admin/settings [get]
+func GetSettings() {}
+
+// @Summary 更新系统设置
+// @Description 更新博客系统设置
+// @Tags 系统设置
+// @Security BearerAuth
+// @Accept json
+// @Produce json
+// @Param request body request.UpdateSettingsRequest true "更新设置请求"
+// @Success 200 {object} response.Response
+// @Router /admin/settings [put]
+func UpdateSettings() {}
+
+// ==================== 仪表盘模块 ====================
+
+// @Summary 获取仪表盘统计
+// @Description 获取后台仪表盘统计数据
+// @Tags 仪表盘
+// @Security BearerAuth
+// @Produce json
+// @Success 200 {object} response.Response{data=response.DashboardStatsResponse}
+// @Router /admin/dashboard/stats [get]
+func GetDashboardStats() {}
+
+// @Summary 获取最近文章
+// @Description 获取最近发布的文章
+// @Tags 仪表盘
+// @Security BearerAuth
+// @Produce json
+// @Success 200 {object} response.Response{data=[]response.RecentArticleResponse}
+// @Router /admin/dashboard/recent-articles [get]
+func GetRecentArticles() {}

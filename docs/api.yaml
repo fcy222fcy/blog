@@ -1,0 +1,2091 @@
+openapi: 3.0.3
+info:
+  title: 博客系统 API
+  description: 个人博客系统后端接口文档
+  version: 1.0.0
+  contact:
+    name: Liu Houliang
+    email: admin@liuhouliang.com
+
+servers:
+  - url: http://localhost:8080/api/v1
+    description: 本地开发环境
+
+tags:
+  - name: 认证
+    description: 登录、注册、修改密码
+  - name: 用户
+    description: 用户信息管理
+  - name: 文章
+    description: 文章 CRUD、列表、详情
+  - name: 分类
+    description: 分类管理
+  - name: 标签
+    description: 标签管理
+  - name: 评论
+    description: 评论管理
+  - name: 友链
+    description: 友情链接管理
+  - name: 每日一问
+    description: 每日问答管理
+  - name: 娱乐
+    description: 影视/游戏管理
+  - name: 媒体库
+    description: 文件上传管理
+  - name: 系统设置
+    description: 博客配置管理
+  - name: 仪表盘
+    description: 后台统计数据
+
+paths:
+  # ==================== 认证模块 ====================
+  /auth/login:
+    post:
+      tags: [认证]
+      summary: 管理员登录
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: 登录成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Response'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/LoginResponse'
+
+  /auth/profile:
+    get:
+      tags: [认证]
+      summary: 获取当前用户信息
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Response'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/UserProfileResponse'
+
+  /auth/password:
+    put:
+      tags: [认证]
+      summary: 修改密码
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChangePasswordRequest'
+      responses:
+        '200':
+          description: 修改成功
+
+  # ==================== 文章模块 ====================
+  /articles:
+    get:
+      tags: [文章]
+      summary: 获取文章列表（前台）
+      parameters:
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/PageSizeParam'
+        - name: category
+          in: query
+          schema:
+            type: string
+          description: 分类 slug
+        - name: tag
+          in: query
+          schema:
+            type: string
+          description: 标签 slug
+        - name: keyword
+          in: query
+          schema:
+            type: string
+          description: 搜索关键词
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Response'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/ArticleListResponse'
+
+  /articles/archives:
+    get:
+      tags: [文章]
+      summary: 获取文章归档
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Response'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/ArchiveResponse'
+
+  /articles/{slug}:
+    get:
+      tags: [文章]
+      summary: 获取文章详情
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          schema:
+            type: string
+          description: 文章 slug
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Response'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/ArticleDetailResponse'
+
+  /articles/{id}/like:
+    post:
+      tags: [文章]
+      summary: 文章点赞
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: 文章 ID
+      responses:
+        '200':
+          description: 点赞成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Response'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          like_count:
+                            type: integer
+
+  # ==================== 后台文章管理 ====================
+  /admin/articles:
+    get:
+      tags: [文章]
+      summary: 获取文章列表（后台）
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/PageSizeParam'
+        - name: category_id
+          in: query
+          schema:
+            type: integer
+          description: 分类 ID
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [published, draft]
+          description: 文章状态
+        - name: keyword
+          in: query
+          schema:
+            type: string
+          description: 搜索关键词
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Response'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/AdminArticleListResponse'
+    post:
+      tags: [文章]
+      summary: 创建文章
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateArticleRequest'
+      responses:
+        '200':
+          description: 创建成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Response'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          id:
+                            type: integer
+
+  /admin/articles/{id}:
+    get:
+      tags: [文章]
+      summary: 获取文章详情（后台）
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: 文章 ID
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Response'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/AdminArticleDetailResponse'
+    put:
+      tags: [文章]
+      summary: 更新文章
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: 文章 ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateArticleRequest'
+      responses:
+        '200':
+          description: 更新成功
+    delete:
+      tags: [文章]
+      summary: 删除文章
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: 文章 ID
+      responses:
+        '200':
+          description: 删除成功
+
+  /admin/articles/batch-delete:
+    post:
+      tags: [文章]
+      summary: 批量删除文章
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                ids:
+                  type: array
+                  items:
+                    type: integer
+              required: [ids]
+      responses:
+        '200':
+          description: 删除成功
+
+  # ==================== 分类模块 ====================
+  /categories:
+    get:
+      tags: [分类]
+      summary: 获取分类列表（前台）
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Response'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/CategoryResponse'
+
+  /admin/categories:
+    get:
+      tags: [分类]
+      summary: 获取分类列表（后台）
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Response'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/CategoryResponse'
+    post:
+      tags: [分类]
+      summary: 创建分类
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateCategoryRequest'
+      responses:
+        '200':
+          description: 创建成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Response'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          id:
+                            type: integer
+
+  /admin/categories/{id}:
+    put:
+      tags: [分类]
+      summary: 更新分类
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateCategoryRequest'
+      responses:
+        '200':
+          description: 更新成功
+    delete:
+      tags: [分类]
+      summary: 删除分类
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: 删除成功
+
+  # ==================== 标签模块 ====================
+  /tags:
+    get:
+      tags: [标签]
+      summary: 获取标签列表（前台）
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Response'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/TagResponse'
+
+  /admin/tags:
+    get:
+      tags: [标签]
+      summary: 获取标签列表（后台）
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: 成功
+    post:
+      tags: [标签]
+      summary: 创建标签
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateTagRequest'
+      responses:
+        '200':
+          description: 创建成功
+
+  /admin/tags/{id}:
+    put:
+      tags: [标签]
+      summary: 更新标签
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateTagRequest'
+      responses:
+        '200':
+          description: 更新成功
+    delete:
+      tags: [标签]
+      summary: 删除标签
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: 删除成功
+
+  # ==================== 评论模块 ====================
+  /articles/{article_id}/comments:
+    get:
+      tags: [评论]
+      summary: 获取文章评论列表
+      parameters:
+        - name: article_id
+          in: path
+          required: true
+          schema:
+            type: integer
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/PageSizeParam'
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Response'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/CommentListResponse'
+    post:
+      tags: [评论]
+      summary: 提交评论
+      parameters:
+        - name: article_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateCommentRequest'
+      responses:
+        '200':
+          description: 提交成功
+
+  /admin/comments:
+    get:
+      tags: [评论]
+      summary: 获取评论列表（后台）
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/PageSizeParam'
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [pending, approved, rejected]
+        - name: article_id
+          in: query
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: 成功
+
+  /admin/comments/{id}/status:
+    put:
+      tags: [评论]
+      summary: 审核评论
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateCommentStatusRequest'
+      responses:
+        '200':
+          description: 更新成功
+
+  /admin/comments/{id}:
+    delete:
+      tags: [评论]
+      summary: 删除评论
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: 删除成功
+
+  # ==================== 友链模块 ====================
+  /links:
+    get:
+      tags: [友链]
+      summary: 获取友链列表（前台）
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Response'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/LinkResponse'
+
+  /links/apply:
+    post:
+      tags: [友链]
+      summary: 申请友链
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApplyLinkRequest'
+      responses:
+        '200':
+          description: 申请已提交
+
+  /admin/links:
+    get:
+      tags: [友链]
+      summary: 获取友链列表（后台）
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/PageSizeParam'
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [pending, approved, rejected]
+      responses:
+        '200':
+          description: 成功
+    post:
+      tags: [友链]
+      summary: 创建友链
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateLinkRequest'
+      responses:
+        '200':
+          description: 创建成功
+
+  /admin/links/{id}:
+    put:
+      tags: [友链]
+      summary: 更新友链
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateLinkRequest'
+      responses:
+        '200':
+          description: 更新成功
+    delete:
+      tags: [友链]
+      summary: 删除友链
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: 删除成功
+
+  /admin/links/{id}/status:
+    put:
+      tags: [友链]
+      summary: 审核友链
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateLinkStatusRequest'
+      responses:
+        '200':
+          description: 更新成功
+
+  # ==================== 每日一问模块 ====================
+  /daily-questions/today:
+    get:
+      tags: [每日一问]
+      summary: 获取今日问题
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Response'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/DailyQuestionResponse'
+
+  /daily-questions/{date}:
+    get:
+      tags: [每日一问]
+      summary: 获取指定日期问题
+      parameters:
+        - name: date
+          in: path
+          required: true
+          schema:
+            type: string
+            format: date
+          description: 日期，格式：2026-06-15
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Response'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/DailyQuestionResponse'
+
+  /daily-questions/{id}/like:
+    post:
+      tags: [每日一问]
+      summary: 每日一问点赞
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: 点赞成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Response'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          like_count:
+                            type: integer
+
+  /admin/daily-questions:
+    get:
+      tags: [每日一问]
+      summary: 获取问题列表（后台）
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/PageSizeParam'
+        - name: status
+          in: query
+          schema:
+            type: integer
+            enum: [0, 1]
+          description: 0-禁用 1-启用
+        - name: keyword
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 成功
+    post:
+      tags: [每日一问]
+      summary: 创建问题
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateDailyQuestionRequest'
+      responses:
+        '200':
+          description: 创建成功
+
+  /admin/daily-questions/{id}:
+    put:
+      tags: [每日一问]
+      summary: 更新问题
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateDailyQuestionRequest'
+      responses:
+        '200':
+          description: 更新成功
+    delete:
+      tags: [每日一问]
+      summary: 删除问题
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: 删除成功
+
+  # ==================== 娱乐模块 ====================
+  /entertainment:
+    get:
+      tags: [娱乐]
+      summary: 获取娱乐列表（前台）
+      parameters:
+        - name: year
+          in: query
+          schema:
+            type: integer
+          description: 年份
+        - name: type
+          in: query
+          schema:
+            type: string
+            enum: [movie, tv, game]
+          description: 类型
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Response'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/EntertainmentListResponse'
+
+  /admin/entertainment:
+    get:
+      tags: [娱乐]
+      summary: 获取娱乐列表（后台）
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/PageSizeParam'
+        - name: type
+          in: query
+          schema:
+            type: string
+            enum: [movie, tv, game]
+          description: 类型
+        - name: year
+          in: query
+          schema:
+            type: integer
+          description: 年份
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [watching, watched, playing, completed]
+          description: 状态
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Response'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/AdminEntertainmentListResponse'
+    post:
+      tags: [娱乐]
+      summary: 创建娱乐条目
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateEntertainmentRequest'
+      responses:
+        '200':
+          description: 创建成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Response'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          id:
+                            type: integer
+
+  /admin/entertainment/{id}:
+    put:
+      tags: [娱乐]
+      summary: 更新娱乐条目
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: 娱乐条目 ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateEntertainmentRequest'
+      responses:
+        '200':
+          description: 更新成功
+    delete:
+      tags: [娱乐]
+      summary: 删除娱乐条目
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: 娱乐条目 ID
+      responses:
+        '200':
+          description: 删除成功
+
+  # ==================== 媒体库模块 ====================
+  /admin/media/upload:
+    post:
+      tags: [媒体库]
+      summary: 上传文件
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: 文件（JPG、PNG、GIF、WebP、PDF）
+              required: [file]
+      responses:
+        '200':
+          description: 上传成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Response'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/MediaResponse'
+
+  /admin/media:
+    get:
+      tags: [媒体库]
+      summary: 获取媒体列表
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/PageSizeParam'
+        - name: type
+          in: query
+          schema:
+            type: string
+            enum: [image, document]
+        - name: keyword
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 成功
+    delete:
+      tags: [媒体库]
+      summary: 删除媒体文件
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: 删除成功
+
+  # ==================== 系统设置模块 ====================
+  /admin/settings:
+    get:
+      tags: [系统设置]
+      summary: 获取系统设置
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Response'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/SettingsResponse'
+    put:
+      tags: [系统设置]
+      summary: 更新系统设置
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateSettingsRequest'
+      responses:
+        '200':
+          description: 更新成功
+
+  # ==================== 仪表盘模块 ====================
+  /admin/dashboard/stats:
+    get:
+      tags: [仪表盘]
+      summary: 获取仪表盘统计
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Response'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/DashboardStatsResponse'
+
+  /admin/dashboard/recent-articles:
+    get:
+      tags: [仪表盘]
+      summary: 获取最近文章
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Response'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/RecentArticleResponse'
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT Token
+
+  parameters:
+    PageParam:
+      name: page
+      in: query
+      schema:
+        type: integer
+        default: 1
+        minimum: 1
+      description: 页码
+    PageSizeParam:
+      name: page_size
+      in: query
+      schema:
+        type: integer
+        default: 10
+        minimum: 1
+        maximum: 50
+      description: 每页数量
+
+  schemas:
+    # 通用响应
+    Response:
+      type: object
+      properties:
+        code:
+          type: integer
+          example: 0
+        message:
+          type: string
+          example: success
+        data:
+          type: object
+
+    # 认证相关
+    LoginRequest:
+      type: object
+      required: [username, password]
+      properties:
+        username:
+          type: string
+          minLength: 3
+          maxLength: 50
+          example: admin
+        password:
+          type: string
+          minLength: 6
+          maxLength: 50
+          example: "123456"
+
+    LoginResponse:
+      type: object
+      properties:
+        token:
+          type: string
+        expires_at:
+          type: integer
+
+    ChangePasswordRequest:
+      type: object
+      required: [old_password, new_password]
+      properties:
+        old_password:
+          type: string
+        new_password:
+          type: string
+          minLength: 6
+
+    UserProfileResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+        username:
+          type: string
+        nickname:
+          type: string
+        email:
+          type: string
+        avatar:
+          type: string
+        bio:
+          type: string
+        social_links:
+          type: array
+          items:
+            $ref: '#/components/schemas/SocialLink'
+
+    SocialLink:
+      type: object
+      properties:
+        name:
+          type: string
+        url:
+          type: string
+
+    # 文章相关
+    ArticleListResponse:
+      type: object
+      properties:
+        list:
+          type: array
+          items:
+            $ref: '#/components/schemas/ArticleItem'
+        total:
+          type: integer
+        page:
+          type: integer
+        page_size:
+          type: integer
+
+    ArticleItem:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        slug:
+          type: string
+        summary:
+          type: string
+        cover:
+          type: string
+        category:
+          $ref: '#/components/schemas/CategoryResponse'
+        tags:
+          type: array
+          items:
+            $ref: '#/components/schemas/TagResponse'
+        view_count:
+          type: integer
+        like_count:
+          type: integer
+        comment_count:
+          type: integer
+        reading_time:
+          type: integer
+        created_at:
+          type: string
+          format: date-time
+
+    ArticleDetailResponse:
+      allOf:
+        - $ref: '#/components/schemas/ArticleItem'
+        - type: object
+          properties:
+            content:
+              type: string
+
+    AdminArticleListResponse:
+      type: object
+      properties:
+        list:
+          type: array
+          items:
+            $ref: '#/components/schemas/AdminArticleItem'
+        total:
+          type: integer
+        page:
+          type: integer
+        page_size:
+          type: integer
+
+    AdminArticleItem:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        slug:
+          type: string
+        status:
+          type: string
+          enum: [published, draft]
+        category:
+          type: object
+          properties:
+            id:
+              type: integer
+            name:
+              type: string
+        tags:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: integer
+              name:
+                type: string
+        view_count:
+          type: integer
+        like_count:
+          type: integer
+        comment_count:
+          type: integer
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    AdminArticleDetailResponse:
+      allOf:
+        - $ref: '#/components/schemas/AdminArticleItem'
+        - type: object
+          properties:
+            content:
+              type: string
+            summary:
+              type: string
+            cover:
+              type: string
+            category_id:
+              type: integer
+            tag_ids:
+              type: array
+              items:
+                type: integer
+            is_top:
+              type: boolean
+
+    CreateArticleRequest:
+      type: object
+      required: [title, content, category_id]
+      properties:
+        title:
+          type: string
+          minLength: 1
+          maxLength: 200
+        content:
+          type: string
+        summary:
+          type: string
+        cover:
+          type: string
+          format: uri
+        category_id:
+          type: integer
+        tag_ids:
+          type: array
+          items:
+            type: integer
+        status:
+          type: string
+          enum: [published, draft]
+          default: draft
+        is_top:
+          type: boolean
+          default: false
+
+    UpdateArticleRequest:
+      type: object
+      properties:
+        title:
+          type: string
+          minLength: 1
+          maxLength: 200
+        content:
+          type: string
+        summary:
+          type: string
+        cover:
+          type: string
+          format: uri
+        category_id:
+          type: integer
+        tag_ids:
+          type: array
+          items:
+            type: integer
+        status:
+          type: string
+          enum: [published, draft]
+        is_top:
+          type: boolean
+
+    ArchiveResponse:
+      type: object
+      properties:
+        year:
+          type: integer
+        articles:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: integer
+              title:
+                type: string
+              slug:
+                type: string
+              created_at:
+                type: string
+                format: date-time
+
+    # 分类相关
+    CategoryResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        slug:
+          type: string
+        description:
+          type: string
+        icon:
+          type: string
+        sort_order:
+          type: integer
+        article_count:
+          type: integer
+
+    CreateCategoryRequest:
+      type: object
+      required: [name, slug]
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 50
+        slug:
+          type: string
+          minLength: 1
+          maxLength: 50
+        description:
+          type: string
+          maxLength: 200
+        icon:
+          type: string
+          maxLength: 10
+        sort_order:
+          type: integer
+
+    UpdateCategoryRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 50
+        slug:
+          type: string
+          minLength: 1
+          maxLength: 50
+        description:
+          type: string
+          maxLength: 200
+        icon:
+          type: string
+          maxLength: 10
+        sort_order:
+          type: integer
+
+    # 标签相关
+    TagResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        slug:
+          type: string
+        article_count:
+          type: integer
+
+    CreateTagRequest:
+      type: object
+      required: [name, slug]
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 50
+        slug:
+          type: string
+          minLength: 1
+          maxLength: 50
+
+    UpdateTagRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 50
+        slug:
+          type: string
+          minLength: 1
+          maxLength: 50
+
+    # 评论相关
+    CommentListResponse:
+      type: object
+      properties:
+        list:
+          type: array
+          items:
+            $ref: '#/components/schemas/CommentResponse'
+        total:
+          type: integer
+        page:
+          type: integer
+        page_size:
+          type: integer
+
+    CommentResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+        content:
+          type: string
+        nickname:
+          type: string
+        email:
+          type: string
+        website:
+          type: string
+        avatar:
+          type: string
+        status:
+          type: string
+          enum: [pending, approved, rejected]
+        article:
+          type: object
+          properties:
+            id:
+              type: integer
+            title:
+              type: string
+        parent_id:
+          type: integer
+        replies:
+          type: array
+          items:
+            $ref: '#/components/schemas/CommentResponse'
+        created_at:
+          type: string
+          format: date-time
+
+    CreateCommentRequest:
+      type: object
+      required: [content, nickname, email]
+      properties:
+        content:
+          type: string
+          minLength: 1
+          maxLength: 1000
+        nickname:
+          type: string
+          minLength: 1
+          maxLength: 50
+        email:
+          type: string
+          format: email
+        website:
+          type: string
+          maxLength: 200
+        parent_id:
+          type: integer
+          default: 0
+
+    UpdateCommentStatusRequest:
+      type: object
+      required: [status]
+      properties:
+        status:
+          type: string
+          enum: [approved, rejected]
+
+    # 友链相关
+    LinkResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        url:
+          type: string
+        description:
+          type: string
+        avatar:
+          type: string
+        logo:
+          type: string
+        sort_order:
+          type: integer
+        status:
+          type: string
+          enum: [pending, approved, rejected]
+
+    CreateLinkRequest:
+      type: object
+      required: [name, url]
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+        url:
+          type: string
+          format: uri
+        description:
+          type: string
+          maxLength: 200
+        avatar:
+          type: string
+          format: uri
+        logo:
+          type: string
+          maxLength: 10
+        sort_order:
+          type: integer
+        status:
+          type: string
+          enum: [pending, approved, rejected]
+          default: approved
+
+    UpdateLinkRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+        url:
+          type: string
+          format: uri
+        description:
+          type: string
+          maxLength: 200
+        avatar:
+          type: string
+          format: uri
+        logo:
+          type: string
+          maxLength: 10
+        sort_order:
+          type: integer
+        status:
+          type: string
+          enum: [pending, approved, rejected]
+
+    UpdateLinkStatusRequest:
+      type: object
+      required: [status]
+      properties:
+        status:
+          type: string
+          enum: [approved, rejected]
+
+    ApplyLinkRequest:
+      type: object
+      required: [name, url, email]
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+        url:
+          type: string
+          format: uri
+        description:
+          type: string
+          maxLength: 200
+        avatar:
+          type: string
+          format: uri
+        email:
+          type: string
+          format: email
+
+    # 每日一问相关
+    DailyQuestionResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+        question:
+          type: string
+        answer:
+          type: string
+        date:
+          type: string
+          format: date
+        like_count:
+          type: integer
+        comment_count:
+          type: integer
+        view_count:
+          type: integer
+        status:
+          type: integer
+          enum: [0, 1]
+        created_at:
+          type: string
+          format: date-time
+
+    CreateDailyQuestionRequest:
+      type: object
+      required: [question, answer, date]
+      properties:
+        question:
+          type: string
+          minLength: 1
+        answer:
+          type: string
+        date:
+          type: string
+          format: date
+        status:
+          type: integer
+          enum: [0, 1]
+          default: 1
+
+    UpdateDailyQuestionRequest:
+      type: object
+      properties:
+        question:
+          type: string
+          minLength: 1
+        answer:
+          type: string
+        date:
+          type: string
+          format: date
+        status:
+          type: integer
+          enum: [0, 1]
+
+    # 娱乐相关
+    EntertainmentListResponse:
+      type: object
+      properties:
+        movies:
+          type: array
+          items:
+            $ref: '#/components/schemas/EntertainmentItem'
+        tv:
+          type: array
+          items:
+            $ref: '#/components/schemas/EntertainmentItem'
+        games:
+          type: array
+          items:
+            $ref: '#/components/schemas/EntertainmentItem'
+
+    EntertainmentItem:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        title_en:
+          type: string
+        type:
+          type: string
+          enum: [movie, tv, game]
+        year:
+          type: integer
+        cover:
+          type: string
+        rating:
+          type: number
+          format: float
+        rating_external:
+          type: number
+          format: float
+        platform:
+          type: string
+        playtime:
+          type: string
+        comment:
+          type: string
+        status:
+          type: string
+          enum: [watching, watched, playing, completed]
+        link:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+
+    AdminEntertainmentListResponse:
+      type: object
+      properties:
+        list:
+          type: array
+          items:
+            $ref: '#/components/schemas/EntertainmentItem'
+        total:
+          type: integer
+        page:
+          type: integer
+        page_size:
+          type: integer
+
+    CreateEntertainmentRequest:
+      type: object
+      required: [title, type, year]
+      properties:
+        title:
+          type: string
+          minLength: 1
+          maxLength: 200
+        title_en:
+          type: string
+          maxLength: 200
+        type:
+          type: string
+          enum: [movie, tv, game]
+        year:
+          type: integer
+        cover:
+          type: string
+          format: uri
+        rating:
+          type: number
+          format: float
+          minimum: 0
+          maximum: 10
+        rating_external:
+          type: number
+          format: float
+          minimum: 0
+          maximum: 10
+        platform:
+          type: string
+          maxLength: 50
+        playtime:
+          type: string
+          maxLength: 20
+        comment:
+          type: string
+        status:
+          type: string
+          enum: [watching, watched, playing, completed]
+        link:
+          type: string
+          format: uri
+
+    UpdateEntertainmentRequest:
+      type: object
+      properties:
+        title:
+          type: string
+          minLength: 1
+          maxLength: 200
+        title_en:
+          type: string
+          maxLength: 200
+        type:
+          type: string
+          enum: [movie, tv, game]
+        year:
+          type: integer
+        cover:
+          type: string
+          format: uri
+        rating:
+          type: number
+          format: float
+          minimum: 0
+          maximum: 10
+        rating_external:
+          type: number
+          format: float
+          minimum: 0
+          maximum: 10
+        platform:
+          type: string
+          maxLength: 50
+        playtime:
+          type: string
+          maxLength: 20
+        comment:
+          type: string
+        status:
+          type: string
+          enum: [watching, watched, playing, completed]
+        link:
+          type: string
+          format: uri
+
+    # 媒体库相关
+    MediaResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+        filename:
+          type: string
+        url:
+          type: string
+        size:
+          type: integer
+        mime_type:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+
+    # 系统设置相关
+    SettingsResponse:
+      type: object
+      properties:
+        site_name:
+          type: string
+        site_description:
+          type: string
+        site_url:
+          type: string
+        site_keywords:
+          type: string
+        seo_title:
+          type: string
+        seo_description:
+          type: string
+        seo_keywords:
+          type: string
+        page_size:
+          type: integer
+        favicon:
+          type: string
+        logo:
+          type: string
+
+    UpdateSettingsRequest:
+      type: object
+      properties:
+        site_name:
+          type: string
+        site_description:
+          type: string
+        site_url:
+          type: string
+        site_keywords:
+          type: string
+        seo_title:
+          type: string
+        seo_description:
+          type: string
+        seo_keywords:
+          type: string
+        page_size:
+          type: integer
+          minimum: 1
+          maximum: 50
+        favicon:
+          type: string
+        logo:
+          type: string
+
+    # 仪表盘相关
+    DashboardStatsResponse:
+      type: object
+      properties:
+        article_count:
+          type: integer
+        published_count:
+          type: integer
+        draft_count:
+          type: integer
+        total_views:
+          type: integer
+        total_likes:
+          type: integer
+        comment_count:
+          type: integer
+        pending_comment_count:
+          type: integer
+        link_count:
+          type: integer
+        category_count:
+          type: integer
+        tag_count:
+          type: integer
+        daily_question_count:
+          type: integer
+
+    RecentArticleResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        view_count:
+          type: integer
+        created_at:
+          type: string
