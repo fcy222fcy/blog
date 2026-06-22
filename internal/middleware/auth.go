@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"strings"
 
+	"blog/pkg/config"
 	"blog/pkg/jwt"
 	"blog/pkg/response"
 
@@ -32,7 +33,7 @@ func Auth() gin.HandlerFunc {
 		tokenString := parts[1]
 
 		// 解析 Token
-		jwtInstance := jwt.NewJWT(jwt.Config{
+		jwtInstance := jwt.NewJWT(config.JWTConfig{
 			Secret:     "your-secret-key", // TODO: 从配置中获取
 			ExpireHour: 72,
 		})

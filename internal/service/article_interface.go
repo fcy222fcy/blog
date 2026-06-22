@@ -3,7 +3,6 @@ package service
 import (
 	"blog/internal/model/dto/request"
 	"blog/internal/model/dto/response"
-	"blog/internal/model/entity"
 )
 
 // ArticleService 文章服务接口

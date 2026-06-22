@@ -3,6 +3,7 @@ package service
 import (
 	"blog/internal/model/dto/request"
 	"blog/internal/model/dto/response"
+	"blog/internal/model/entity"
 	"blog/internal/repository"
 	bizerrors "blog/pkg/errors"
 	"blog/pkg/jwt"
@@ -90,4 +91,26 @@ func (s *authService) ChangePassword(userID uint, req *request.ChangePasswordReq
 	// return s.userRepo.Update(user)
 
 	return nil
+}
+
+// Register 用户注册
+func (s *authService) Register(req *request.RegisterRequest) error {
+	// 检查用户名是否已存在
+	existing, _ := s.userRepo.FindByUsername(req.Username)
+	if existing != nil {
+		return bizerrors.New(bizerrors.CodeUserAlreadyExists, "用户名已存在")
+	}
+
+	// TODO: 加密密码
+	// password := bcrypt.HashPassword(req.Password)
+
+	user := &entity.User{
+		Username: req.Username,
+		Password: req.Password, // TODO: 使用加密后的密码
+		Nickname: req.Nickname,
+		Email:    req.Email,
+		Status:   1,
+	}
+
+	return s.userRepo.Create(user)
 }

@@ -10,6 +10,9 @@ type CategoryService interface {
 	// GetCategoryList 获取分类列表
 	GetCategoryList() ([]response.CategoryResponse, error)
 
+	// GetCategoryByID 根据ID获取分类
+	GetCategoryByID(id uint) (*response.CategoryResponse, error)
+
 	// CreateCategory 创建分类
 	CreateCategory(req *request.CreateCategoryRequest) (uint, error)
 

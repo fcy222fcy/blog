@@ -10,9 +10,6 @@ type LinkService interface {
 	// GetLinkList 获取友链列表
 	GetLinkList() ([]response.LinkResponse, error)
 
-	// ApplyLink 申请友链
-	ApplyLink(req *request.ApplyLinkRequest) error
-
 	// GetAdminLinkList 获取友链列表（后台）
 	GetAdminLinkList(req *request.LinkListRequest) (*response.PageResponse, error)
 
@@ -25,6 +22,6 @@ type LinkService interface {
 	// DeleteLink 删除友链
 	DeleteLink(id uint) error
 
-	// UpdateLinkStatus 审核友链
-	UpdateLinkStatus(id uint, req *request.UpdateLinkStatusRequest) error
+	// UpdateLinkStatus 更新友链状态
+	UpdateLinkStatus(id uint, status string) error
 }

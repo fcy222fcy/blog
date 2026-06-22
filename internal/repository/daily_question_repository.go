@@ -1,0 +1,174 @@
+package repository
+
+import (
+	"blog/internal/model/entity"
+
+	"gorm.io/gorm"
+)
+
+// dailyQuestionRepository 每日一问数据访问实现
+type dailyQuestionRepository struct {
+	db *gorm.DB
+}
+
+// NewDailyQuestionRepository 创建每日一问数据访问
+func NewDailyQuestionRepository(db *gorm.DB) DailyQuestionRepository {
+	return &dailyQuestionRepository{db: db}
+}
+
+// FindByID 根据 ID 查找问题
+func (r *dailyQuestionRepository) FindByID(id uint) (*entity.DailyQuestion, error) {
+	var question entity.DailyQuestion
+	err := r.db.First(&question, id).Error
+	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return nil, nil
+		}
+		return nil, err
+	}
+	return &question, nil
+}
+
+// FindByDate 根据日期查找问题
+func (r *dailyQuestionRepository) FindByDate(date string) (*entity.DailyQuestion, error) {
+	var question entity.DailyQuestion
+	err := r.db.Where("date = ?", date).First(&question).Error
+	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return nil, nil
+		}
+		return nil, err
+	}
+	return &question, nil
+}
+
+// Create 创建问题
+func (r *dailyQuestionRepository) Create(question *entity.DailyQuestion) error {
+	return r.db.Create(question).Error
+}
+
+// Update 更新问题
+func (r *dailyQuestionRepository) Update(question *entity.DailyQuestion) error {
+	return r.db.Save(question).Error
+}
+
+// Delete 删除问题（软删除）
+func (r *dailyQuestionRepository) Delete(id uint) error {
+	return r.db.Delete(&entity.DailyQuestion{}, id).Error
+}
+
+// List 问题列表（后台）
+func (r *dailyQuestionRepository) List(offset, limit int, status int) ([]*entity.DailyQuestion, int64, error) {
+	var questions []*entity.DailyQuestion
+	var total int64
+
+	query := r.db.Model(&entity.DailyQuestion{})
+	if status >= 0 {
+		query = query.Where("status = ?", status)
+	}
+
+	err := query.Count(&total).Error
+	if err != nil {
+		return nil, 0, err
+	}
+
+	err = query.Offset(offset).Limit(limit).
+		Order("date DESC").
+		Find(&questions).Error
+	return questions, total, err
+}
+
+// GetLatest 获取最新问题
+func (r *dailyQuestionRepository) GetLatest() (*entity.DailyQuestion, error) {
+	var question entity.DailyQuestion
+	err := r.db.Where("status = 1").Order("date DESC").First(&question).Error
+	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return nil, nil
+		}
+		return nil, err
+	}
+	return &question, nil
+}
+
+// GetPrevious 获取前一天的问题
+func (r *dailyQuestionRepository) GetPrevious(date string) (*entity.DailyQuestion, error) {
+	var question entity.DailyQuestion
+	err := r.db.Where("status = 1 AND date < ?", date).
+		Order("date DESC").First(&question).Error
+	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return nil, nil
+		}
+		return nil, err
+	}
+	return &question, nil
+}
+
+// GetNext 获取后一天的问题
+func (r *dailyQuestionRepository) GetNext(date string) (*entity.DailyQuestion, error) {
+	var question entity.DailyQuestion
+	err := r.db.Where("status = 1 AND date > ?", date).
+		Order("date ASC").First(&question).Error
+	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return nil, nil
+		}
+		return nil, err
+	}
+	return &question, nil
+}
+
+// Count 统计问题数量
+func (r *dailyQuestionRepository) Count(status int) (int64, error) {
+	var total int64
+	query := r.db.Model(&entity.DailyQuestion{})
+	if status >= 0 {
+		query = query.Where("status = ?", status)
+	}
+	err := query.Count(&total).Error
+	return total, err
+}
+
+// SumViewCount 统计总浏览量
+func (r *dailyQuestionRepository) SumViewCount() (int64, error) {
+	var sum int64
+	err := r.db.Model(&entity.DailyQuestion{}).Select("COALESCE(SUM(view_count), 0)").Scan(&sum).Error
+	return sum, err
+}
+
+// SumLikeCount 统计总点赞数
+func (r *dailyQuestionRepository) SumLikeCount() (int64, error) {
+	var sum int64
+	err := r.db.Model(&entity.DailyQuestion{}).Select("COALESCE(SUM(like_count), 0)").Scan(&sum).Error
+	return sum, err
+}
+
+// IncrementViewCount 增加浏览量
+func (r *dailyQuestionRepository) IncrementViewCount(id uint) error {
+	return r.db.Model(&entity.DailyQuestion{}).Where("id = ?", id).
+		UpdateColumn("view_count", gorm.Expr("view_count + 1")).Error
+}
+
+// IncrementLikeCount 增加点赞数
+func (r *dailyQuestionRepository) IncrementLikeCount(id uint) (int64, error) {
+	err := r.db.Model(&entity.DailyQuestion{}).Where("id = ?", id).
+		UpdateColumn("like_count", gorm.Expr("like_count + 1")).Error
+	if err != nil {
+		return 0, err
+	}
+	var question entity.DailyQuestion
+	err = r.db.Select("like_count").First(&question, id).Error
+	return question.LikeCount, err
+}
+
+// BatchUpdateStatus 批量更新状态
+func (r *dailyQuestionRepository) BatchUpdateStatus(ids []uint, status int) error {
+	return r.db.Model(&entity.DailyQuestion{}).Where("id IN ?", ids).
+		Update("status", status).Error
+}
+
+// BatchDelete 批量删除
+func (r *dailyQuestionRepository) BatchDelete(ids []uint) error {
+	return r.db.Delete(&entity.DailyQuestion{}, ids).Error
+}

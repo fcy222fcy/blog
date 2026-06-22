@@ -9,6 +9,7 @@ type CommentListRequest struct {
 
 // CreateCommentRequest 创建评论请求
 type CreateCommentRequest struct {
+	ArticleID uint   `json:"article_id" binding:"required"`
 	Content   string `json:"content" binding:"required,min=1,max=1000"`
 	Nickname  string `json:"nickname" binding:"required,min=1,max=50"`
 	Email     string `json:"email" binding:"required,email"`

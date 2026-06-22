@@ -70,21 +70,43 @@ func (s *articleService) GetArticleDetail(slug string) (*response.ArticleDetailR
 
 // GetArticleArchives 获取文章归档
 func (s *articleService) GetArticleArchives() ([]response.ArchiveResponse, error) {
-	// TODO: 实现按年份分组查询
-	return []response.ArchiveResponse{}, nil
+	// 获取所有已发布文章
+	articles, _, err := s.articleRepo.ListPublished(0, 1000, 0, 0, "")
+	if err != nil {
+		return nil, err
+	}
+
+	// 按年份分组
+	yearMap := make(map[int][]response.ArchiveArticleResponse)
+	for _, article := range articles {
+		year := article.CreatedAt.Year()
+		yearMap[year] = append(yearMap[year], response.ArchiveArticleResponse{
+			ID:        article.ID,
+			Title:     article.Title,
+			Slug:      article.Slug,
+			CreatedAt: article.CreatedAt,
+		})
+	}
+
+	// 转换为响应格式
+	var result []response.ArchiveResponse
+	for year, arts := range yearMap {
+		result = append(result, response.ArchiveResponse{
+			Year:     year,
+			Articles: arts,
+		})
+	}
+
+	return result, nil
 }
 
 // LikeArticle 文章点赞
 func (s *articleService) LikeArticle(id uint) (int64, error) {
-	err := s.articleRepo.IncrementLikeCount(id)
+	likeCount, err := s.articleRepo.IncrementLikeCount(id)
 	if err != nil {
 		return 0, err
 	}
-	article, err := s.articleRepo.FindByID(id)
-	if err != nil {
-		return 0, err
-	}
-	return article.LikeCount, nil
+	return likeCount, nil
 }
 
 // GetAdminArticleList 获取文章列表（后台）

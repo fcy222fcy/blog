@@ -1,0 +1,70 @@
+<template>
+  <div class="page-view" id="view-home">
+    <!-- 每日一问卡片 -->
+    <DailyQuestion />
+
+    <!-- 文章卡片列表 -->
+    <article v-for="article in articleStore.articles" :key="article.id" class="article-card">
+      <router-link :to="'/post/' + article.slug" class="card-link">
+        <span class="category-pill" :class="'category-' + (article.category?.slug || 'default')">{{ article.category?.name || '未分类' }}</span>
+        <h2>{{ article.title }}</h2>
+        <p>{{ article.summary }}</p>
+        <dl class="article-meta">
+          <div>
+            <dt>日期</dt>
+            <dd>
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"></rect><line x1="16" x2="16" y1="2" y2="6"></line><line x1="8" x2="8" y1="2" y2="6"></line><line x1="3" x2="21" y1="10" y2="10"></line></svg>
+              {{ formatDate(article.created_at) }}
+            </dd>
+          </div>
+          <div>
+            <dt>时长</dt>
+            <dd>
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+              {{ article.reading_time || 3 }} 分钟
+            </dd>
+          </div>
+          <div>
+            <dt>浏览量</dt>
+            <dd>
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+              {{ article.view_count }}
+            </dd>
+          </div>
+          <div>
+            <dt>语言</dt>
+            <dd>
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="2" x2="22" y1="12" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
+              中文
+            </dd>
+          </div>
+        </dl>
+      </router-link>
+    </article>
+
+    <div v-if="articleStore.loading" class="loading">加载中...</div>
+    <div v-if="!articleStore.loading && articleStore.articles.length === 0" class="empty">暂无文章</div>
+  </div>
+</template>
+
+<script setup>
+import { onMounted } from 'vue'
+import { useArticleStore } from '../stores/article'
+import DailyQuestion from '../components/daily/DailyQuestion.vue'
+
+const articleStore = useArticleStore()
+
+const formatDate = (dateStr) => {
+  if (!dateStr) return ''
+  return dateStr.split('T')[0]
+}
+
+onMounted(() => {
+  articleStore.fetchArticles({ page: 1, page_size: 20 })
+})
+</script>
+
+<style scoped>
+/* 文章卡片样式在全局main.css中定义 */
+.loading, .empty { text-align: center; padding: 40px; color: var(--card-text-color-secondary); }
+</style>

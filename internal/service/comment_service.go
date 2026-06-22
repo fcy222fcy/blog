@@ -22,19 +22,26 @@ func NewCommentService(commentRepo repository.CommentRepository, articleRepo rep
 	}
 }
 
-// GetCommentList 获取文章评论列表
-func (s *commentService) GetCommentList(articleID uint, req *request.PageRequest) (*response.PageResponse, error) {
-	list, total, err := s.commentRepo.ListByArticleID(articleID, req.GetOffset(), req.GetPageSize())
+// GetCommentsByArticle 获取文章评论列表
+func (s *commentService) GetCommentsByArticle(articleID uint, req *request.CommentListRequest) (*response.PageResponse, error) {
+	if req.Page <= 0 {
+		req.Page = 1
+	}
+	if req.PageSize <= 0 {
+		req.PageSize = 10
+	}
+
+	list, total, err := s.commentRepo.ListByArticleID(articleID, (req.Page-1)*req.PageSize, req.PageSize)
 	if err != nil {
 		return nil, err
 	}
-	return response.NewPageResponse(list, total, req.Page, req.GetPageSize()), nil
+
+	return response.NewPageResponse(list, total, req.Page, req.PageSize), nil
 }
 
 // CreateComment 创建评论
-func (s *commentService) CreateComment(articleID uint, req *request.CreateCommentRequest) (uint, error) {
-	// 检查文章是否存在
-	article, err := s.articleRepo.FindByID(articleID)
+func (s *commentService) CreateComment(req *request.CreateCommentRequest) (uint, error) {
+	article, err := s.articleRepo.FindByID(req.ArticleID)
 	if err != nil {
 		return 0, err
 	}
@@ -47,7 +54,7 @@ func (s *commentService) CreateComment(articleID uint, req *request.CreateCommen
 		Nickname:  req.Nickname,
 		Email:     req.Email,
 		Website:   req.Website,
-		ArticleID: articleID,
+		ArticleID: req.ArticleID,
 		ParentID:  req.ParentID,
 		Status:    "pending",
 	}
@@ -57,23 +64,28 @@ func (s *commentService) CreateComment(articleID uint, req *request.CreateCommen
 		return 0, err
 	}
 
-	// 更新文章评论数
-	_ = s.articleRepo.IncrementCommentCount(articleID)
-
 	return comment.ID, nil
 }
 
 // GetAdminCommentList 获取评论列表（后台）
 func (s *commentService) GetAdminCommentList(req *request.CommentListRequest) (*response.PageResponse, error) {
-	list, total, err := s.commentRepo.ListAll(req.GetOffset(), req.GetPageSize(), req.Status, req.ArticleID)
+	if req.Page <= 0 {
+		req.Page = 1
+	}
+	if req.PageSize <= 0 {
+		req.PageSize = 10
+	}
+
+	list, total, err := s.commentRepo.AdminList((req.Page-1)*req.PageSize, req.PageSize, req.Status)
 	if err != nil {
 		return nil, err
 	}
-	return response.NewPageResponse(list, total, req.Page, req.GetPageSize()), nil
+
+	return response.NewPageResponse(list, total, req.Page, req.PageSize), nil
 }
 
-// UpdateCommentStatus 审核评论
-func (s *commentService) UpdateCommentStatus(id uint, req *request.UpdateCommentStatusRequest) error {
+// UpdateCommentStatus 更新评论状态
+func (s *commentService) UpdateCommentStatus(id uint, status string) error {
 	comment, err := s.commentRepo.FindByID(id)
 	if err != nil {
 		return err
@@ -82,7 +94,7 @@ func (s *commentService) UpdateCommentStatus(id uint, req *request.UpdateComment
 		return bizerrors.New(bizerrors.CodeCommentNotFound, "评论不存在")
 	}
 
-	comment.Status = req.Status
+	comment.Status = status
 	return s.commentRepo.Update(comment)
 }
 
@@ -95,5 +107,11 @@ func (s *commentService) DeleteComment(id uint) error {
 	if comment == nil {
 		return bizerrors.New(bizerrors.CodeCommentNotFound, "评论不存在")
 	}
+
 	return s.commentRepo.Delete(id)
+}
+
+// BatchDeleteComments 批量删除评论
+func (s *commentService) BatchDeleteComments(ids []uint) error {
+	return s.commentRepo.BatchDelete(ids)
 }

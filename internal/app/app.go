@@ -14,6 +14,7 @@ import (
 	"blog/internal/service"
 	"blog/pkg/config"
 	"blog/pkg/database"
+	"blog/pkg/jwt"
 	"blog/pkg/logger"
 )
 
@@ -94,8 +95,9 @@ func (a *App) initDependencies() {
 	dailyQuestionRepo := repository.NewDailyQuestionRepository(a.db.DB)
 
 	// Service
+	jwtInstance := jwt.NewJWT(a.config.JWT)
 	userSvc := service.NewUserService(userRepo)
-	authSvc := service.NewAuthService(userRepo)
+	authSvc := service.NewAuthService(userRepo, jwtInstance)
 	articleSvc := service.NewArticleService(articleRepo, categoryRepo, tagRepo)
 	categorySvc := service.NewCategoryService(categoryRepo)
 	tagSvc := service.NewTagService(tagRepo)

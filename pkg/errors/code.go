@@ -36,14 +36,21 @@ const (
 	CodeUsernameTooShort  = 2006
 
 	// 资源错误 (3000+)
-	CodeArticleNotFound      = 3001
-	CodeCategoryNotFound     = 3002
-	CodeTagNotFound          = 3003
-	CodeCommentNotFound      = 3004
-	CodeLinkNotFound         = 3005
+	CodeArticleNotFound       = 3001
+	CodeCategoryNotFound      = 3002
+	CodeTagNotFound           = 3003
+	CodeCommentNotFound       = 3004
+	CodeLinkNotFound          = 3005
 	CodeDailyQuestionNotFound = 3006
-	CodeMediaNotFound        = 3007
-	CodePageNotFound         = 3008
+	CodeMediaNotFound         = 3007
+	CodePageNotFound          = 3008
+
+	// 业务错误 (4000+)
+	CodeCategoryNameExists    = 4001
+	CodeCategoryHasArticles   = 4002
+	CodeTagNameExists         = 4003
+	CodeTagHasArticles        = 4004
+	CodeDailyQuestionDateExists = 4005
 )
 
 // 错误码消息映射

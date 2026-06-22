@@ -2,12 +2,12 @@ package middleware
 
 import (
 	"net"
-	"net/http"
 	"net/http/httputil"
 	"os"
 	"runtime/debug"
 	"strings"
 
+	"blog/pkg/logger"
 	"blog/pkg/response"
 
 	"github.com/gin-gonic/gin"

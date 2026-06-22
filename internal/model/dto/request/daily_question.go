@@ -3,7 +3,7 @@ package request
 // DailyQuestionListRequest 每日一问列表请求
 type DailyQuestionListRequest struct {
 	PageRequest
-	Status  int    `json:"status" form:"status"`
+	Status  *int   `json:"status" form:"status"`
 	Keyword string `json:"keyword" form:"keyword"`
 	Date    string `json:"date" form:"date"`
 }

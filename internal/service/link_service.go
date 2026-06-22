@@ -18,9 +18,9 @@ func NewLinkService(linkRepo repository.LinkRepository) LinkService {
 	return &linkService{linkRepo: linkRepo}
 }
 
-// GetLinkList 获取友链列表
+// GetLinkList 获取友链列表（前台）
 func (s *linkService) GetLinkList() ([]response.LinkResponse, error) {
-	links, err := s.linkRepo.ListApproved()
+	links, err := s.linkRepo.List()
 	if err != nil {
 		return nil, err
 	}
@@ -36,30 +36,42 @@ func (s *linkService) GetLinkList() ([]response.LinkResponse, error) {
 			Logo:        link.Logo,
 			SortOrder:   link.SortOrder,
 			Status:      link.Status,
+			CreatedAt:   link.CreatedAt,
 		})
 	}
 	return result, nil
 }
 
-// ApplyLink 申请友链
-func (s *linkService) ApplyLink(req *request.ApplyLinkRequest) error {
-	link := &entity.Link{
-		Name:        req.Name,
-		URL:         req.URL,
-		Description: req.Description,
-		Avatar:      req.Avatar,
-		Status:      "pending",
-	}
-	return s.linkRepo.Create(link)
-}
-
 // GetAdminLinkList 获取友链列表（后台）
 func (s *linkService) GetAdminLinkList(req *request.LinkListRequest) (*response.PageResponse, error) {
-	list, total, err := s.linkRepo.ListAll(req.GetOffset(), req.GetPageSize(), req.Status)
+	if req.Page <= 0 {
+		req.Page = 1
+	}
+	if req.PageSize <= 0 {
+		req.PageSize = 10
+	}
+
+	list, total, err := s.linkRepo.AdminList((req.Page-1)*req.PageSize, req.PageSize, req.Status)
 	if err != nil {
 		return nil, err
 	}
-	return response.NewPageResponse(list, total, req.Page, req.GetPageSize()), nil
+
+	var result []response.LinkResponse
+	for _, link := range list {
+		result = append(result, response.LinkResponse{
+			ID:          link.ID,
+			Name:        link.Name,
+			URL:         link.URL,
+			Description: link.Description,
+			Avatar:      link.Avatar,
+			Logo:        link.Logo,
+			SortOrder:   link.SortOrder,
+			Status:      link.Status,
+			CreatedAt:   link.CreatedAt,
+		})
+	}
+
+	return response.NewPageResponse(result, total, req.Page, req.PageSize), nil
 }
 
 // CreateLink 创建友链
@@ -71,17 +83,14 @@ func (s *linkService) CreateLink(req *request.CreateLinkRequest) (uint, error) {
 		Avatar:      req.Avatar,
 		Logo:        req.Logo,
 		SortOrder:   req.SortOrder,
-		Status:      req.Status,
-	}
-
-	if link.Status == "" {
-		link.Status = "approved"
+		Status:      "pending",
 	}
 
 	err := s.linkRepo.Create(link)
 	if err != nil {
 		return 0, err
 	}
+
 	return link.ID, nil
 }
 
@@ -110,9 +119,8 @@ func (s *linkService) UpdateLink(id uint, req *request.UpdateLinkRequest) error 
 	if req.Logo != "" {
 		link.Logo = req.Logo
 	}
-	link.SortOrder = req.SortOrder
-	if req.Status != "" {
-		link.Status = req.Status
+	if req.SortOrder != 0 {
+		link.SortOrder = req.SortOrder
 	}
 
 	return s.linkRepo.Update(link)
@@ -127,11 +135,12 @@ func (s *linkService) DeleteLink(id uint) error {
 	if link == nil {
 		return bizerrors.New(bizerrors.CodeLinkNotFound, "友链不存在")
 	}
+
 	return s.linkRepo.Delete(id)
 }
 
-// UpdateLinkStatus 审核友链
-func (s *linkService) UpdateLinkStatus(id uint, req *request.UpdateLinkStatusRequest) error {
+// UpdateLinkStatus 更新友链状态
+func (s *linkService) UpdateLinkStatus(id uint, status string) error {
 	link, err := s.linkRepo.FindByID(id)
 	if err != nil {
 		return err
@@ -140,6 +149,6 @@ func (s *linkService) UpdateLinkStatus(id uint, req *request.UpdateLinkStatusReq
 		return bizerrors.New(bizerrors.CodeLinkNotFound, "友链不存在")
 	}
 
-	link.Status = req.Status
+	link.Status = status
 	return s.linkRepo.Update(link)
 }

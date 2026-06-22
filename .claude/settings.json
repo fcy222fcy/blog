@@ -3,7 +3,22 @@
     "allow": [
       "Bash(node -c admin/index.html)",
       "Bash(sed '1d;$d')",
-      "Bash(node --check /tmp/check.js)"
+      "Bash(node --check /tmp/check.js)",
+      "Bash(git commit *)",
+      "Bash(git push *)",
+      "Bash(sed -i 's/if req.Status != nil {/if req.Status != 0 {/g' internal/service/daily_question_service.go)",
+      "Bash(sed -i 's/question.Status = \\\\*req.Status/question.Status = req.Status/g' internal/service/daily_question_service.go)",
+      "Bash(mysql -u root -proot -e \"CREATE DATABASE IF NOT EXISTS blog CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;\")",
+      "Bash(mysql -u root -e \"CREATE DATABASE IF NOT EXISTS blog CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;\")",
+      "Bash(mysql -u root -p123456 -e \"SHOW DATABASES;\")",
+      "Bash(mysql -u root -p123456 -e \"CREATE DATABASE IF NOT EXISTS blog CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;\")",
+      "Bash(curl -s http://localhost:8080/api/v1/articles)",
+      "Bash(taskkill //F //PID 14772)",
+      "WebSearch",
+      "Bash(\"/c/Program Files/Google/Chrome/Application/chrome.exe\" --remote-debugging-port=9222)",
+      "Bash(curl -s http://localhost:9222/json/version)",
+      "Bash(curl -v http://localhost:9222/json/version)",
+      "Bash(taskkill //F //IM chrome.exe)"
     ]
   }
 }

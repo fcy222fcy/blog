@@ -1,6 +1,7 @@
 package service
 
 import (
+	"blog/internal/model/dto/request"
 	"blog/internal/model/entity"
 )
 
@@ -9,6 +10,9 @@ type UserService interface {
 	// GetUserByID 根据 ID 获取用户
 	GetUserByID(id uint) (*entity.User, error)
 
-	// GetUserByUsername 根据用户名获取用户
+	// GetUserProfile 获取用户信息
 	GetUserProfile(userID uint) (*entity.User, error)
+
+	// UpdateUser 更新用户信息
+	UpdateUser(id uint, req *request.UpdateUserRequest) error
 }

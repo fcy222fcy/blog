@@ -20,17 +20,20 @@ func NewTagService(tagRepo repository.TagRepository) TagService {
 
 // GetTagList 获取标签列表
 func (s *tagService) GetTagList() ([]response.TagResponse, error) {
-	tags, err := s.tagRepo.ListAll()
+	tags, err := s.tagRepo.List()
 	if err != nil {
 		return nil, err
 	}
 
 	var result []response.TagResponse
 	for _, tag := range tags {
+		count, _ := s.tagRepo.GetTagArticleCount(tag.ID)
 		result = append(result, response.TagResponse{
-			ID:   tag.ID,
-			Name: tag.Name,
-			Slug: tag.Slug,
+			ID:           tag.ID,
+			Name:         tag.Name,
+			Slug:         tag.Slug,
+			ArticleCount: count,
+			CreatedAt:    tag.CreatedAt,
 		})
 	}
 	return result, nil
@@ -38,10 +41,9 @@ func (s *tagService) GetTagList() ([]response.TagResponse, error) {
 
 // CreateTag 创建标签
 func (s *tagService) CreateTag(req *request.CreateTagRequest) (uint, error) {
-	// 检查名称是否已存在
 	existing, _ := s.tagRepo.FindByName(req.Name)
 	if existing != nil {
-		return 0, bizerrors.New(bizerrors.CodeInvalidParams, "标签名称已存在")
+		return 0, bizerrors.New(bizerrors.CodeTagNameExists, "标签名称已存在")
 	}
 
 	tag := &entity.Tag{
@@ -53,6 +55,7 @@ func (s *tagService) CreateTag(req *request.CreateTagRequest) (uint, error) {
 	if err != nil {
 		return 0, err
 	}
+
 	return tag.ID, nil
 }
 
@@ -67,6 +70,10 @@ func (s *tagService) UpdateTag(id uint, req *request.UpdateTagRequest) error {
 	}
 
 	if req.Name != "" {
+		existing, _ := s.tagRepo.FindByName(req.Name)
+		if existing != nil && existing.ID != id {
+			return bizerrors.New(bizerrors.CodeTagNameExists, "标签名称已存在")
+		}
 		tag.Name = req.Name
 	}
 	if req.Slug != "" {
@@ -85,5 +92,11 @@ func (s *tagService) DeleteTag(id uint) error {
 	if tag == nil {
 		return bizerrors.New(bizerrors.CodeTagNotFound, "标签不存在")
 	}
+
+	count, _ := s.tagRepo.GetTagArticleCount(id)
+	if count > 0 {
+		return bizerrors.New(bizerrors.CodeTagHasArticles, "该标签下还有文章，无法删除")
+	}
+
 	return s.tagRepo.Delete(id)
 }

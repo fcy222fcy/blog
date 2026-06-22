@@ -1,0 +1,9 @@
+import request from './request'
+
+export const getCommentsByArticle = (articleId, params) => {
+  return request.get(`/comments/article/${articleId}`, { params })
+}
+
+export const createComment = (data) => {
+  return request.post('/comments', data)
+}

@@ -22,6 +22,38 @@ type ArticleResponse struct {
 	UpdatedAt    time.Time         `json:"updated_at"`
 }
 
+// ArticleDetailResponse 文章详情响应
+type ArticleDetailResponse struct {
+	ID           uint      `json:"id"`
+	Title        string    `json:"title"`
+	Slug         string    `json:"slug"`
+	Content      string    `json:"content"`
+	Summary      string    `json:"summary"`
+	Cover        string    `json:"cover"`
+	ViewCount    int64     `json:"view_count"`
+	LikeCount    int64     `json:"like_count"`
+	CommentCount int64     `json:"comment_count"`
+	Status       string    `json:"status"`
+	IsTop        bool      `json:"is_top"`
+	ReadingTime  int       `json:"reading_time"`
+	CreatedAt    time.Time `json:"created_at"`
+	UpdatedAt    time.Time `json:"updated_at"`
+}
+
+// AdminArticleDetailResponse 后台文章详情响应
+type AdminArticleDetailResponse struct {
+	ID        uint   `json:"id"`
+	Title     string `json:"title"`
+	Slug      string `json:"slug"`
+	Content   string `json:"content"`
+	Summary   string `json:"summary"`
+	Cover     string `json:"cover"`
+	Status    string `json:"status"`
+	IsTop     bool   `json:"is_top"`
+	CategoryID uint  `json:"category_id"`
+	TagIDs    []uint `json:"tag_ids"`
+}
+
 // ArticleListResponse 文章列表响应（简化版）
 type ArticleListResponse struct {
 	ID           uint             `json:"id"`

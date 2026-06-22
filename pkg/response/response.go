@@ -23,6 +23,15 @@ func Success(c *gin.Context, data interface{}) {
 	})
 }
 
+// Error 错误响应
+func Error(c *gin.Context, code int, message string) {
+	c.JSON(http.StatusOK, Response{
+		Code:    code,
+		Message: message,
+		Data:    nil,
+	})
+}
+
 // SuccessWithMessage 成功响应（自定义消息）
 func SuccessWithMessage(c *gin.Context, message string, data interface{}) {
 	c.JSON(http.StatusOK, Response{

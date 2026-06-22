@@ -7,18 +7,21 @@ import (
 
 // CommentService 评论服务接口
 type CommentService interface {
-	// GetCommentList 获取文章评论列表
-	GetCommentList(articleID uint, req *request.PageRequest) (*response.PageResponse, error)
+	// GetCommentsByArticle 获取文章评论列表
+	GetCommentsByArticle(articleID uint, req *request.CommentListRequest) (*response.PageResponse, error)
 
 	// CreateComment 创建评论
-	CreateComment(articleID uint, req *request.CreateCommentRequest) (uint, error)
+	CreateComment(req *request.CreateCommentRequest) (uint, error)
 
 	// GetAdminCommentList 获取评论列表（后台）
 	GetAdminCommentList(req *request.CommentListRequest) (*response.PageResponse, error)
 
-	// UpdateCommentStatus 审核评论
-	UpdateCommentStatus(id uint, req *request.UpdateCommentStatusRequest) error
+	// UpdateCommentStatus 更新评论状态
+	UpdateCommentStatus(id uint, status string) error
 
 	// DeleteComment 删除评论
 	DeleteComment(id uint) error
+
+	// BatchDeleteComments 批量删除评论
+	BatchDeleteComments(ids []uint) error
 }

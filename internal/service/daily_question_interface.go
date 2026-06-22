@@ -7,24 +7,33 @@ import (
 
 // DailyQuestionService 每日一问服务接口
 type DailyQuestionService interface {
-	// GetTodayQuestion 获取今日问题
-	GetTodayQuestion() (*response.DailyQuestionResponse, error)
+	// GetLatestQuestion 获取最新问题
+	GetLatestQuestion() (*response.DailyQuestionResponse, error)
 
 	// GetQuestionByDate 获取指定日期问题
 	GetQuestionByDate(date string) (*response.DailyQuestionResponse, error)
 
-	// LikeDailyQuestion 每日一问点赞
-	LikeDailyQuestion(id uint) (int64, error)
+	// GetPreviousQuestion 获取前一天的问题
+	GetPreviousQuestion(date string) (*response.DailyQuestionResponse, error)
+
+	// GetNextQuestion 获取后一天的问题
+	GetNextQuestion(date string) (*response.DailyQuestionResponse, error)
+
+	// LikeQuestion 问题点赞
+	LikeQuestion(id uint) (int64, error)
 
 	// GetAdminQuestionList 获取问题列表（后台）
 	GetAdminQuestionList(req *request.DailyQuestionListRequest) (*response.PageResponse, error)
 
-	// CreateDailyQuestion 创建问题
-	CreateDailyQuestion(req *request.CreateDailyQuestionRequest) (uint, error)
+	// CreateQuestion 创建问题
+	CreateQuestion(req *request.CreateDailyQuestionRequest) (uint, error)
 
-	// UpdateDailyQuestion 更新问题
-	UpdateDailyQuestion(id uint, req *request.UpdateDailyQuestionRequest) error
+	// UpdateQuestion 更新问题
+	UpdateQuestion(id uint, req *request.UpdateDailyQuestionRequest) error
 
-	// DeleteDailyQuestion 删除问题
-	DeleteDailyQuestion(id uint) error
+	// DeleteQuestion 删除问题
+	DeleteQuestion(id uint) error
+
+	// UpdateQuestionStatus 更新问题状态
+	UpdateQuestionStatus(id uint, status int) error
 }
