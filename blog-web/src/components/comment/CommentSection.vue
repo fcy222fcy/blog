@@ -328,9 +328,9 @@ const submitComment = async () => {
 
   submitting.value = true
   try {
-    const articleId = route.params.id || route.params.slug
+    const articleSlug = route.params.slug || route.params.id
     await createComment({
-      article_id: parseInt(articleId),
+      article_slug: articleSlug,
       nickname: form.value.nickname,
       email: form.value.email,
       content: form.value.content

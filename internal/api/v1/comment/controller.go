@@ -53,9 +53,11 @@ func (c *Controller) GetCommentsByArticle(ctx *gin.Context) {
 func (c *Controller) CreateComment(ctx *gin.Context) {
 	var req request.CreateCommentRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
+		logger.Warnf("[评论] 创建评论参数绑定失败: %v", err)
 		response.BadRequest(ctx, "参数错误: "+err.Error())
 		return
 	}
+	logger.Infof("[评论] 创建评论, nickname=%s, articleID=%d", req.Nickname, req.ArticleID)
 
 	id, err := c.commentSvc.CreateComment(&req)
 	if err != nil {

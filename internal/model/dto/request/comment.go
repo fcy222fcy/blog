@@ -9,12 +9,13 @@ type CommentListRequest struct {
 
 // CreateCommentRequest 创建评论请求
 type CreateCommentRequest struct {
-	ArticleID uint   `json:"article_id" binding:"required"`
-	Content   string `json:"content" binding:"required,min=1,max=1000"`
-	Nickname  string `json:"nickname" binding:"required,min=1,max=50"`
-	Email     string `json:"email" binding:"omitempty,email"`
-	Website   string `json:"website" binding:"max=200"`
-	ParentID  *uint  `json:"parent_id"`
+	ArticleID   uint   `json:"article_id"`
+	ArticleSlug string `json:"article_slug"`
+	Content     string `json:"content" binding:"required,min=1,max=1000"`
+	Nickname    string `json:"nickname" binding:"required,min=1,max=50"`
+	Email       string `json:"email" binding:"omitempty,email"`
+	Website     string `json:"website" binding:"max=200"`
+	ParentID    *uint  `json:"parent_id"`
 }
 
 // UpdateCommentStatusRequest 更新评论状态请求

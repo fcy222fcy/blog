@@ -67,7 +67,16 @@ func (s *commentService) GetCommentsByArticle(articleParam string, req *request.
 
 // CreateComment 创建评论
 func (s *commentService) CreateComment(req *request.CreateCommentRequest) (uint, error) {
-	article, err := s.articleRepo.FindByID(req.ArticleID)
+	// 解析文章参数：优先用 slug，再用 ID
+	var article *entity.Article
+	var err error
+	if req.ArticleSlug != "" {
+		article, err = s.articleRepo.FindBySlug(req.ArticleSlug)
+	} else if req.ArticleID > 0 {
+		article, err = s.articleRepo.FindByID(req.ArticleID)
+	} else {
+		return 0, bizerrors.New(bizerrors.CodeArticleNotFound, bizerrors.GetMessage(bizerrors.CodeArticleNotFound))
+	}
 	if err != nil {
 		return 0, fmt.Errorf("查询文章失败, %w", err)
 	}
@@ -80,7 +89,7 @@ func (s *commentService) CreateComment(req *request.CreateCommentRequest) (uint,
 		Nickname:  req.Nickname,
 		Email:     req.Email,
 		Website:   req.Website,
-		ArticleID: req.ArticleID,
+		ArticleID: article.ID,
 		ParentID:  req.ParentID,
 		Status:    "approved",
 	}
