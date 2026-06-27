@@ -6,6 +6,7 @@ import (
 	"blog/internal/model/entity"
 	"blog/internal/repository"
 	bizerrors "blog/pkg/errors"
+	"sort"
 )
 
 // articleService 文章服务实现
@@ -70,7 +71,7 @@ func (s *articleService) GetArticleDetail(slug string) (*response.ArticleDetailR
 
 // GetArticleArchives 获取文章归档
 func (s *articleService) GetArticleArchives() ([]response.ArchiveResponse, error) {
-	// 获取所有已发布文章
+	// 获取所有已发布文章，按创建时间降序排序
 	articles, _, err := s.articleRepo.ListPublished(0, 1000, 0, 0, "")
 	if err != nil {
 		return nil, err
@@ -88,14 +89,23 @@ func (s *articleService) GetArticleArchives() ([]response.ArchiveResponse, error
 		})
 	}
 
-	// 转换为响应格式
+	// 转换为响应格式，并按年份降序排序
 	var result []response.ArchiveResponse
 	for year, arts := range yearMap {
+		// 确保每个年份内的文章按创建时间降序排序
+		sort.Slice(arts, func(i, j int) bool {
+			return arts[i].CreatedAt.After(arts[j].CreatedAt)
+		})
 		result = append(result, response.ArchiveResponse{
 			Year:     year,
 			Articles: arts,
 		})
 	}
+
+	// 按年份降序排序
+	sort.Slice(result, func(i, j int) bool {
+		return result[i].Year > result[j].Year
+	})
 
 	return result, nil
 }
