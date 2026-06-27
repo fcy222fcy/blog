@@ -1,108 +1,159 @@
 <template>
   <div>
-    <el-card>
-      <template #header>
-        <div style="display: flex; justify-content: space-between; align-items: center">
-          <span>每日一问管理</span>
-          <el-button type="primary" @click="showDialog()">新建问题</el-button>
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-label">问题总数</div>
+        <div class="stat-value">{{ questions.length }}</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">启用问题</div>
+        <div class="stat-value">{{ questions.filter(q => q.status === 1).length }}</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">总浏览量</div>
+        <div class="stat-value">{{ questions.reduce((s, q) => s + (q.view_count || 0), 0) }}</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">总点赞数</div>
+        <div class="stat-value">{{ questions.reduce((s, q) => s + (q.like_count || 0), 0) }}</div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-bottom: 20px;">
+      <div class="card-header">
+        <div class="card-title">问题管理</div>
+        <div style="display: flex; gap: 12px; flex-wrap: wrap; align-items: center;">
+          <div class="search-box">
+            <span class="search-box-icon">⌕</span>
+            <input type="text" v-model="keyword" placeholder="搜索问题...">
+          </div>
+          <select class="form-select" style="width: auto; padding: 9px 32px 9px 12px;" v-model="statusFilter">
+            <option value="">全部状态</option>
+            <option value="1">启用</option>
+            <option value="0">禁用</option>
+          </select>
+          <button class="btn btn-primary" @click="showModal = true; resetForm()">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+            <span>新建问题</span>
+          </button>
         </div>
-      </template>
+      </div>
+      <div class="card-body">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>问题</th>
+              <th>显示日期</th>
+              <th>状态</th>
+              <th>浏览/点赞</th>
+              <th>操作</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="q in filteredQuestions" :key="q.id">
+              <td style="max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ q.question }}</td>
+              <td>{{ q.date }}</td>
+              <td>
+                <span class="status-badge" :class="q.status === 1 ? 'status-published' : 'status-draft'">
+                  {{ q.status === 1 ? '启用' : '禁用' }}
+                </span>
+              </td>
+              <td>{{ q.view_count || 0 }} / {{ q.like_count || 0 }}</td>
+              <td>
+                <div style="display: flex; gap: 6px;">
+                  <button class="action-btn btn-edit btn-sm" @click="editQuestion(q)">编辑</button>
+                  <button class="action-btn btn-sm" :class="q.status === 1 ? 'btn-hide' : 'btn-edit'" @click="toggleStatus(q)">
+                    {{ q.status === 1 ? '禁用' : '启用' }}
+                  </button>
+                  <button class="action-btn btn-delete btn-sm" @click="handleDelete(q.id)">删除</button>
+                </div>
+              </td>
+            </tr>
+            <tr v-if="filteredQuestions.length === 0">
+              <td colspan="5" style="text-align: center; color: var(--card-text-color-tertiary); padding: 40px;">暂无问题</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
 
-      <el-table :data="questions" v-loading="loading" stripe>
-        <el-table-column prop="question" label="问题" min-width="200" show-overflow-tooltip />
-        <el-table-column prop="date" label="日期" width="120" />
-        <el-table-column prop="status" label="状态" width="100">
-          <template #default="{ row }">
-            <el-tag :type="row.status === 1 ? 'success' : 'info'">
-              {{ row.status === 1 ? '启用' : '禁用' }}
-            </el-tag>
-          </template>
-        </el-table-column>
-        <el-table-column prop="view_count" label="浏览" width="80" />
-        <el-table-column prop="like_count" label="点赞" width="80" />
-        <el-table-column label="操作" width="200">
-          <template #default="{ row }">
-            <el-button size="small" @click="showDialog(row)">编辑</el-button>
-            <el-button size="small" :type="row.status === 1 ? 'warning' : 'success'" @click="toggleStatus(row)">
-              {{ row.status === 1 ? '禁用' : '启用' }}
-            </el-button>
-            <el-popconfirm title="确定删除?" @confirm="handleDelete(row.id)">
-              <template #reference>
-                <el-button size="small" type="danger">删除</el-button>
-              </template>
-            </el-popconfirm>
-          </template>
-        </el-table-column>
-      </el-table>
-    </el-card>
-
-    <el-dialog v-model="dialogVisible" :title="editingId ? '编辑问题' : '新建问题'" width="600px">
-      <el-form :model="form" label-width="80px">
-        <el-form-item label="日期">
-          <el-date-picker v-model="form.date" type="date" value-format="YYYY-MM-DD" placeholder="选择日期" />
-        </el-form-item>
-        <el-form-item label="问题">
-          <el-input v-model="form.question" type="textarea" :rows="3" />
-        </el-form-item>
-        <el-form-item label="答案">
-          <el-input v-model="form.answer" type="textarea" :rows="6" />
-        </el-form-item>
-      </el-form>
-      <template #footer>
-        <el-button @click="dialogVisible = false">取消</el-button>
-        <el-button type="primary" @click="handleSave">保存</el-button>
-      </template>
-    </el-dialog>
+    <div class="modal-overlay" :class="{ active: showModal }" @click.self="showModal = false">
+      <div class="modal" style="max-width: 600px;">
+        <div class="modal-header">
+          <h3 class="modal-title">{{ editingId ? '编辑问题' : '新建问题' }}</h3>
+          <button class="modal-close" @click="showModal = false">×</button>
+        </div>
+        <div class="modal-body">
+          <div class="form-group">
+            <label class="form-label">日期</label>
+            <input type="date" class="form-input" v-model="form.date">
+          </div>
+          <div class="form-group">
+            <label class="form-label">问题 <span class="required">*</span></label>
+            <textarea class="form-textarea" v-model="form.question" placeholder="输入问题..." rows="3"></textarea>
+          </div>
+          <div class="form-group" style="margin-bottom: 0;">
+            <label class="form-label">答案</label>
+            <textarea class="form-textarea" v-model="form.answer" placeholder="输入答案..." rows="6"></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" @click="showModal = false">取消</button>
+          <button class="btn btn-primary" @click="handleSave">保存</button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
-import { ElMessage } from 'element-plus'
+import { ref, computed, onMounted } from 'vue'
+import { ElMessage, ElMessageBox } from 'element-plus'
 import { getDailyQuestionList, createDailyQuestion, updateDailyQuestion, deleteDailyQuestion, updateDailyQuestionStatus } from '../../api/daily'
 
 const questions = ref([])
-const loading = ref(false)
-const dialogVisible = ref(false)
+const keyword = ref('')
+const statusFilter = ref('')
+const showModal = ref(false)
 const editingId = ref(null)
 const form = ref({ question: '', answer: '', date: '' })
 
-const loadQuestions = async () => {
-  loading.value = true
-  try {
-    const res = await getDailyQuestionList({ page: 1, page_size: 50 })
-    questions.value = res.data?.list || []
-  } catch (e) { console.error(e) }
-  loading.value = false
+const filteredQuestions = computed(() => {
+  let list = questions.value
+  if (statusFilter.value !== '') list = list.filter(q => String(q.status) === statusFilter.value)
+  if (keyword.value) list = list.filter(q => (q.question || '').includes(keyword.value))
+  return list
+})
+
+const resetForm = () => { editingId.value = null; form.value = { question: '', answer: '', date: '' } }
+
+const editQuestion = (q) => {
+  editingId.value = q.id
+  form.value = { question: q.question, answer: q.answer, date: q.date }
+  showModal.value = true
 }
 
-const showDialog = (row) => {
-  if (row) {
-    editingId.value = row.id
-    form.value = { question: row.question, answer: row.answer, date: row.date }
-  } else {
-    editingId.value = null
-    form.value = { question: '', answer: '', date: '' }
-  }
-  dialogVisible.value = true
+const loadQuestions = async () => {
+  try {
+    const res = await getDailyQuestionList({ page: 1, page_size: 100 })
+    questions.value = res.data?.list || []
+  } catch (e) { console.error(e) }
 }
 
 const handleSave = async () => {
+  if (!form.value.question) { ElMessage.warning('请输入问题'); return }
   try {
-    if (editingId.value) {
-      await updateDailyQuestion(editingId.value, form.value)
-    } else {
-      await createDailyQuestion(form.value)
-    }
+    if (editingId.value) { await updateDailyQuestion(editingId.value, form.value) }
+    else { await createDailyQuestion(form.value) }
     ElMessage.success('保存成功')
-    dialogVisible.value = false
+    showModal.value = false
     loadQuestions()
   } catch (e) { console.error(e) }
 }
 
-const toggleStatus = async (row) => {
+const toggleStatus = async (q) => {
   try {
-    await updateDailyQuestionStatus(row.id, row.status === 1 ? 0 : 1)
+    await updateDailyQuestionStatus(q.id, q.status === 1 ? 0 : 1)
     ElMessage.success('操作成功')
     loadQuestions()
   } catch (e) { console.error(e) }
@@ -110,11 +161,17 @@ const toggleStatus = async (row) => {
 
 const handleDelete = async (id) => {
   try {
+    await ElMessageBox.confirm('确定要删除这个问题吗？', '确认删除', { confirmButtonText: '删除', cancelButtonText: '取消', type: 'warning' })
     await deleteDailyQuestion(id)
     ElMessage.success('删除成功')
     loadQuestions()
-  } catch (e) { console.error(e) }
+  } catch (e) { if (e !== 'cancel') console.error(e) }
 }
 
 onMounted(loadQuestions)
 </script>
+
+<style scoped>
+.btn-hide { background: rgba(245, 158, 11, 0.08); color: var(--warning-color); }
+.btn-hide:hover { background: var(--warning-color); color: white; }
+</style>

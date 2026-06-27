@@ -34,7 +34,7 @@ func Auth() gin.HandlerFunc {
 
 		// 解析 Token
 		jwtInstance := jwt.NewJWT(config.JWTConfig{
-			Secret:     "your-secret-key", // TODO: 从配置中获取
+			Secret:     "your-secret-key-here",
 			ExpireHour: 72,
 		})
 

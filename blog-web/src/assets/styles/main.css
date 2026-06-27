@@ -254,8 +254,9 @@ button, input { font: inherit; }
   border: 1px solid var(--card-border);
   border-radius: var(--card-border-radius);
   box-shadow: var(--shadow-l1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
-.article-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-l2); }
+.article-card:hover { transform: translateY(-5px); box-shadow: var(--shadow-l3); }
 .card-link {
   display: grid;
   grid-template-rows: auto auto minmax(72px, 1fr) auto;
@@ -274,9 +275,7 @@ button, input { font: inherit; }
   border-radius: var(--tag-border-radius);
   font-size: 1rem;
   font-weight: 700;
-  cursor: pointer;
 }
-.category-pill:hover { opacity: 0.85; transform: scale(1.05); }
 .category-build { background: #193c68; }
 .category-dev { background: #6d1b85; }
 .category-life { background: #117361; }
@@ -357,8 +356,9 @@ button, input { font: inherit; }
   border: 1px solid var(--card-border);
   border-radius: var(--card-border-radius);
   box-shadow: var(--shadow-l1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
-.media-item:hover { transform: translateY(-2px); box-shadow: var(--shadow-l2); }
+.media-item:hover { transform: translateY(-5px); box-shadow: var(--shadow-l3); }
 .media-cover { width: 120px; height: 160px; object-fit: cover; border-radius: var(--tag-border-radius); flex-shrink: 0; background: var(--body-background); }
 .media-body { flex: 1; min-width: 0; }
 .media-comment { margin: 0 0 8px; color: var(--card-text-color-secondary); font-size: 0.92rem; font-style: italic; }
@@ -397,8 +397,9 @@ button, input { font: inherit; }
   border: 1px solid var(--card-border);
   border-radius: var(--card-border-radius);
   box-shadow: var(--shadow-l1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
-.friend-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-l2); }
+.friend-card:hover { transform: translateY(-5px); box-shadow: var(--shadow-l3); }
 .friend-avatar-img { width: 72px; height: 72px; border-radius: 50%; object-fit: cover; margin-bottom: 14px; }
 .friend-card h3 { margin: 0 0 6px; color: var(--card-text-color-main); font-size: 1.05rem; }
 .friend-card p { margin: 0; color: var(--card-text-color-secondary); font-size: 0.88rem; }
@@ -465,8 +466,9 @@ button, input { font: inherit; }
   border: 1px solid var(--card-border);
   border-radius: var(--card-border-radius);
   box-shadow: var(--shadow-l1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
-.project-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-l2); }
+.project-card:hover { transform: translateY(-5px); box-shadow: var(--shadow-l3); }
 .project-icon-box { width: 48px; height: 48px; display: grid; place-items: center; background: rgba(var(--accent-color-rgb), 0.08); border-radius: var(--radius); font-size: 1.4rem; flex-shrink: 0; }
 .project-card h3 { margin: 0 0 4px; color: var(--card-text-color-main); font-size: 1rem; }
 .project-card p { margin: 0; color: var(--card-text-color-secondary); font-size: 0.88rem; }
@@ -564,10 +566,11 @@ button, input { font: inherit; }
 .dq-daily-card {
   position: relative;
   border: none !important;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 .dq-daily-card:hover {
-  box-shadow: var(--shadow-l2);
-  transform: translateY(-2px);
+  box-shadow: var(--shadow-l3);
+  transform: translateY(-5px);
 }
 .dq-daily-card .card-link {
   display: block;

@@ -43,7 +43,7 @@
     </article>
 
     <div v-if="articleStore.loading" class="loading">加载中...</div>
-    <div v-if="!articleStore.loading && articleStore.articles.length === 0" class="empty">暂无文章</div>
+    <div v-if="!articleStore.loading && articleStore.articles.length === 0" class="empty">没有更多文章了</div>
   </div>
 </template>
 

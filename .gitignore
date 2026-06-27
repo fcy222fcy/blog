@@ -75,3 +75,8 @@ _test/
 *.tmp
 *.orig
 *.rej
+
+# Node modules
+node_modules/
+blog-admin/node_modules/
+blog-web/node_modules/
