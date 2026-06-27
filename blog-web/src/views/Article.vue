@@ -12,6 +12,9 @@
       <div class="post-content" v-html="renderedContent"></div>
     </article>
 
+    <!-- 评论区 -->
+    <CommentSection v-if="articleStore.currentArticle" />
+
     <div v-if="articleStore.loading" class="loading">加载中...</div>
   </div>
 </template>
@@ -21,6 +24,7 @@ import { computed, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { useArticleStore } from '../stores/article'
 import { marked } from 'marked'
+import CommentSection from '../components/comment/CommentSection.vue'
 
 const route = useRoute()
 const articleStore = useArticleStore()
