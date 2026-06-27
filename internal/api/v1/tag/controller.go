@@ -3,10 +3,13 @@ package tag
 import (
 	"blog/internal/model/dto/request"
 	"blog/internal/service"
+	bizerrors "blog/pkg/errors"
+	"blog/pkg/logger"
 	"blog/pkg/response"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
 )
 
 // Controller 标签控制器
@@ -23,7 +26,13 @@ func NewController(tagSvc service.TagService) *Controller {
 func (c *Controller) GetTagList(ctx *gin.Context) {
 	result, err := c.tagSvc.GetTagList()
 	if err != nil {
-		response.Error(ctx, 500, "获取标签列表失败")
+		if bizerrors.IsBizError(err) {
+			logger.Warn("业务错误", zap.Error(err))
+			response.BizError(ctx, err)
+		} else {
+			logger.Error("获取标签列表失败", zap.Error(err))
+			response.ServerError(ctx, "服务器内部错误")
+		}
 		return
 	}
 
@@ -34,13 +43,19 @@ func (c *Controller) GetTagList(ctx *gin.Context) {
 func (c *Controller) CreateTag(ctx *gin.Context) {
 	var req request.CreateTagRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		response.Error(ctx, 400, "参数错误: "+err.Error())
+		response.BadRequest(ctx, "参数错误")
 		return
 	}
 
 	id, err := c.tagSvc.CreateTag(&req)
 	if err != nil {
-		response.Error(ctx, 500, "创建标签失败: "+err.Error())
+		if bizerrors.IsBizError(err) {
+			logger.Warn("业务错误", zap.Error(err))
+			response.BizError(ctx, err)
+		} else {
+			logger.Error("创建标签失败", zap.Error(err))
+			response.ServerError(ctx, "服务器内部错误")
+		}
 		return
 	}
 
@@ -51,19 +66,25 @@ func (c *Controller) CreateTag(ctx *gin.Context) {
 func (c *Controller) UpdateTag(ctx *gin.Context) {
 	id, err := strconv.ParseUint(ctx.Param("id"), 10, 32)
 	if err != nil {
-		response.Error(ctx, 400, "标签ID无效")
+		response.BadRequest(ctx, "参数错误")
 		return
 	}
 
 	var req request.UpdateTagRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		response.Error(ctx, 400, "参数错误: "+err.Error())
+		response.BadRequest(ctx, "参数错误")
 		return
 	}
 
 	err = c.tagSvc.UpdateTag(uint(id), &req)
 	if err != nil {
-		response.Error(ctx, 500, "更新标签失败: "+err.Error())
+		if bizerrors.IsBizError(err) {
+			logger.Warn("业务错误", zap.Error(err))
+			response.BizError(ctx, err)
+		} else {
+			logger.Error("更新标签失败", zap.Error(err))
+			response.ServerError(ctx, "服务器内部错误")
+		}
 		return
 	}
 
@@ -74,13 +95,19 @@ func (c *Controller) UpdateTag(ctx *gin.Context) {
 func (c *Controller) DeleteTag(ctx *gin.Context) {
 	id, err := strconv.ParseUint(ctx.Param("id"), 10, 32)
 	if err != nil {
-		response.Error(ctx, 400, "标签ID无效")
+		response.BadRequest(ctx, "参数错误")
 		return
 	}
 
 	err = c.tagSvc.DeleteTag(uint(id))
 	if err != nil {
-		response.Error(ctx, 500, "删除标签失败")
+		if bizerrors.IsBizError(err) {
+			logger.Warn("业务错误", zap.Error(err))
+			response.BizError(ctx, err)
+		} else {
+			logger.Error("删除标签失败", zap.Error(err))
+			response.ServerError(ctx, "服务器内部错误")
+		}
 		return
 	}
 

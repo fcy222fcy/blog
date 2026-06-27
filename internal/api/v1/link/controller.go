@@ -3,10 +3,13 @@ package link
 import (
 	"blog/internal/model/dto/request"
 	"blog/internal/service"
+	bizerrors "blog/pkg/errors"
+	"blog/pkg/logger"
 	"blog/pkg/response"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
 )
 
 // Controller 友链控制器
@@ -23,7 +26,13 @@ func NewController(linkSvc service.LinkService) *Controller {
 func (c *Controller) GetLinkList(ctx *gin.Context) {
 	result, err := c.linkSvc.GetLinkList()
 	if err != nil {
-		response.Error(ctx, 500, "获取友链列表失败")
+		if bizerrors.IsBizError(err) {
+			logger.Warn("获取友链列表业务错误", zap.Error(err))
+			response.BizError(ctx, err)
+		} else {
+			logger.Error("获取友链列表失败", zap.Error(err))
+			response.ServerError(ctx, "服务器内部错误")
+		}
 		return
 	}
 
@@ -34,13 +43,19 @@ func (c *Controller) GetLinkList(ctx *gin.Context) {
 func (c *Controller) GetAdminLinkList(ctx *gin.Context) {
 	var req request.LinkListRequest
 	if err := ctx.ShouldBindQuery(&req); err != nil {
-		response.Error(ctx, 400, "参数错误")
+		response.BadRequest(ctx, "参数错误")
 		return
 	}
 
 	result, err := c.linkSvc.GetAdminLinkList(&req)
 	if err != nil {
-		response.Error(ctx, 500, "获取友链列表失败")
+		if bizerrors.IsBizError(err) {
+			logger.Warn("获取后台友链列表业务错误", zap.Error(err))
+			response.BizError(ctx, err)
+		} else {
+			logger.Error("获取后台友链列表失败", zap.Error(err))
+			response.ServerError(ctx, "服务器内部错误")
+		}
 		return
 	}
 
@@ -51,13 +66,19 @@ func (c *Controller) GetAdminLinkList(ctx *gin.Context) {
 func (c *Controller) CreateLink(ctx *gin.Context) {
 	var req request.CreateLinkRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		response.Error(ctx, 400, "参数错误: "+err.Error())
+		response.BadRequest(ctx, "参数错误")
 		return
 	}
 
 	id, err := c.linkSvc.CreateLink(&req)
 	if err != nil {
-		response.Error(ctx, 500, "创建友链失败: "+err.Error())
+		if bizerrors.IsBizError(err) {
+			logger.Warn("创建友链业务错误", zap.Error(err))
+			response.BizError(ctx, err)
+		} else {
+			logger.Error("创建友链失败", zap.Error(err))
+			response.ServerError(ctx, "服务器内部错误")
+		}
 		return
 	}
 
@@ -68,19 +89,25 @@ func (c *Controller) CreateLink(ctx *gin.Context) {
 func (c *Controller) UpdateLink(ctx *gin.Context) {
 	id, err := strconv.ParseUint(ctx.Param("id"), 10, 32)
 	if err != nil {
-		response.Error(ctx, 400, "友链ID无效")
+		response.BadRequest(ctx, "友链ID无效")
 		return
 	}
 
 	var req request.UpdateLinkRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		response.Error(ctx, 400, "参数错误: "+err.Error())
+		response.BadRequest(ctx, "参数错误")
 		return
 	}
 
 	err = c.linkSvc.UpdateLink(uint(id), &req)
 	if err != nil {
-		response.Error(ctx, 500, "更新友链失败: "+err.Error())
+		if bizerrors.IsBizError(err) {
+			logger.Warn("更新友链业务错误", zap.Error(err))
+			response.BizError(ctx, err)
+		} else {
+			logger.Error("更新友链失败", zap.Error(err))
+			response.ServerError(ctx, "服务器内部错误")
+		}
 		return
 	}
 
@@ -91,13 +118,19 @@ func (c *Controller) UpdateLink(ctx *gin.Context) {
 func (c *Controller) DeleteLink(ctx *gin.Context) {
 	id, err := strconv.ParseUint(ctx.Param("id"), 10, 32)
 	if err != nil {
-		response.Error(ctx, 400, "友链ID无效")
+		response.BadRequest(ctx, "友链ID无效")
 		return
 	}
 
 	err = c.linkSvc.DeleteLink(uint(id))
 	if err != nil {
-		response.Error(ctx, 500, "删除友链失败")
+		if bizerrors.IsBizError(err) {
+			logger.Warn("删除友链业务错误", zap.Error(err))
+			response.BizError(ctx, err)
+		} else {
+			logger.Error("删除友链失败", zap.Error(err))
+			response.ServerError(ctx, "服务器内部错误")
+		}
 		return
 	}
 
@@ -108,7 +141,7 @@ func (c *Controller) DeleteLink(ctx *gin.Context) {
 func (c *Controller) UpdateLinkStatus(ctx *gin.Context) {
 	id, err := strconv.ParseUint(ctx.Param("id"), 10, 32)
 	if err != nil {
-		response.Error(ctx, 400, "友链ID无效")
+		response.BadRequest(ctx, "友链ID无效")
 		return
 	}
 
@@ -116,13 +149,19 @@ func (c *Controller) UpdateLinkStatus(ctx *gin.Context) {
 		Status string `json:"status" binding:"required"`
 	}
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		response.Error(ctx, 400, "参数错误")
+		response.BadRequest(ctx, "参数错误")
 		return
 	}
 
 	err = c.linkSvc.UpdateLinkStatus(uint(id), req.Status)
 	if err != nil {
-		response.Error(ctx, 500, "更新友链状态失败")
+		if bizerrors.IsBizError(err) {
+			logger.Warn("更新友链状态业务错误", zap.Error(err))
+			response.BizError(ctx, err)
+		} else {
+			logger.Error("更新友链状态失败", zap.Error(err))
+			response.ServerError(ctx, "服务器内部错误")
+		}
 		return
 	}
 

@@ -6,6 +6,8 @@ import (
 	"blog/internal/model/entity"
 	"blog/internal/repository"
 	bizerrors "blog/pkg/errors"
+	"blog/pkg/logger"
+	"fmt"
 )
 
 // tagService 标签服务实现
@@ -22,7 +24,7 @@ func NewTagService(tagRepo repository.TagRepository) TagService {
 func (s *tagService) GetTagList() ([]response.TagResponse, error) {
 	tags, err := s.tagRepo.List()
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("获取标签列表失败, %w", err)
 	}
 
 	var result []response.TagResponse
@@ -41,9 +43,12 @@ func (s *tagService) GetTagList() ([]response.TagResponse, error) {
 
 // CreateTag 创建标签
 func (s *tagService) CreateTag(req *request.CreateTagRequest) (uint, error) {
-	existing, _ := s.tagRepo.FindByName(req.Name)
+	existing, err := s.tagRepo.FindByName(req.Name)
+	if err != nil {
+		return 0, fmt.Errorf("查询标签失败, %w", err)
+	}
 	if existing != nil {
-		return 0, bizerrors.New(bizerrors.CodeTagNameExists, "标签名称已存在")
+		return 0, bizerrors.New(bizerrors.CodeTagNameExists, bizerrors.GetMessage(bizerrors.CodeTagNameExists))
 	}
 
 	tag := &entity.Tag{
@@ -51,11 +56,11 @@ func (s *tagService) CreateTag(req *request.CreateTagRequest) (uint, error) {
 		Slug: req.Slug,
 	}
 
-	err := s.tagRepo.Create(tag)
-	if err != nil {
-		return 0, err
+	if err := s.tagRepo.Create(tag); err != nil {
+		return 0, fmt.Errorf("创建标签失败, %w", err)
 	}
 
+	logger.Infof("创建标签成功, id=%d, name=%s", tag.ID, tag.Name)
 	return tag.ID, nil
 }
 
@@ -63,16 +68,19 @@ func (s *tagService) CreateTag(req *request.CreateTagRequest) (uint, error) {
 func (s *tagService) UpdateTag(id uint, req *request.UpdateTagRequest) error {
 	tag, err := s.tagRepo.FindByID(id)
 	if err != nil {
-		return err
+		return fmt.Errorf("查询标签失败, %w", err)
 	}
 	if tag == nil {
-		return bizerrors.New(bizerrors.CodeTagNotFound, "标签不存在")
+		return bizerrors.New(bizerrors.CodeTagNotFound, bizerrors.GetMessage(bizerrors.CodeTagNotFound))
 	}
 
 	if req.Name != "" {
-		existing, _ := s.tagRepo.FindByName(req.Name)
+		existing, err := s.tagRepo.FindByName(req.Name)
+		if err != nil {
+			return fmt.Errorf("查询标签名称失败, %w", err)
+		}
 		if existing != nil && existing.ID != id {
-			return bizerrors.New(bizerrors.CodeTagNameExists, "标签名称已存在")
+			return bizerrors.New(bizerrors.CodeTagNameExists, bizerrors.GetMessage(bizerrors.CodeTagNameExists))
 		}
 		tag.Name = req.Name
 	}
@@ -80,23 +88,36 @@ func (s *tagService) UpdateTag(id uint, req *request.UpdateTagRequest) error {
 		tag.Slug = req.Slug
 	}
 
-	return s.tagRepo.Update(tag)
+	if err := s.tagRepo.Update(tag); err != nil {
+		return fmt.Errorf("更新标签失败, %w", err)
+	}
+
+	logger.Infof("更新标签成功, id=%d", id)
+	return nil
 }
 
 // DeleteTag 删除标签
 func (s *tagService) DeleteTag(id uint) error {
 	tag, err := s.tagRepo.FindByID(id)
 	if err != nil {
-		return err
+		return fmt.Errorf("查询标签失败, %w", err)
 	}
 	if tag == nil {
-		return bizerrors.New(bizerrors.CodeTagNotFound, "标签不存在")
+		return bizerrors.New(bizerrors.CodeTagNotFound, bizerrors.GetMessage(bizerrors.CodeTagNotFound))
 	}
 
-	count, _ := s.tagRepo.GetTagArticleCount(id)
+	count, err := s.tagRepo.GetTagArticleCount(id)
+	if err != nil {
+		return fmt.Errorf("获取标签文章数失败, %w", err)
+	}
 	if count > 0 {
-		return bizerrors.New(bizerrors.CodeTagHasArticles, "该标签下还有文章，无法删除")
+		return bizerrors.New(bizerrors.CodeTagHasArticles, bizerrors.GetMessage(bizerrors.CodeTagHasArticles))
 	}
 
-	return s.tagRepo.Delete(id)
+	if err := s.tagRepo.Delete(id); err != nil {
+		return fmt.Errorf("删除标签失败, %w", err)
+	}
+
+	logger.Infof("删除标签成功, id=%d", id)
+	return nil
 }

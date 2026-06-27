@@ -1,7 +1,9 @@
 package logger
 
 import (
+	"io"
 	"os"
+	"path/filepath"
 
 	"blog/pkg/config"
 
@@ -10,118 +12,125 @@ import (
 	"gopkg.in/natefinch/lumberjack.v2"
 )
 
-// Logger 日志
-type Logger struct {
-	*zap.SugaredLogger
-}
+var (
+	log          = zap.NewNop()
+	sugar        = log.Sugar()
+	outputCloser io.Closer
+)
 
-var globalLogger *Logger
+// Init 初始化日志系统
+func Init(cfg config.LogConfig) error {
+	_ = closeOutputs()
 
-// NewLogger 创建日志实例
-func NewLogger(cfg config.LogConfig) (*Logger, error) {
-	// 日志级别
-	level := zap.InfoLevel
-	switch cfg.Level {
-	case "debug":
-		level = zap.DebugLevel
-	case "info":
-		level = zap.InfoLevel
-	case "warn":
-		level = zap.WarnLevel
-	case "error":
-		level = zap.ErrorLevel
+	if err := ensureLogDir(cfg.Filename); err != nil {
+		return err
 	}
 
-	// 日志轮转配置
-	writeSyncer := zapcore.AddSync(&lumberjack.Logger{
+	level := parseLevel(cfg.Level)
+
+	fileWriter := &lumberjack.Logger{
 		Filename:   cfg.Filename,
-		MaxSize:    cfg.MaxSize,    // MB
-		MaxBackups: cfg.MaxBackups, // 个
-		MaxAge:     cfg.MaxAge,     // 天
-		Compress:   true,
-	})
+		MaxSize:    cfg.MaxSize,
+		MaxBackups: cfg.MaxBackups,
+		MaxAge:     cfg.MaxAge,
+	}
+	outputCloser = fileWriter
 
-	// 编码器配置
-	encoderConfig := zap.NewProductionEncoderConfig()
-	encoderConfig.TimeKey = "time"
-	encoderConfig.EncodeTime = zapcore.ISO8601TimeEncoder
-	encoderConfig.EncodeLevel = zapcore.CapitalLevelEncoder
-
-	encoder := zapcore.NewJSONEncoder(encoderConfig)
-
-	// 创建 Core
 	core := zapcore.NewTee(
-		zapcore.NewCore(encoder, writeSyncer, level),
-		zapcore.NewCore(encoder, zapcore.AddSync(os.Stdout), level),
+		zapcore.NewCore(
+			zapcore.NewConsoleEncoder(newConsoleEncoderConfig()),
+			zapcore.AddSync(os.Stdout),
+			level,
+		),
+		zapcore.NewCore(
+			zapcore.NewJSONEncoder(newJSONEncoderConfig()),
+			zapcore.AddSync(fileWriter),
+			level,
+		),
 	)
 
-	// 创建 Logger
-	zapLogger := zap.New(core, zap.AddCaller(), zap.AddCallerSkip(1))
-
-	return &Logger{zapLogger.Sugar()}, nil
+	log = zap.New(
+		core,
+		zap.AddCaller(),
+		zap.AddCallerSkip(1),
+		zap.AddStacktrace(zapcore.ErrorLevel),
+	)
+	sugar = log.Sugar()
+	return nil
 }
 
-// SetGlobalLogger 设置全局日志
-func SetGlobalLogger(l *Logger) {
-	globalLogger = l
+func parseLevel(raw string) zapcore.Level {
+	switch raw {
+	case "debug":
+		return zapcore.DebugLevel
+	case "warn":
+		return zapcore.WarnLevel
+	case "error":
+		return zapcore.ErrorLevel
+	default:
+		return zapcore.InfoLevel
+	}
 }
 
-// GetGlobalLogger 获取全局日志
-func GetGlobalLogger() *Logger {
-	return globalLogger
+func newBaseEncoderConfig() zapcore.EncoderConfig {
+	return zapcore.EncoderConfig{
+		TimeKey:        "time",
+		LevelKey:       "level",
+		NameKey:        "logger",
+		CallerKey:      "caller",
+		FunctionKey:    zapcore.OmitKey,
+		MessageKey:     "msg",
+		StacktraceKey:  "stacktrace",
+		LineEnding:     zapcore.DefaultLineEnding,
+		EncodeTime:     zapcore.TimeEncoderOfLayout("2006-01-02 15:04:05"),
+		EncodeDuration: zapcore.SecondsDurationEncoder,
+		EncodeCaller:   zapcore.ShortCallerEncoder,
+	}
 }
 
-// Debug 调试日志
-func Debug(args ...interface{}) {
-	globalLogger.Debug(args...)
+func newConsoleEncoderConfig() zapcore.EncoderConfig {
+	cfg := newBaseEncoderConfig()
+	cfg.EncodeLevel = zapcore.CapitalColorLevelEncoder
+	cfg.ConsoleSeparator = "  "
+	return cfg
 }
 
-// Debugf 调试日志（格式化）
-func Debugf(template string, args ...interface{}) {
-	globalLogger.Debugf(template, args...)
+func newJSONEncoderConfig() zapcore.EncoderConfig {
+	cfg := newBaseEncoderConfig()
+	cfg.EncodeLevel = zapcore.LowercaseLevelEncoder
+	return cfg
 }
 
-// Info 信息日志
-func Info(args ...interface{}) {
-	globalLogger.Info(args...)
+func ensureLogDir(filename string) error {
+	dir := filepath.Dir(filename)
+	if dir == "" || dir == "." {
+		return nil
+	}
+	return os.MkdirAll(dir, 0o755)
 }
 
-// Infof 信息日志（格式化）
-func Infof(template string, args ...interface{}) {
-	globalLogger.Infof(template, args...)
+func closeOutputs() error {
+	if outputCloser == nil {
+		return nil
+	}
+	err := outputCloser.Close()
+	outputCloser = nil
+	return err
 }
 
-// Warn 警告日志
-func Warn(args ...interface{}) {
-	globalLogger.Warn(args...)
-}
+func Debug(msg string, fields ...zap.Field)  { log.Debug(msg, fields...) }
+func Info(msg string, fields ...zap.Field)   { log.Info(msg, fields...) }
+func Warn(msg string, fields ...zap.Field)   { log.Warn(msg, fields...) }
+func Error(msg string, fields ...zap.Field)  { log.Error(msg, fields...) }
+func Fatal(msg string, fields ...zap.Field)  { log.Panic(msg, fields...) }
 
-// Warnf 警告日志（格式化）
-func Warnf(template string, args ...interface{}) {
-	globalLogger.Warnf(template, args...)
-}
+func Debugf(format string, args ...interface{}) { sugar.Debugf(format, args...) }
+func Infof(format string, args ...interface{})  { sugar.Infof(format, args...) }
+func Warnf(format string, args ...interface{})  { sugar.Warnf(format, args...) }
+func Errorf(format string, args ...interface{}) { sugar.Errorf(format, args...) }
+func Fatalf(format string, args ...interface{}) { sugar.Fatalf(format, args...) }
 
-// Error 错误日志
-func Error(args ...interface{}) {
-	globalLogger.Error(args...)
-}
-
-// Errorf 错误日志（格式化）
-func Errorf(template string, args ...interface{}) {
-	globalLogger.Errorf(template, args...)
-}
-
-// Fatal 致命错误日志
-func Fatal(args ...interface{}) {
-	globalLogger.Fatal(args...)
-}
-
-// Fatalf 致命错误日志（格式化）
-func Fatalf(template string, args ...interface{}) {
-	globalLogger.Fatalf(template, args...)
-}
-
-// Sync 同步日志
-func (l *Logger) Sync() error {
-	return l.Sync()
-}
+func With(fields ...zap.Field) *zap.Logger       { return log.With(fields...) }
+func Sync() error                                 { return log.Sync() }
+func GetLogger() *zap.Logger                      { return log }
+func GetSugaredLogger() *zap.SugaredLogger        { return sugar }

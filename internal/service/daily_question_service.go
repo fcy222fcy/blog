@@ -6,6 +6,8 @@ import (
 	"blog/internal/model/entity"
 	"blog/internal/repository"
 	bizerrors "blog/pkg/errors"
+	"blog/pkg/logger"
+	"fmt"
 )
 
 // dailyQuestionService 每日一问服务实现
@@ -22,10 +24,10 @@ func NewDailyQuestionService(dailyQuestionRepo repository.DailyQuestionRepositor
 func (s *dailyQuestionService) GetLatestQuestion() (*response.DailyQuestionResponse, error) {
 	question, err := s.dailyQuestionRepo.GetLatest()
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("获取最新问题失败, %w", err)
 	}
 	if question == nil {
-		return nil, bizerrors.New(bizerrors.CodeDailyQuestionNotFound, "暂无问题")
+		return nil, bizerrors.New(bizerrors.CodeDailyQuestionNotFound, bizerrors.GetMessage(bizerrors.CodeDailyQuestionNotFound))
 	}
 
 	_ = s.dailyQuestionRepo.IncrementViewCount(question.ID)
@@ -36,10 +38,10 @@ func (s *dailyQuestionService) GetLatestQuestion() (*response.DailyQuestionRespo
 func (s *dailyQuestionService) GetQuestionByDate(date string) (*response.DailyQuestionResponse, error) {
 	question, err := s.dailyQuestionRepo.FindByDate(date)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("根据日期查询问题失败, %w", err)
 	}
 	if question == nil {
-		return nil, bizerrors.New(bizerrors.CodeDailyQuestionNotFound, "该日期没有问题")
+		return nil, bizerrors.New(bizerrors.CodeDailyQuestionNotFound, bizerrors.GetMessage(bizerrors.CodeDailyQuestionNotFound))
 	}
 
 	_ = s.dailyQuestionRepo.IncrementViewCount(question.ID)
@@ -50,7 +52,7 @@ func (s *dailyQuestionService) GetQuestionByDate(date string) (*response.DailyQu
 func (s *dailyQuestionService) GetPreviousQuestion(date string) (*response.DailyQuestionResponse, error) {
 	question, err := s.dailyQuestionRepo.GetPrevious(date)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("获取前一天问题失败, %w", err)
 	}
 	if question == nil {
 		return nil, bizerrors.New(bizerrors.CodeDailyQuestionNotFound, "没有前一天的问题")
@@ -63,7 +65,7 @@ func (s *dailyQuestionService) GetPreviousQuestion(date string) (*response.Daily
 func (s *dailyQuestionService) GetNextQuestion(date string) (*response.DailyQuestionResponse, error) {
 	question, err := s.dailyQuestionRepo.GetNext(date)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("获取后一天问题失败, %w", err)
 	}
 	if question == nil {
 		return nil, bizerrors.New(bizerrors.CodeDailyQuestionNotFound, "没有后一天的问题")
@@ -74,7 +76,12 @@ func (s *dailyQuestionService) GetNextQuestion(date string) (*response.DailyQues
 
 // LikeQuestion 问题点赞
 func (s *dailyQuestionService) LikeQuestion(id uint) (int64, error) {
-	return s.dailyQuestionRepo.IncrementLikeCount(id)
+	count, err := s.dailyQuestionRepo.IncrementLikeCount(id)
+	if err != nil {
+		return 0, fmt.Errorf("问题点赞失败, %w", err)
+	}
+	logger.Infof("问题点赞成功, id: %d, likeCount: %d", id, count)
+	return count, nil
 }
 
 // GetAdminQuestionList 获取问题列表（后台）
@@ -93,7 +100,7 @@ func (s *dailyQuestionService) GetAdminQuestionList(req *request.DailyQuestionLi
 
 	list, total, err := s.dailyQuestionRepo.List((req.Page-1)*req.PageSize, req.PageSize, status)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("获取后台问题列表失败, %w", err)
 	}
 
 	var result []response.DailyQuestionResponse
@@ -108,7 +115,7 @@ func (s *dailyQuestionService) GetAdminQuestionList(req *request.DailyQuestionLi
 func (s *dailyQuestionService) CreateQuestion(req *request.CreateDailyQuestionRequest) (uint, error) {
 	existing, _ := s.dailyQuestionRepo.FindByDate(req.Date)
 	if existing != nil {
-		return 0, bizerrors.New(bizerrors.CodeDailyQuestionDateExists, "该日期已有问题")
+		return 0, bizerrors.New(bizerrors.CodeDailyQuestionDateExists, bizerrors.GetMessage(bizerrors.CodeDailyQuestionDateExists))
 	}
 
 	question := &entity.DailyQuestion{
@@ -120,9 +127,10 @@ func (s *dailyQuestionService) CreateQuestion(req *request.CreateDailyQuestionRe
 
 	err := s.dailyQuestionRepo.Create(question)
 	if err != nil {
-		return 0, err
+		return 0, fmt.Errorf("创建问题失败, %w", err)
 	}
 
+	logger.Infof("创建问题成功, id: %d, date: %s", question.ID, question.Date)
 	return question.ID, nil
 }
 
@@ -130,10 +138,10 @@ func (s *dailyQuestionService) CreateQuestion(req *request.CreateDailyQuestionRe
 func (s *dailyQuestionService) UpdateQuestion(id uint, req *request.UpdateDailyQuestionRequest) error {
 	question, err := s.dailyQuestionRepo.FindByID(id)
 	if err != nil {
-		return err
+		return fmt.Errorf("查询问题失败, %w", err)
 	}
 	if question == nil {
-		return bizerrors.New(bizerrors.CodeDailyQuestionNotFound, "问题不存在")
+		return bizerrors.New(bizerrors.CodeDailyQuestionNotFound, bizerrors.GetMessage(bizerrors.CodeDailyQuestionNotFound))
 	}
 
 	if req.Question != "" {
@@ -145,7 +153,7 @@ func (s *dailyQuestionService) UpdateQuestion(id uint, req *request.UpdateDailyQ
 	if req.Date != "" {
 		existing, _ := s.dailyQuestionRepo.FindByDate(req.Date)
 		if existing != nil && existing.ID != id {
-			return bizerrors.New(bizerrors.CodeDailyQuestionDateExists, "该日期已有问题")
+			return bizerrors.New(bizerrors.CodeDailyQuestionDateExists, bizerrors.GetMessage(bizerrors.CodeDailyQuestionDateExists))
 		}
 		question.Date = req.Date
 	}
@@ -153,34 +161,49 @@ func (s *dailyQuestionService) UpdateQuestion(id uint, req *request.UpdateDailyQ
 		question.Status = req.Status
 	}
 
-	return s.dailyQuestionRepo.Update(question)
+	if err := s.dailyQuestionRepo.Update(question); err != nil {
+		return fmt.Errorf("更新问题失败, %w", err)
+	}
+
+	logger.Infof("更新问题成功, id: %d", id)
+	return nil
 }
 
 // DeleteQuestion 删除问题
 func (s *dailyQuestionService) DeleteQuestion(id uint) error {
 	question, err := s.dailyQuestionRepo.FindByID(id)
 	if err != nil {
-		return err
+		return fmt.Errorf("查询问题失败, %w", err)
 	}
 	if question == nil {
-		return bizerrors.New(bizerrors.CodeDailyQuestionNotFound, "问题不存在")
+		return bizerrors.New(bizerrors.CodeDailyQuestionNotFound, bizerrors.GetMessage(bizerrors.CodeDailyQuestionNotFound))
 	}
 
-	return s.dailyQuestionRepo.Delete(id)
+	if err := s.dailyQuestionRepo.Delete(id); err != nil {
+		return fmt.Errorf("删除问题失败, %w", err)
+	}
+
+	logger.Infof("删除问题成功, id: %d", id)
+	return nil
 }
 
 // UpdateQuestionStatus 更新问题状态
 func (s *dailyQuestionService) UpdateQuestionStatus(id uint, status int) error {
 	question, err := s.dailyQuestionRepo.FindByID(id)
 	if err != nil {
-		return err
+		return fmt.Errorf("查询问题失败, %w", err)
 	}
 	if question == nil {
-		return bizerrors.New(bizerrors.CodeDailyQuestionNotFound, "问题不存在")
+		return bizerrors.New(bizerrors.CodeDailyQuestionNotFound, bizerrors.GetMessage(bizerrors.CodeDailyQuestionNotFound))
 	}
 
 	question.Status = status
-	return s.dailyQuestionRepo.Update(question)
+	if err := s.dailyQuestionRepo.Update(question); err != nil {
+		return fmt.Errorf("更新问题状态失败, %w", err)
+	}
+
+	logger.Infof("更新问题状态成功, id: %d, status: %d", id, status)
+	return nil
 }
 
 // toResponse 转换为响应DTO

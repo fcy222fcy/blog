@@ -6,6 +6,8 @@ import (
 	"blog/internal/model/entity"
 	"blog/internal/repository"
 	bizerrors "blog/pkg/errors"
+	"blog/pkg/logger"
+	"fmt"
 )
 
 // linkService 友链服务实现
@@ -22,7 +24,7 @@ func NewLinkService(linkRepo repository.LinkRepository) LinkService {
 func (s *linkService) GetLinkList() ([]response.LinkResponse, error) {
 	links, err := s.linkRepo.List()
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("获取友链列表失败, %w", err)
 	}
 
 	var result []response.LinkResponse
@@ -53,7 +55,7 @@ func (s *linkService) GetAdminLinkList(req *request.LinkListRequest) (*response.
 
 	list, total, err := s.linkRepo.AdminList((req.Page-1)*req.PageSize, req.PageSize, req.Status)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("获取后台友链列表失败, %w", err)
 	}
 
 	var result []response.LinkResponse
@@ -88,9 +90,10 @@ func (s *linkService) CreateLink(req *request.CreateLinkRequest) (uint, error) {
 
 	err := s.linkRepo.Create(link)
 	if err != nil {
-		return 0, err
+		return 0, fmt.Errorf("创建友链失败, %w", err)
 	}
 
+	logger.Infof("创建友链成功, id: %d, name: %s", link.ID, link.Name)
 	return link.ID, nil
 }
 
@@ -98,10 +101,10 @@ func (s *linkService) CreateLink(req *request.CreateLinkRequest) (uint, error) {
 func (s *linkService) UpdateLink(id uint, req *request.UpdateLinkRequest) error {
 	link, err := s.linkRepo.FindByID(id)
 	if err != nil {
-		return err
+		return fmt.Errorf("查询友链失败, %w", err)
 	}
 	if link == nil {
-		return bizerrors.New(bizerrors.CodeLinkNotFound, "友链不存在")
+		return bizerrors.New(bizerrors.CodeLinkNotFound, bizerrors.GetMessage(bizerrors.CodeLinkNotFound))
 	}
 
 	if req.Name != "" {
@@ -123,32 +126,47 @@ func (s *linkService) UpdateLink(id uint, req *request.UpdateLinkRequest) error 
 		link.SortOrder = req.SortOrder
 	}
 
-	return s.linkRepo.Update(link)
+	if err := s.linkRepo.Update(link); err != nil {
+		return fmt.Errorf("更新友链失败, %w", err)
+	}
+
+	logger.Infof("更新友链成功, id: %d", id)
+	return nil
 }
 
 // DeleteLink 删除友链
 func (s *linkService) DeleteLink(id uint) error {
 	link, err := s.linkRepo.FindByID(id)
 	if err != nil {
-		return err
+		return fmt.Errorf("查询友链失败, %w", err)
 	}
 	if link == nil {
-		return bizerrors.New(bizerrors.CodeLinkNotFound, "友链不存在")
+		return bizerrors.New(bizerrors.CodeLinkNotFound, bizerrors.GetMessage(bizerrors.CodeLinkNotFound))
 	}
 
-	return s.linkRepo.Delete(id)
+	if err := s.linkRepo.Delete(id); err != nil {
+		return fmt.Errorf("删除友链失败, %w", err)
+	}
+
+	logger.Infof("删除友链成功, id: %d", id)
+	return nil
 }
 
 // UpdateLinkStatus 更新友链状态
 func (s *linkService) UpdateLinkStatus(id uint, status string) error {
 	link, err := s.linkRepo.FindByID(id)
 	if err != nil {
-		return err
+		return fmt.Errorf("查询友链失败, %w", err)
 	}
 	if link == nil {
-		return bizerrors.New(bizerrors.CodeLinkNotFound, "友链不存在")
+		return bizerrors.New(bizerrors.CodeLinkNotFound, bizerrors.GetMessage(bizerrors.CodeLinkNotFound))
 	}
 
 	link.Status = status
-	return s.linkRepo.Update(link)
+	if err := s.linkRepo.Update(link); err != nil {
+		return fmt.Errorf("更新友链状态失败, %w", err)
+	}
+
+	logger.Infof("更新友链状态成功, id: %d, status: %s", id, status)
+	return nil
 }

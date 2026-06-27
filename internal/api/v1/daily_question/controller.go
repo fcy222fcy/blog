@@ -3,10 +3,13 @@ package daily_question
 import (
 	"blog/internal/model/dto/request"
 	"blog/internal/service"
+	bizerrors "blog/pkg/errors"
+	"blog/pkg/logger"
 	"blog/pkg/response"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
 )
 
 // Controller 每日一问控制器
@@ -23,7 +26,13 @@ func NewController(dailyQSvc service.DailyQuestionService) *Controller {
 func (c *Controller) GetLatestQuestion(ctx *gin.Context) {
 	result, err := c.dailyQSvc.GetLatestQuestion()
 	if err != nil {
-		response.Error(ctx, 500, "获取最新问题失败")
+		if bizerrors.IsBizError(err) {
+			logger.Warn("获取最新问题业务错误", zap.Error(err))
+			response.BizError(ctx, err)
+		} else {
+			logger.Error("获取最新问题失败", zap.Error(err))
+			response.ServerError(ctx, "服务器内部错误")
+		}
 		return
 	}
 
@@ -34,13 +43,19 @@ func (c *Controller) GetLatestQuestion(ctx *gin.Context) {
 func (c *Controller) GetQuestionByDate(ctx *gin.Context) {
 	date := ctx.Param("date")
 	if date == "" {
-		response.Error(ctx, 400, "日期不能为空")
+		response.BadRequest(ctx, "日期不能为空")
 		return
 	}
 
 	result, err := c.dailyQSvc.GetQuestionByDate(date)
 	if err != nil {
-		response.Error(ctx, 404, "该日期没有问题")
+		if bizerrors.IsBizError(err) {
+			logger.Warn("根据日期获取问题业务错误", zap.Error(err))
+			response.BizError(ctx, err)
+		} else {
+			logger.Error("根据日期获取问题失败", zap.Error(err))
+			response.ServerError(ctx, "服务器内部错误")
+		}
 		return
 	}
 
@@ -51,13 +66,19 @@ func (c *Controller) GetQuestionByDate(ctx *gin.Context) {
 func (c *Controller) GetPreviousQuestion(ctx *gin.Context) {
 	date := ctx.Param("date")
 	if date == "" {
-		response.Error(ctx, 400, "日期不能为空")
+		response.BadRequest(ctx, "日期不能为空")
 		return
 	}
 
 	result, err := c.dailyQSvc.GetPreviousQuestion(date)
 	if err != nil {
-		response.Error(ctx, 404, "没有前一天的问题")
+		if bizerrors.IsBizError(err) {
+			logger.Warn("获取前一天问题业务错误", zap.Error(err))
+			response.BizError(ctx, err)
+		} else {
+			logger.Error("获取前一天问题失败", zap.Error(err))
+			response.ServerError(ctx, "服务器内部错误")
+		}
 		return
 	}
 
@@ -68,13 +89,19 @@ func (c *Controller) GetPreviousQuestion(ctx *gin.Context) {
 func (c *Controller) GetNextQuestion(ctx *gin.Context) {
 	date := ctx.Param("date")
 	if date == "" {
-		response.Error(ctx, 400, "日期不能为空")
+		response.BadRequest(ctx, "日期不能为空")
 		return
 	}
 
 	result, err := c.dailyQSvc.GetNextQuestion(date)
 	if err != nil {
-		response.Error(ctx, 404, "没有后一天的问题")
+		if bizerrors.IsBizError(err) {
+			logger.Warn("获取后一天问题业务错误", zap.Error(err))
+			response.BizError(ctx, err)
+		} else {
+			logger.Error("获取后一天问题失败", zap.Error(err))
+			response.ServerError(ctx, "服务器内部错误")
+		}
 		return
 	}
 
@@ -85,13 +112,19 @@ func (c *Controller) GetNextQuestion(ctx *gin.Context) {
 func (c *Controller) LikeQuestion(ctx *gin.Context) {
 	id, err := strconv.ParseUint(ctx.Param("id"), 10, 32)
 	if err != nil {
-		response.Error(ctx, 400, "问题ID无效")
+		response.BadRequest(ctx, "问题ID无效")
 		return
 	}
 
 	likeCount, err := c.dailyQSvc.LikeQuestion(uint(id))
 	if err != nil {
-		response.Error(ctx, 500, "点赞失败")
+		if bizerrors.IsBizError(err) {
+			logger.Warn("问题点赞业务错误", zap.Error(err))
+			response.BizError(ctx, err)
+		} else {
+			logger.Error("问题点赞失败", zap.Error(err))
+			response.ServerError(ctx, "服务器内部错误")
+		}
 		return
 	}
 
@@ -102,13 +135,19 @@ func (c *Controller) LikeQuestion(ctx *gin.Context) {
 func (c *Controller) GetAdminQuestionList(ctx *gin.Context) {
 	var req request.DailyQuestionListRequest
 	if err := ctx.ShouldBindQuery(&req); err != nil {
-		response.Error(ctx, 400, "参数错误")
+		response.BadRequest(ctx, "参数错误")
 		return
 	}
 
 	result, err := c.dailyQSvc.GetAdminQuestionList(&req)
 	if err != nil {
-		response.Error(ctx, 500, "获取问题列表失败")
+		if bizerrors.IsBizError(err) {
+			logger.Warn("获取后台问题列表业务错误", zap.Error(err))
+			response.BizError(ctx, err)
+		} else {
+			logger.Error("获取后台问题列表失败", zap.Error(err))
+			response.ServerError(ctx, "服务器内部错误")
+		}
 		return
 	}
 
@@ -119,13 +158,19 @@ func (c *Controller) GetAdminQuestionList(ctx *gin.Context) {
 func (c *Controller) CreateQuestion(ctx *gin.Context) {
 	var req request.CreateDailyQuestionRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		response.Error(ctx, 400, "参数错误: "+err.Error())
+		response.BadRequest(ctx, "参数错误")
 		return
 	}
 
 	id, err := c.dailyQSvc.CreateQuestion(&req)
 	if err != nil {
-		response.Error(ctx, 500, "创建问题失败: "+err.Error())
+		if bizerrors.IsBizError(err) {
+			logger.Warn("创建问题业务错误", zap.Error(err))
+			response.BizError(ctx, err)
+		} else {
+			logger.Error("创建问题失败", zap.Error(err))
+			response.ServerError(ctx, "服务器内部错误")
+		}
 		return
 	}
 
@@ -136,19 +181,25 @@ func (c *Controller) CreateQuestion(ctx *gin.Context) {
 func (c *Controller) UpdateQuestion(ctx *gin.Context) {
 	id, err := strconv.ParseUint(ctx.Param("id"), 10, 32)
 	if err != nil {
-		response.Error(ctx, 400, "问题ID无效")
+		response.BadRequest(ctx, "问题ID无效")
 		return
 	}
 
 	var req request.UpdateDailyQuestionRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		response.Error(ctx, 400, "参数错误: "+err.Error())
+		response.BadRequest(ctx, "参数错误")
 		return
 	}
 
 	err = c.dailyQSvc.UpdateQuestion(uint(id), &req)
 	if err != nil {
-		response.Error(ctx, 500, "更新问题失败: "+err.Error())
+		if bizerrors.IsBizError(err) {
+			logger.Warn("更新问题业务错误", zap.Error(err))
+			response.BizError(ctx, err)
+		} else {
+			logger.Error("更新问题失败", zap.Error(err))
+			response.ServerError(ctx, "服务器内部错误")
+		}
 		return
 	}
 
@@ -159,13 +210,19 @@ func (c *Controller) UpdateQuestion(ctx *gin.Context) {
 func (c *Controller) DeleteQuestion(ctx *gin.Context) {
 	id, err := strconv.ParseUint(ctx.Param("id"), 10, 32)
 	if err != nil {
-		response.Error(ctx, 400, "问题ID无效")
+		response.BadRequest(ctx, "问题ID无效")
 		return
 	}
 
 	err = c.dailyQSvc.DeleteQuestion(uint(id))
 	if err != nil {
-		response.Error(ctx, 500, "删除问题失败")
+		if bizerrors.IsBizError(err) {
+			logger.Warn("删除问题业务错误", zap.Error(err))
+			response.BizError(ctx, err)
+		} else {
+			logger.Error("删除问题失败", zap.Error(err))
+			response.ServerError(ctx, "服务器内部错误")
+		}
 		return
 	}
 
@@ -176,7 +233,7 @@ func (c *Controller) DeleteQuestion(ctx *gin.Context) {
 func (c *Controller) UpdateQuestionStatus(ctx *gin.Context) {
 	id, err := strconv.ParseUint(ctx.Param("id"), 10, 32)
 	if err != nil {
-		response.Error(ctx, 400, "问题ID无效")
+		response.BadRequest(ctx, "问题ID无效")
 		return
 	}
 
@@ -184,13 +241,19 @@ func (c *Controller) UpdateQuestionStatus(ctx *gin.Context) {
 		Status int `json:"status" binding:"required"`
 	}
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		response.Error(ctx, 400, "参数错误")
+		response.BadRequest(ctx, "参数错误")
 		return
 	}
 
 	err = c.dailyQSvc.UpdateQuestionStatus(uint(id), req.Status)
 	if err != nil {
-		response.Error(ctx, 500, "更新问题状态失败")
+		if bizerrors.IsBizError(err) {
+			logger.Warn("更新问题状态业务错误", zap.Error(err))
+			response.BizError(ctx, err)
+		} else {
+			logger.Error("更新问题状态失败", zap.Error(err))
+			response.ServerError(ctx, "服务器内部错误")
+		}
 		return
 	}
 

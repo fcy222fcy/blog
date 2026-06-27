@@ -3,9 +3,12 @@ package user
 import (
 	"blog/internal/model/dto/request"
 	"blog/internal/service"
+	bizerrors "blog/pkg/errors"
+	"blog/pkg/logger"
 	"blog/pkg/response"
 
 	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
 )
 
 // Controller 用户控制器
@@ -22,13 +25,19 @@ func NewController(userSvc service.UserService) *Controller {
 func (c *Controller) GetUserInfo(ctx *gin.Context) {
 	userID, exists := ctx.Get("userID")
 	if !exists {
-		response.Error(ctx, 401, "未登录")
+		response.Unauthorized(ctx, "未登录")
 		return
 	}
 
 	user, err := c.userSvc.GetUserByID(userID.(uint))
 	if err != nil {
-		response.Error(ctx, 500, "获取用户信息失败")
+		if bizerrors.IsBizError(err) {
+			logger.Warn("获取用户信息业务错误", zap.Error(err))
+			response.BizError(ctx, err)
+		} else {
+			logger.Error("获取用户信息失败", zap.Error(err))
+			response.ServerError(ctx, "服务器内部错误")
+		}
 		return
 	}
 
@@ -39,19 +48,25 @@ func (c *Controller) GetUserInfo(ctx *gin.Context) {
 func (c *Controller) UpdateUserInfo(ctx *gin.Context) {
 	userID, exists := ctx.Get("userID")
 	if !exists {
-		response.Error(ctx, 401, "未登录")
+		response.Unauthorized(ctx, "未登录")
 		return
 	}
 
 	var req request.UpdateUserRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		response.Error(ctx, 400, "参数错误: "+err.Error())
+		response.BadRequest(ctx, "参数错误")
 		return
 	}
 
 	err := c.userSvc.UpdateUser(userID.(uint), &req)
 	if err != nil {
-		response.Error(ctx, 500, "更新用户信息失败")
+		if bizerrors.IsBizError(err) {
+			logger.Warn("更新用户信息业务错误", zap.Error(err))
+			response.BizError(ctx, err)
+		} else {
+			logger.Error("更新用户信息失败", zap.Error(err))
+			response.ServerError(ctx, "服务器内部错误")
+		}
 		return
 	}
 

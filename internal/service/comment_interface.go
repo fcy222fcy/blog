@@ -7,8 +7,8 @@ import (
 
 // CommentService 评论服务接口
 type CommentService interface {
-	// GetCommentsByArticle 获取文章评论列表
-	GetCommentsByArticle(articleID uint, req *request.CommentListRequest) (*response.PageResponse, error)
+	// GetCommentsByArticle 获取文章评论列表（支持 slug 或数字 ID）
+	GetCommentsByArticle(articleParam string, req *request.CommentListRequest) (*response.PageResponse, error)
 
 	// CreateComment 创建评论
 	CreateComment(req *request.CreateCommentRequest) (uint, error)

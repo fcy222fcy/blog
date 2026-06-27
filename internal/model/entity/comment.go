@@ -10,8 +10,8 @@ type Comment struct {
 	Avatar     string    `gorm:"type:varchar(500)" json:"avatar"`
 	ArticleID  uint      `gorm:"index" json:"article_id"`
 	Article    Article   `gorm:"foreignKey:ArticleID" json:"article"`
-	ParentID   uint      `gorm:"index;default:0" json:"parent_id"`
-	ReplyTo    *Comment  `gorm:"foreignKey:ParentID" json:"reply_to"`
+	ParentID   *uint     `gorm:"index" json:"parent_id"`
+	ReplyTo    *Comment  `gorm:"-" json:"reply_to"`
 	Status     string    `gorm:"type:varchar(20);default:pending" json:"status"` // pending: 待审核 approved: 已通过 rejected: 已拒绝
 	IP         string    `gorm:"type:varchar(50)" json:"ip"`
 	UserAgent  string    `gorm:"type:varchar(500)" json:"user_agent"`

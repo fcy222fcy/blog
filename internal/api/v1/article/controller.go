@@ -3,10 +3,13 @@ package article
 import (
 	"blog/internal/model/dto/request"
 	"blog/internal/service"
+	bizerrors "blog/pkg/errors"
+	"blog/pkg/logger"
 	"blog/pkg/response"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
 )
 
 // Controller 文章控制器
@@ -23,13 +26,19 @@ func NewController(articleSvc service.ArticleService) *Controller {
 func (c *Controller) GetArticleList(ctx *gin.Context) {
 	var req request.ArticleListRequest
 	if err := ctx.ShouldBindQuery(&req); err != nil {
-		response.Error(ctx, 400, "参数错误")
+		response.BadRequest(ctx, "参数错误")
 		return
 	}
 
 	result, err := c.articleSvc.GetArticleList(&req)
 	if err != nil {
-		response.Error(ctx, 500, "获取文章列表失败")
+		if bizerrors.IsBizError(err) {
+			logger.Warn("获取文章列表业务错误", zap.Error(err))
+			response.BizError(ctx, err)
+		} else {
+			logger.Error("获取文章列表失败", zap.Error(err))
+			response.ServerError(ctx, "服务器内部错误")
+		}
 		return
 	}
 
@@ -40,13 +49,19 @@ func (c *Controller) GetArticleList(ctx *gin.Context) {
 func (c *Controller) GetArticleDetail(ctx *gin.Context) {
 	slug := ctx.Param("slug")
 	if slug == "" {
-		response.Error(ctx, 400, "文章slug不能为空")
+		response.BadRequest(ctx, "文章slug不能为空")
 		return
 	}
 
 	result, err := c.articleSvc.GetArticleDetail(slug)
 	if err != nil {
-		response.Error(ctx, 404, "文章不存在")
+		if bizerrors.IsBizError(err) {
+			logger.Warn("获取文章详情业务错误", zap.String("slug", slug), zap.Error(err))
+			response.BizError(ctx, err)
+		} else {
+			logger.Error("获取文章详情失败", zap.String("slug", slug), zap.Error(err))
+			response.ServerError(ctx, "服务器内部错误")
+		}
 		return
 	}
 
@@ -57,7 +72,13 @@ func (c *Controller) GetArticleDetail(ctx *gin.Context) {
 func (c *Controller) GetArchives(ctx *gin.Context) {
 	result, err := c.articleSvc.GetArticleArchives()
 	if err != nil {
-		response.Error(ctx, 500, "获取文章归档失败")
+		if bizerrors.IsBizError(err) {
+			logger.Warn("获取文章归档业务错误", zap.Error(err))
+			response.BizError(ctx, err)
+		} else {
+			logger.Error("获取文章归档失败", zap.Error(err))
+			response.ServerError(ctx, "服务器内部错误")
+		}
 		return
 	}
 
@@ -68,13 +89,19 @@ func (c *Controller) GetArchives(ctx *gin.Context) {
 func (c *Controller) LikeArticle(ctx *gin.Context) {
 	id, err := strconv.ParseUint(ctx.Param("id"), 10, 32)
 	if err != nil {
-		response.Error(ctx, 400, "文章ID无效")
+		response.BadRequest(ctx, "文章ID无效")
 		return
 	}
 
 	likeCount, err := c.articleSvc.LikeArticle(uint(id))
 	if err != nil {
-		response.Error(ctx, 500, "点赞失败")
+		if bizerrors.IsBizError(err) {
+			logger.Warn("文章点赞业务错误", zap.Uint64("id", id), zap.Error(err))
+			response.BizError(ctx, err)
+		} else {
+			logger.Error("文章点赞失败", zap.Uint64("id", id), zap.Error(err))
+			response.ServerError(ctx, "服务器内部错误")
+		}
 		return
 	}
 
@@ -85,13 +112,19 @@ func (c *Controller) LikeArticle(ctx *gin.Context) {
 func (c *Controller) GetAdminArticleList(ctx *gin.Context) {
 	var req request.ArticleListRequest
 	if err := ctx.ShouldBindQuery(&req); err != nil {
-		response.Error(ctx, 400, "参数错误")
+		response.BadRequest(ctx, "参数错误")
 		return
 	}
 
 	result, err := c.articleSvc.GetAdminArticleList(&req)
 	if err != nil {
-		response.Error(ctx, 500, "获取文章列表失败")
+		if bizerrors.IsBizError(err) {
+			logger.Warn("获取后台文章列表业务错误", zap.Error(err))
+			response.BizError(ctx, err)
+		} else {
+			logger.Error("获取后台文章列表失败", zap.Error(err))
+			response.ServerError(ctx, "服务器内部错误")
+		}
 		return
 	}
 
@@ -102,13 +135,19 @@ func (c *Controller) GetAdminArticleList(ctx *gin.Context) {
 func (c *Controller) GetAdminArticleDetail(ctx *gin.Context) {
 	id, err := strconv.ParseUint(ctx.Param("id"), 10, 32)
 	if err != nil {
-		response.Error(ctx, 400, "文章ID无效")
+		response.BadRequest(ctx, "文章ID无效")
 		return
 	}
 
 	result, err := c.articleSvc.GetAdminArticleDetail(uint(id))
 	if err != nil {
-		response.Error(ctx, 404, "文章不存在")
+		if bizerrors.IsBizError(err) {
+			logger.Warn("获取后台文章详情业务错误", zap.Uint64("id", id), zap.Error(err))
+			response.BizError(ctx, err)
+		} else {
+			logger.Error("获取后台文章详情失败", zap.Uint64("id", id), zap.Error(err))
+			response.ServerError(ctx, "服务器内部错误")
+		}
 		return
 	}
 
@@ -119,13 +158,19 @@ func (c *Controller) GetAdminArticleDetail(ctx *gin.Context) {
 func (c *Controller) CreateArticle(ctx *gin.Context) {
 	var req request.CreateArticleRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		response.Error(ctx, 400, "参数错误: "+err.Error())
+		response.BadRequest(ctx, "参数错误")
 		return
 	}
 
 	id, err := c.articleSvc.CreateArticle(&req)
 	if err != nil {
-		response.Error(ctx, 500, "创建文章失败: "+err.Error())
+		if bizerrors.IsBizError(err) {
+			logger.Warn("创建文章业务错误", zap.Error(err))
+			response.BizError(ctx, err)
+		} else {
+			logger.Error("创建文章失败", zap.String("title", req.Title), zap.Error(err))
+			response.ServerError(ctx, "服务器内部错误")
+		}
 		return
 	}
 
@@ -136,19 +181,25 @@ func (c *Controller) CreateArticle(ctx *gin.Context) {
 func (c *Controller) UpdateArticle(ctx *gin.Context) {
 	id, err := strconv.ParseUint(ctx.Param("id"), 10, 32)
 	if err != nil {
-		response.Error(ctx, 400, "文章ID无效")
+		response.BadRequest(ctx, "文章ID无效")
 		return
 	}
 
 	var req request.UpdateArticleRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		response.Error(ctx, 400, "参数错误: "+err.Error())
+		response.BadRequest(ctx, "参数错误")
 		return
 	}
 
 	err = c.articleSvc.UpdateArticle(uint(id), &req)
 	if err != nil {
-		response.Error(ctx, 500, "更新文章失败: "+err.Error())
+		if bizerrors.IsBizError(err) {
+			logger.Warn("更新文章业务错误", zap.Uint64("id", id), zap.Error(err))
+			response.BizError(ctx, err)
+		} else {
+			logger.Error("更新文章失败", zap.Uint64("id", id), zap.Error(err))
+			response.ServerError(ctx, "服务器内部错误")
+		}
 		return
 	}
 
@@ -159,13 +210,19 @@ func (c *Controller) UpdateArticle(ctx *gin.Context) {
 func (c *Controller) DeleteArticle(ctx *gin.Context) {
 	id, err := strconv.ParseUint(ctx.Param("id"), 10, 32)
 	if err != nil {
-		response.Error(ctx, 400, "文章ID无效")
+		response.BadRequest(ctx, "文章ID无效")
 		return
 	}
 
 	err = c.articleSvc.DeleteArticle(uint(id))
 	if err != nil {
-		response.Error(ctx, 500, "删除文章失败")
+		if bizerrors.IsBizError(err) {
+			logger.Warn("删除文章业务错误", zap.Uint64("id", id), zap.Error(err))
+			response.BizError(ctx, err)
+		} else {
+			logger.Error("删除文章失败", zap.Uint64("id", id), zap.Error(err))
+			response.ServerError(ctx, "服务器内部错误")
+		}
 		return
 	}
 
@@ -178,13 +235,19 @@ func (c *Controller) BatchDeleteArticles(ctx *gin.Context) {
 		IDs []uint `json:"ids" binding:"required"`
 	}
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		response.Error(ctx, 400, "参数错误")
+		response.BadRequest(ctx, "参数错误")
 		return
 	}
 
 	err := c.articleSvc.BatchDeleteArticles(req.IDs)
 	if err != nil {
-		response.Error(ctx, 500, "批量删除文章失败")
+		if bizerrors.IsBizError(err) {
+			logger.Warn("批量删除文章业务错误", zap.Error(err))
+			response.BizError(ctx, err)
+		} else {
+			logger.Error("批量删除文章失败", zap.Error(err))
+			response.ServerError(ctx, "服务器内部错误")
+		}
 		return
 	}
 

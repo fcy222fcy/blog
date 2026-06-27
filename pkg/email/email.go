@@ -2,6 +2,8 @@ package email
 
 import (
 	"blog/pkg/config"
+	"crypto/tls"
+	"encoding/base64"
 	"fmt"
 	"net/smtp"
 	"strings"
@@ -123,28 +125,71 @@ func (s *emailService) SendReplyNotification(to, nickname, articleTitle, article
 	return s.sendMail(to, subject, body)
 }
 
+// encodeHeader RFC 2047 编码中文标题
+func encodeHeader(header string) string {
+	return fmt.Sprintf("=?UTF-8?B?%s?=", base64.StdEncoding.EncodeToString([]byte(header)))
+}
+
 // sendMail 发送邮件
 func (s *emailService) sendMail(to, subject, body string) error {
 	// 构建邮件头
-	headers := make(map[string]string)
-	headers["From"] = fmt.Sprintf("%s <%s>", s.config.From, s.config.FromEmail)
-	headers["To"] = to
-	headers["Subject"] = subject
-	headers["MIME-Version"] = "1.0"
-	headers["Content-Type"] = "text/html; charset=UTF-8"
-
-	// 构建邮件内容
 	var message strings.Builder
-	for k, v := range headers {
-		message.WriteString(fmt.Sprintf("%s: %s\r\n", k, v))
-	}
+	message.WriteString(fmt.Sprintf("From: %s <%s>\r\n", encodeHeader(s.config.From), s.config.FromEmail))
+	message.WriteString(fmt.Sprintf("To: %s\r\n", to))
+	message.WriteString(fmt.Sprintf("Subject: %s\r\n", encodeHeader(subject)))
+	message.WriteString("MIME-Version: 1.0\r\n")
+	message.WriteString("Content-Type: text/html; charset=UTF-8\r\n")
 	message.WriteString("\r\n")
 	message.WriteString(body)
 
 	// 认证
 	auth := smtp.PlainAuth("", s.config.Username, s.config.Password, s.config.Host)
 
-	// 发送邮件
+	// 使用 TLS 连接
 	addr := fmt.Sprintf("%s:%d", s.config.Host, s.config.Port)
-	return smtp.SendMail(addr, auth, s.config.FromEmail, []string{to}, []byte(message.String()))
+	conn, err := tls.Dial("tcp", addr, &tls.Config{
+		InsecureSkipVerify: true,
+		ServerName:         s.config.Host,
+	})
+	if err != nil {
+		return fmt.Errorf("TLS连接失败: %w", err)
+	}
+	defer conn.Close()
+
+	client, err := smtp.NewClient(conn, s.config.Host)
+	if err != nil {
+		return fmt.Errorf("创建SMTP客户端失败: %w", err)
+	}
+	defer client.Close()
+
+	// 认证
+	if err = client.Auth(auth); err != nil {
+		return fmt.Errorf("SMTP认证失败: %w", err)
+	}
+
+	// 设置发件人
+	if err = client.Mail(s.config.FromEmail); err != nil {
+		return fmt.Errorf("设置发件人失败: %w", err)
+	}
+
+	// 设置收件人
+	if err = client.Rcpt(to); err != nil {
+		return fmt.Errorf("设置收件人失败: %w", err)
+	}
+
+	// 发送邮件
+	w, err := client.Data()
+	if err != nil {
+		return fmt.Errorf("获取数据通道失败: %w", err)
+	}
+
+	if _, err = w.Write([]byte(message.String())); err != nil {
+		return fmt.Errorf("写入邮件内容失败: %w", err)
+	}
+
+	if err = w.Close(); err != nil {
+		return fmt.Errorf("关闭数据通道失败: %w", err)
+	}
+
+	return nil
 }

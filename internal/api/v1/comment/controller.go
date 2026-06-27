@@ -3,10 +3,13 @@ package comment
 import (
 	"blog/internal/model/dto/request"
 	"blog/internal/service"
+	bizerrors "blog/pkg/errors"
+	"blog/pkg/logger"
 	"blog/pkg/response"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
 )
 
 // Controller 评论控制器
@@ -21,21 +24,25 @@ func NewController(commentSvc service.CommentService) *Controller {
 
 // GetCommentsByArticle 获取文章评论列表
 func (c *Controller) GetCommentsByArticle(ctx *gin.Context) {
-	articleId, err := strconv.ParseUint(ctx.Param("articleId"), 10, 32)
-	if err != nil {
-		response.Error(ctx, 400, "文章ID无效")
-		return
-	}
+	articleParam := ctx.Param("articleId")
+	logger.Infof("[评论] 收到请求, articleParam=%s, query=%s", articleParam, ctx.Request.URL.RawQuery)
 
 	var req request.CommentListRequest
 	if err := ctx.ShouldBindQuery(&req); err != nil {
-		response.Error(ctx, 400, "参数错误")
+		logger.Warnf("[评论] 参数绑定失败: %v", err)
+		response.BadRequest(ctx, "参数错误")
 		return
 	}
 
-	result, err := c.commentSvc.GetCommentsByArticle(uint(articleId), &req)
+	result, err := c.commentSvc.GetCommentsByArticle(articleParam, &req)
 	if err != nil {
-		response.Error(ctx, 500, "获取评论列表失败")
+		if bizerrors.IsBizError(err) {
+			logger.Warn("获取评论列表业务错误", zap.Error(err))
+			response.BizError(ctx, err)
+		} else {
+			logger.Error("获取评论列表失败", zap.Error(err))
+			response.ServerError(ctx, "服务器内部错误")
+		}
 		return
 	}
 
@@ -46,13 +53,19 @@ func (c *Controller) GetCommentsByArticle(ctx *gin.Context) {
 func (c *Controller) CreateComment(ctx *gin.Context) {
 	var req request.CreateCommentRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		response.Error(ctx, 400, "参数错误: "+err.Error())
+		response.BadRequest(ctx, "参数错误: "+err.Error())
 		return
 	}
 
 	id, err := c.commentSvc.CreateComment(&req)
 	if err != nil {
-		response.Error(ctx, 500, "创建评论失败: "+err.Error())
+		if bizerrors.IsBizError(err) {
+			logger.Warn("创建评论业务错误", zap.String("nickname", req.Nickname), zap.Error(err))
+			response.BizError(ctx, err)
+		} else {
+			logger.Error("创建评论失败", zap.String("nickname", req.Nickname), zap.Error(err))
+			response.ServerError(ctx, "服务器内部错误")
+		}
 		return
 	}
 
@@ -63,13 +76,19 @@ func (c *Controller) CreateComment(ctx *gin.Context) {
 func (c *Controller) GetAdminCommentList(ctx *gin.Context) {
 	var req request.CommentListRequest
 	if err := ctx.ShouldBindQuery(&req); err != nil {
-		response.Error(ctx, 400, "参数错误")
+		response.BadRequest(ctx, "参数错误")
 		return
 	}
 
 	result, err := c.commentSvc.GetAdminCommentList(&req)
 	if err != nil {
-		response.Error(ctx, 500, "获取评论列表失败")
+		if bizerrors.IsBizError(err) {
+			logger.Warn("获取后台评论列表业务错误", zap.Error(err))
+			response.BizError(ctx, err)
+		} else {
+			logger.Error("获取后台评论列表失败", zap.Error(err))
+			response.ServerError(ctx, "服务器内部错误")
+		}
 		return
 	}
 
@@ -80,7 +99,7 @@ func (c *Controller) GetAdminCommentList(ctx *gin.Context) {
 func (c *Controller) UpdateCommentStatus(ctx *gin.Context) {
 	id, err := strconv.ParseUint(ctx.Param("id"), 10, 32)
 	if err != nil {
-		response.Error(ctx, 400, "评论ID无效")
+		response.BadRequest(ctx, "评论ID无效")
 		return
 	}
 
@@ -88,13 +107,19 @@ func (c *Controller) UpdateCommentStatus(ctx *gin.Context) {
 		Status string `json:"status" binding:"required"`
 	}
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		response.Error(ctx, 400, "参数错误")
+		response.BadRequest(ctx, "参数错误")
 		return
 	}
 
 	err = c.commentSvc.UpdateCommentStatus(uint(id), req.Status)
 	if err != nil {
-		response.Error(ctx, 500, "更新评论状态失败")
+		if bizerrors.IsBizError(err) {
+			logger.Warn("更新评论状态业务错误", zap.Uint64("id", id), zap.Error(err))
+			response.BizError(ctx, err)
+		} else {
+			logger.Error("更新评论状态失败", zap.Uint64("id", id), zap.Error(err))
+			response.ServerError(ctx, "服务器内部错误")
+		}
 		return
 	}
 
@@ -105,13 +130,19 @@ func (c *Controller) UpdateCommentStatus(ctx *gin.Context) {
 func (c *Controller) DeleteComment(ctx *gin.Context) {
 	id, err := strconv.ParseUint(ctx.Param("id"), 10, 32)
 	if err != nil {
-		response.Error(ctx, 400, "评论ID无效")
+		response.BadRequest(ctx, "评论ID无效")
 		return
 	}
 
 	err = c.commentSvc.DeleteComment(uint(id))
 	if err != nil {
-		response.Error(ctx, 500, "删除评论失败")
+		if bizerrors.IsBizError(err) {
+			logger.Warn("删除评论业务错误", zap.Uint64("id", id), zap.Error(err))
+			response.BizError(ctx, err)
+		} else {
+			logger.Error("删除评论失败", zap.Uint64("id", id), zap.Error(err))
+			response.ServerError(ctx, "服务器内部错误")
+		}
 		return
 	}
 
@@ -124,13 +155,19 @@ func (c *Controller) BatchDeleteComments(ctx *gin.Context) {
 		IDs []uint `json:"ids" binding:"required"`
 	}
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		response.Error(ctx, 400, "参数错误")
+		response.BadRequest(ctx, "参数错误")
 		return
 	}
 
 	err := c.commentSvc.BatchDeleteComments(req.IDs)
 	if err != nil {
-		response.Error(ctx, 500, "批量删除评论失败")
+		if bizerrors.IsBizError(err) {
+			logger.Warn("批量删除评论业务错误", zap.Error(err))
+			response.BizError(ctx, err)
+		} else {
+			logger.Error("批量删除评论失败", zap.Error(err))
+			response.ServerError(ctx, "服务器内部错误")
+		}
 		return
 	}
 

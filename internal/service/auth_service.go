@@ -7,6 +7,9 @@ import (
 	"blog/internal/repository"
 	bizerrors "blog/pkg/errors"
 	"blog/pkg/jwt"
+	"blog/pkg/logger"
+	"fmt"
+	"go.uber.org/zap"
 )
 
 // authService 认证服务实现
@@ -25,26 +28,32 @@ func NewAuthService(userRepo repository.UserRepository, jwt *jwt.JWT) AuthServic
 
 // Login 用户登录
 func (s *authService) Login(req *request.LoginRequest) (*response.LoginResponse, error) {
+	logger.Infof("用户登录, username: %s", req.Username)
+
 	// 查找用户
 	user, err := s.userRepo.FindByUsername(req.Username)
 	if err != nil {
-		return nil, err
+		logger.Error("查询用户失败", zap.Error(err))
+		return nil, fmt.Errorf("查询用户失败, %w", err)
 	}
 	if user == nil {
-		return nil, bizerrors.New(bizerrors.CodeUserNotFound, "用户不存在")
+		logger.Warn("用户不存在", zap.String("username", req.Username))
+		return nil, bizerrors.New(bizerrors.CodeUserNotFound, bizerrors.GetMessage(bizerrors.CodeUserNotFound))
 	}
 
 	// TODO: 验证密码（需要 bcrypt）
 	// if !bcrypt.CheckPassword(req.Password, user.Password) {
-	//     return nil, bizerrors.New(bizerrors.CodePasswordIncorrect, "密码错误")
+	//     return nil, bizerrors.New(bizerrors.CodePasswordIncorrect, bizerrors.GetMessage(bizerrors.CodePasswordIncorrect))
 	// }
 
 	// 生成 Token
 	token, err := s.jwt.GenerateToken(user.ID, user.Username)
 	if err != nil {
-		return nil, err
+		logger.Error("生成Token失败", zap.Error(err))
+		return nil, fmt.Errorf("生成Token失败, %w", err)
 	}
 
+	logger.Infof("用户登录成功, username: %s", req.Username)
 	return &response.LoginResponse{
 		Token:     token,
 		ExpiresAt: 0, // TODO: 计算过期时间
@@ -53,12 +62,16 @@ func (s *authService) Login(req *request.LoginRequest) (*response.LoginResponse,
 
 // GetProfile 获取用户信息
 func (s *authService) GetProfile(userID uint) (*response.UserProfileResponse, error) {
+	logger.Infof("获取用户信息, userID: %d", userID)
+
 	user, err := s.userRepo.FindByID(userID)
 	if err != nil {
-		return nil, err
+		logger.Error("查询用户失败", zap.Error(err))
+		return nil, fmt.Errorf("查询用户失败, %w", err)
 	}
 	if user == nil {
-		return nil, bizerrors.New(bizerrors.CodeUserNotFound, "用户不存在")
+		logger.Warn("用户不存在", zap.Uint("userID", userID))
+		return nil, bizerrors.New(bizerrors.CodeUserNotFound, bizerrors.GetMessage(bizerrors.CodeUserNotFound))
 	}
 
 	return &response.UserProfileResponse{
@@ -73,32 +86,44 @@ func (s *authService) GetProfile(userID uint) (*response.UserProfileResponse, er
 
 // ChangePassword 修改密码
 func (s *authService) ChangePassword(userID uint, req *request.ChangePasswordRequest) error {
+	logger.Infof("修改密码, userID: %d", userID)
+
 	user, err := s.userRepo.FindByID(userID)
 	if err != nil {
-		return err
+		logger.Error("查询用户失败", zap.Error(err))
+		return fmt.Errorf("查询用户失败, %w", err)
 	}
 	if user == nil {
-		return bizerrors.New(bizerrors.CodeUserNotFound, "用户不存在")
+		logger.Warn("用户不存在", zap.Uint("userID", userID))
+		return bizerrors.New(bizerrors.CodeUserNotFound, bizerrors.GetMessage(bizerrors.CodeUserNotFound))
 	}
 
 	// TODO: 验证旧密码
 	// if !bcrypt.CheckPassword(req.OldPassword, user.Password) {
-	//     return bizerrors.New(bizerrors.CodePasswordIncorrect, "旧密码错误")
+	//     return bizerrors.New(bizerrors.CodePasswordIncorrect, bizerrors.GetMessage(bizerrors.CodePasswordIncorrect))
 	// }
 
 	// TODO: 加密新密码
 	// user.Password = bcrypt.HashPassword(req.NewPassword)
 	// return s.userRepo.Update(user)
 
+	logger.Infof("修改密码成功, userID: %d", userID)
 	return nil
 }
 
 // Register 用户注册
 func (s *authService) Register(req *request.RegisterRequest) error {
+	logger.Infof("用户注册, username: %s", req.Username)
+
 	// 检查用户名是否已存在
-	existing, _ := s.userRepo.FindByUsername(req.Username)
+	existing, err := s.userRepo.FindByUsername(req.Username)
+	if err != nil {
+		logger.Error("查询用户失败", zap.Error(err))
+		return fmt.Errorf("查询用户失败, %w", err)
+	}
 	if existing != nil {
-		return bizerrors.New(bizerrors.CodeUserAlreadyExists, "用户名已存在")
+		logger.Warn("用户名已存在", zap.String("username", req.Username))
+		return bizerrors.New(bizerrors.CodeUserAlreadyExists, bizerrors.GetMessage(bizerrors.CodeUserAlreadyExists))
 	}
 
 	// TODO: 加密密码
@@ -112,5 +137,11 @@ func (s *authService) Register(req *request.RegisterRequest) error {
 		Status:   1,
 	}
 
-	return s.userRepo.Create(user)
+	if err := s.userRepo.Create(user); err != nil {
+		logger.Error("创建用户失败", zap.Error(err))
+		return fmt.Errorf("创建用户失败, %w", err)
+	}
+
+	logger.Infof("用户注册成功, username: %s", req.Username)
+	return nil
 }

@@ -3,9 +3,12 @@ package auth
 import (
 	"blog/internal/model/dto/request"
 	"blog/internal/service"
+	bizerrors "blog/pkg/errors"
+	"blog/pkg/logger"
 	"blog/pkg/response"
 
 	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
 )
 
 // Controller 认证控制器
@@ -22,13 +25,19 @@ func NewController(authSvc service.AuthService) *Controller {
 func (c *Controller) Login(ctx *gin.Context) {
 	var req request.LoginRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		response.Error(ctx, 400, "参数错误: "+err.Error())
+		response.BadRequest(ctx, "参数错误")
 		return
 	}
 
 	result, err := c.authSvc.Login(&req)
 	if err != nil {
-		response.Error(ctx, 401, err.Error())
+		if bizerrors.IsBizError(err) {
+			logger.Warn("业务错误", zap.Error(err))
+			response.BizError(ctx, err)
+		} else {
+			logger.Error("登录失败", zap.Error(err))
+			response.ServerError(ctx, "服务器内部错误")
+		}
 		return
 	}
 
@@ -39,13 +48,19 @@ func (c *Controller) Login(ctx *gin.Context) {
 func (c *Controller) Register(ctx *gin.Context) {
 	var req request.RegisterRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		response.Error(ctx, 400, "参数错误: "+err.Error())
+		response.BadRequest(ctx, "参数错误")
 		return
 	}
 
 	err := c.authSvc.Register(&req)
 	if err != nil {
-		response.Error(ctx, 400, err.Error())
+		if bizerrors.IsBizError(err) {
+			logger.Warn("业务错误", zap.Error(err))
+			response.BizError(ctx, err)
+		} else {
+			logger.Error("注册失败", zap.Error(err))
+			response.ServerError(ctx, "服务器内部错误")
+		}
 		return
 	}
 

@@ -21,11 +21,10 @@ import (
 
 // App 应用结构
 type App struct {
-	config    *config.Config
-	engine    *http.Server
-	router    *api.Router
-	db        *database.Database
-	logger    *logger.Logger
+	config *config.Config
+	engine *http.Server
+	router *api.Router
+	db     *database.Database
 }
 
 // NewApp 创建应用实例
@@ -62,12 +61,9 @@ func (a *App) loadConfig() {
 
 // initLogger 初始化日志
 func (a *App) initLogger() {
-	logInstance, err := logger.NewLogger(a.config.Log)
-	if err != nil {
+	if err := logger.Init(a.config.Log); err != nil {
 		log.Fatalf("初始化日志失败: %v", err)
 	}
-	a.logger = logInstance
-	logger.SetGlobalLogger(logInstance)
 }
 
 // initDatabase 初始化数据库
@@ -103,7 +99,7 @@ func (a *App) initDependencies() {
 	categorySvc := service.NewCategoryService(categoryRepo)
 	tagSvc := service.NewTagService(tagRepo)
 	emailSvc := email.NewEmailService(a.config.Email)
-	commentSvc := service.NewCommentService(commentRepo, articleRepo, userRepo, emailSvc)
+	commentSvc := service.NewCommentService(commentRepo, articleRepo, userRepo, emailSvc, a.config)
 	linkSvc := service.NewLinkService(linkRepo)
 	dailyQuestionSvc := service.NewDailyQuestionService(dailyQuestionRepo)
 
@@ -163,7 +159,7 @@ func (a *App) shutdown() {
 	}
 
 	// 关闭日志
-	a.logger.Sync()
+	logger.Sync()
 
 	fmt.Println("服务已关闭")
 }

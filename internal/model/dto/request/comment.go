@@ -12,9 +12,9 @@ type CreateCommentRequest struct {
 	ArticleID uint   `json:"article_id" binding:"required"`
 	Content   string `json:"content" binding:"required,min=1,max=1000"`
 	Nickname  string `json:"nickname" binding:"required,min=1,max=50"`
-	Email     string `json:"email" binding:"required,email"`
+	Email     string `json:"email" binding:"omitempty,email"`
 	Website   string `json:"website" binding:"max=200"`
-	ParentID  uint   `json:"parent_id"`
+	ParentID  *uint  `json:"parent_id"`
 }
 
 // UpdateCommentStatusRequest 更新评论状态请求

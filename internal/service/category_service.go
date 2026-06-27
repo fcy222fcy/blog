@@ -6,6 +6,8 @@ import (
 	"blog/internal/model/entity"
 	"blog/internal/repository"
 	bizerrors "blog/pkg/errors"
+	"blog/pkg/logger"
+	"fmt"
 )
 
 // categoryService 分类服务实现
@@ -22,7 +24,7 @@ func NewCategoryService(categoryRepo repository.CategoryRepository) CategoryServ
 func (s *categoryService) GetCategoryList() ([]response.CategoryResponse, error) {
 	categories, err := s.categoryRepo.List()
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("获取分类列表失败, %w", err)
 	}
 
 	var result []response.CategoryResponse
@@ -45,10 +47,10 @@ func (s *categoryService) GetCategoryList() ([]response.CategoryResponse, error)
 func (s *categoryService) GetCategoryByID(id uint) (*response.CategoryResponse, error) {
 	cat, err := s.categoryRepo.FindByID(id)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("获取分类失败, %w", err)
 	}
 	if cat == nil {
-		return nil, bizerrors.New(bizerrors.CodeCategoryNotFound, "分类不存在")
+		return nil, bizerrors.New(bizerrors.CodeCategoryNotFound, bizerrors.GetMessage(bizerrors.CodeCategoryNotFound))
 	}
 
 	count, _ := s.categoryRepo.GetCategoryArticleCount(cat.ID)
@@ -65,9 +67,12 @@ func (s *categoryService) GetCategoryByID(id uint) (*response.CategoryResponse, 
 
 // CreateCategory 创建分类
 func (s *categoryService) CreateCategory(req *request.CreateCategoryRequest) (uint, error) {
-	existing, _ := s.categoryRepo.FindByName(req.Name)
+	existing, err := s.categoryRepo.FindByName(req.Name)
+	if err != nil {
+		return 0, fmt.Errorf("查询分类失败, %w", err)
+	}
 	if existing != nil {
-		return 0, bizerrors.New(bizerrors.CodeCategoryNameExists, "分类名称已存在")
+		return 0, bizerrors.New(bizerrors.CodeCategoryNameExists, bizerrors.GetMessage(bizerrors.CodeCategoryNameExists))
 	}
 
 	category := &entity.Category{
@@ -78,11 +83,11 @@ func (s *categoryService) CreateCategory(req *request.CreateCategoryRequest) (ui
 		SortOrder:   req.SortOrder,
 	}
 
-	err := s.categoryRepo.Create(category)
-	if err != nil {
-		return 0, err
+	if err := s.categoryRepo.Create(category); err != nil {
+		return 0, fmt.Errorf("创建分类失败, %w", err)
 	}
 
+	logger.Infof("创建分类成功, id=%d, name=%s", category.ID, category.Name)
 	return category.ID, nil
 }
 
@@ -90,16 +95,19 @@ func (s *categoryService) CreateCategory(req *request.CreateCategoryRequest) (ui
 func (s *categoryService) UpdateCategory(id uint, req *request.UpdateCategoryRequest) error {
 	category, err := s.categoryRepo.FindByID(id)
 	if err != nil {
-		return err
+		return fmt.Errorf("查询分类失败, %w", err)
 	}
 	if category == nil {
-		return bizerrors.New(bizerrors.CodeCategoryNotFound, "分类不存在")
+		return bizerrors.New(bizerrors.CodeCategoryNotFound, bizerrors.GetMessage(bizerrors.CodeCategoryNotFound))
 	}
 
 	if req.Name != "" {
-		existing, _ := s.categoryRepo.FindByName(req.Name)
+		existing, err := s.categoryRepo.FindByName(req.Name)
+		if err != nil {
+			return fmt.Errorf("查询分类名称失败, %w", err)
+		}
 		if existing != nil && existing.ID != id {
-			return bizerrors.New(bizerrors.CodeCategoryNameExists, "分类名称已存在")
+			return bizerrors.New(bizerrors.CodeCategoryNameExists, bizerrors.GetMessage(bizerrors.CodeCategoryNameExists))
 		}
 		category.Name = req.Name
 	}
@@ -116,23 +124,36 @@ func (s *categoryService) UpdateCategory(id uint, req *request.UpdateCategoryReq
 		category.SortOrder = req.SortOrder
 	}
 
-	return s.categoryRepo.Update(category)
+	if err := s.categoryRepo.Update(category); err != nil {
+		return fmt.Errorf("更新分类失败, %w", err)
+	}
+
+	logger.Infof("更新分类成功, id=%d", id)
+	return nil
 }
 
 // DeleteCategory 删除分类
 func (s *categoryService) DeleteCategory(id uint) error {
 	category, err := s.categoryRepo.FindByID(id)
 	if err != nil {
-		return err
+		return fmt.Errorf("查询分类失败, %w", err)
 	}
 	if category == nil {
-		return bizerrors.New(bizerrors.CodeCategoryNotFound, "分类不存在")
+		return bizerrors.New(bizerrors.CodeCategoryNotFound, bizerrors.GetMessage(bizerrors.CodeCategoryNotFound))
 	}
 
-	count, _ := s.categoryRepo.GetCategoryArticleCount(id)
+	count, err := s.categoryRepo.GetCategoryArticleCount(id)
+	if err != nil {
+		return fmt.Errorf("获取分类文章数失败, %w", err)
+	}
 	if count > 0 {
-		return bizerrors.New(bizerrors.CodeCategoryHasArticles, "该分类下还有文章，无法删除")
+		return bizerrors.New(bizerrors.CodeCategoryHasArticles, bizerrors.GetMessage(bizerrors.CodeCategoryHasArticles))
 	}
 
-	return s.categoryRepo.Delete(id)
+	if err := s.categoryRepo.Delete(id); err != nil {
+		return fmt.Errorf("删除分类失败, %w", err)
+	}
+
+	logger.Infof("删除分类成功, id=%d", id)
+	return nil
 }
