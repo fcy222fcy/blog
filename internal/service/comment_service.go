@@ -6,19 +6,25 @@ import (
 	"blog/internal/model/entity"
 	"blog/internal/repository"
 	bizerrors "blog/pkg/errors"
+	"blog/pkg/email"
+	"blog/pkg/logger"
 )
 
 // commentService 评论服务实现
 type commentService struct {
 	commentRepo repository.CommentRepository
 	articleRepo repository.ArticleRepository
+	userRepo    repository.UserRepository
+	emailSvc    email.EmailService
 }
 
 // NewCommentService 创建评论服务
-func NewCommentService(commentRepo repository.CommentRepository, articleRepo repository.ArticleRepository) CommentService {
+func NewCommentService(commentRepo repository.CommentRepository, articleRepo repository.ArticleRepository, userRepo repository.UserRepository, emailSvc email.EmailService) CommentService {
 	return &commentService{
 		commentRepo: commentRepo,
 		articleRepo: articleRepo,
+		userRepo:    userRepo,
+		emailSvc:    emailSvc,
 	}
 }
 
@@ -64,7 +70,59 @@ func (s *commentService) CreateComment(req *request.CreateCommentRequest) (uint,
 		return 0, err
 	}
 
+	// 异步发送邮件通知
+	go s.sendEmailNotifications(comment, article)
+
 	return comment.ID, nil
+}
+
+// sendEmailNotifications 发送邮件通知
+func (s *commentService) sendEmailNotifications(comment *entity.Comment, article *entity.Article) {
+	// 获取博主信息（假设博主是第一个用户）
+	adminUsers, _, err := s.userRepo.List(0, 1)
+	if err != nil || len(adminUsers) == 0 {
+		logger.Error("获取博主信息失败: %v", err)
+		return
+	}
+	admin := adminUsers[0]
+
+	// 如果是回复评论，发送邮件给被回复的用户
+	if comment.ParentID > 0 {
+		// 获取被回复的评论
+		parentComment, err := s.commentRepo.FindByID(comment.ParentID)
+		if err != nil || parentComment == nil {
+			logger.Error("获取被回复评论失败: %v", err)
+			return
+		}
+
+		// 如果被回复用户有邮箱，发送回复通知
+		if parentComment.Email != "" {
+			err = s.emailSvc.SendReplyNotification(
+				parentComment.Email,
+				comment.Nickname,
+				article.Title,
+				article.Slug,
+				comment.Content,
+			)
+			if err != nil {
+				logger.Error("发送回复通知邮件失败: %v", err)
+			}
+		}
+	} else {
+		// 如果是评论文章，发送邮件给博主
+		if admin.Email != "" {
+			err = s.emailSvc.SendCommentNotification(
+				admin.Email,
+				comment.Nickname,
+				article.Title,
+				article.Slug,
+				comment.Content,
+			)
+			if err != nil {
+				logger.Error("发送评论通知邮件失败: %v", err)
+			}
+		}
+	}
 }
 
 // GetAdminCommentList 获取评论列表（后台）

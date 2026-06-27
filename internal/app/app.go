@@ -14,6 +14,7 @@ import (
 	"blog/internal/service"
 	"blog/pkg/config"
 	"blog/pkg/database"
+	"blog/pkg/email"
 	"blog/pkg/jwt"
 	"blog/pkg/logger"
 )
@@ -101,7 +102,8 @@ func (a *App) initDependencies() {
 	articleSvc := service.NewArticleService(articleRepo, categoryRepo, tagRepo)
 	categorySvc := service.NewCategoryService(categoryRepo)
 	tagSvc := service.NewTagService(tagRepo)
-	commentSvc := service.NewCommentService(commentRepo, articleRepo)
+	emailSvc := email.NewEmailService(a.config.Email)
+	commentSvc := service.NewCommentService(commentRepo, articleRepo, userRepo, emailSvc)
 	linkSvc := service.NewLinkService(linkRepo)
 	dailyQuestionSvc := service.NewDailyQuestionService(dailyQuestionRepo)
 

@@ -14,6 +14,7 @@ type Config struct {
 	Redis  RedisConfig  `mapstructure:"redis"`
 	JWT    JWTConfig    `mapstructure:"jwt"`
 	Log    LogConfig    `mapstructure:"log"`
+	Email  EmailConfig  `mapstructure:"email"`
 }
 
 // ServerConfig 服务器配置
@@ -57,6 +58,16 @@ type LogConfig struct {
 	MaxSize    int    `mapstructure:"max_size"`
 	MaxBackups int    `mapstructure:"max_backups"`
 	MaxAge     int    `mapstructure:"max_age"`
+}
+
+// EmailConfig 邮件配置
+type EmailConfig struct {
+	Host      string `mapstructure:"host"`
+	Port      int    `mapstructure:"port"`
+	Username  string `mapstructure:"username"`
+	Password  string `mapstructure:"password"`
+	From      string `mapstructure:"from"`
+	FromEmail string `mapstructure:"from_email"`
 }
 
 // Load 加载配置
