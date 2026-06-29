@@ -61,7 +61,6 @@ func (s *articleService) GetArticleDetail(slug string) (*response.ArticleDetailR
 		Summary:      article.Summary,
 		Cover:        article.Cover,
 		ViewCount:    article.ViewCount + 1,
-		LikeCount:    article.LikeCount,
 		CommentCount: article.CommentCount,
 		Status:       article.Status,
 		IsTop:        article.IsTop,
@@ -112,18 +111,9 @@ func (s *articleService) GetArticleArchives() ([]response.ArchiveResponse, error
 	return result, nil
 }
 
-// LikeArticle 文章点赞
-func (s *articleService) LikeArticle(id uint) (int64, error) {
-	likeCount, err := s.articleRepo.IncrementLikeCount(id)
-	if err != nil {
-		return 0, fmt.Errorf("文章点赞失败, %w", err)
-	}
-	return likeCount, nil
-}
-
 // GetAdminArticleList 获取文章列表（后台）
 func (s *articleService) GetAdminArticleList(req *request.ArticleListRequest) (*response.PageResponse, error) {
-	list, total, err := s.articleRepo.ListAll(req.GetOffset(), req.GetPageSize(), req.Status, req.Keyword)
+	list, total, err := s.articleRepo.ListAll(req.GetOffset(), req.GetPageSize(), req.Status, req.Keyword, req.Category)
 	if err != nil {
 		return nil, fmt.Errorf("获取后台文章列表失败, %w", err)
 	}

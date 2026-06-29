@@ -44,21 +44,71 @@ func (r *commentRepository) Delete(id uint) error {
 	return r.db.Delete(&entity.Comment{}, id).Error
 }
 
-// ListByArticleID 根据文章ID获取评论列表
+// ListByArticleID 根据文章ID获取评论列表（构建树结构）
 func (r *commentRepository) ListByArticleID(articleID uint, offset, limit int) ([]*entity.Comment, int64, error) {
-	var comments []*entity.Comment
+	var rootComments []*entity.Comment
 	var total int64
 
-	query := r.db.Model(&entity.Comment{}).Where("article_id = ? AND status = ?", articleID, "approved")
+	// 先获取总数（只统计根评论）
+	query := r.db.Model(&entity.Comment{}).Where("article_id = ? AND status = ? AND parent_id IS NULL", articleID, "approved")
 	err := query.Count(&total).Error
 	if err != nil {
 		return nil, 0, err
 	}
 
+	// 获取根评论
 	err = query.Offset(offset).Limit(limit).
 		Order("created_at DESC").
-		Find(&comments).Error
-	return comments, total, err
+		Find(&rootComments).Error
+	if err != nil {
+		return nil, 0, err
+	}
+
+	// 获取该文章所有已批准的评论（用于构建回复树）
+	var allComments []*entity.Comment
+	err = r.db.Model(&entity.Comment{}).
+		Where("article_id = ? AND status = ?", articleID, "approved").
+		Order("created_at ASC").
+		Find(&allComments).Error
+	if err != nil {
+		return nil, 0, err
+	}
+
+	// 构建评论 ID 到评论的映射（使用根评论列表中的指针）
+	rootCommentMap := make(map[uint]*entity.Comment)
+	for _, c := range rootComments {
+		rootCommentMap[c.ID] = c
+	}
+
+	// 构建所有评论的映射
+	allCommentMap := make(map[uint]*entity.Comment)
+	for _, c := range allComments {
+		allCommentMap[c.ID] = c
+	}
+
+	// 构建树结构：将子评论添加到父评论的 Replies 中
+	for _, c := range allComments {
+		if c.ParentID != nil {
+			// 先在根评论中查找
+			if parent, ok := rootCommentMap[*c.ParentID]; ok {
+				parent.Replies = append(parent.Replies, *c)
+			} else if parent, ok := allCommentMap[*c.ParentID]; ok {
+				// 如果父评论不是根评论，也添加到父评论的 Replies 中
+				parent.Replies = append(parent.Replies, *c)
+			}
+		}
+	}
+
+	// 为回复评论设置 ReplyToNickname
+	for _, c := range allComments {
+		if c.ParentID != nil {
+			if parent, ok := allCommentMap[*c.ParentID]; ok {
+				c.ReplyToNickname = parent.Nickname
+			}
+		}
+	}
+
+	return rootComments, total, err
 }
 
 // AdminList 评论列表（后台）

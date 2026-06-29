@@ -1,0 +1,12 @@
+- generic [ref=e33]:
+  - heading "博客后台管理" [level=2] [ref=e34]
+  - generic [ref=e35]:
+    - generic [ref=e39]:
+      - img [ref=e42]
+      - textbox "用户名" [ref=e44]: admin
+    - generic [ref=e48]:
+      - img [ref=e51]
+      - textbox "密码" [ref=e54]: "123456"
+      - img [ref=e71] [cursor=pointer]
+    - button "登录" [ref=e57] [cursor=pointer]:
+      - generic [ref=e58]: 登录

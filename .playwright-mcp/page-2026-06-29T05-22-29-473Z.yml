@@ -1,0 +1,122 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e3]:
+    - complementary [ref=e4]:
+      - generic [ref=e5]:
+        - generic [ref=e6] [cursor=pointer]:
+          - img "头像" [ref=e7]
+          - generic [ref=e8]: 更换头像
+        - generic [ref=e9]: Liu Houliang
+        - generic [ref=e10]: 日常落灰的个人博客，分享 Golang、AI 和 NAS 折腾经验
+        - button "编辑资料" [ref=e11] [cursor=pointer]
+      - navigation [ref=e12]:
+        - generic [ref=e13] [cursor=pointer]:
+          - img [ref=e15]
+          - generic [ref=e18]: 仪表盘
+        - generic [ref=e19] [cursor=pointer]:
+          - img [ref=e21]
+          - generic [ref=e24]: 文章
+        - generic [ref=e25] [cursor=pointer]:
+          - img [ref=e27]
+          - generic [ref=e29]: 分类
+        - generic [ref=e30] [cursor=pointer]:
+          - img [ref=e32]
+          - generic [ref=e34]: 标签
+        - generic [ref=e35] [cursor=pointer]:
+          - img [ref=e37]
+          - generic [ref=e39]: 评论
+        - generic [ref=e40] [cursor=pointer]:
+          - img [ref=e42]
+          - generic [ref=e45]: 友链
+        - generic [ref=e46] [cursor=pointer]:
+          - img [ref=e48]
+          - generic [ref=e52]: 媒体库
+        - generic [ref=e53] [cursor=pointer]:
+          - img [ref=e55]
+          - generic [ref=e57]: 娱乐
+        - generic [ref=e58] [cursor=pointer]:
+          - img [ref=e60]
+          - generic [ref=e63]: 每日一问
+        - generic [ref=e64] [cursor=pointer]:
+          - img [ref=e66]
+          - generic [ref=e69]: 关于我
+      - generic [ref=e70]:
+        - generic [ref=e71] [cursor=pointer]:
+          - img [ref=e73]
+          - generic [ref=e76]: English
+        - generic [ref=e77] [cursor=pointer]:
+          - img [ref=e79]
+          - generic [ref=e81]: 暗色模式
+    - generic [ref=e82]:
+      - banner [ref=e83]:
+        - heading "友链" [level=1] [ref=e85]
+        - button "通知" [ref=e87] [cursor=pointer]:
+          - img [ref=e88]
+      - main [ref=e91]:
+        - generic [ref=e92]:
+          - generic [ref=e94]:
+            - generic [ref=e95]: 友链总数
+            - generic [ref=e96]: "5"
+          - generic [ref=e97]:
+            - generic [ref=e98]:
+              - generic [ref=e99]: ⌕
+              - textbox "搜索友链..." [ref=e100]
+            - button "添加链接" [ref=e101] [cursor=pointer]:
+              - img [ref=e102]
+              - generic [ref=e103]: 添加链接
+          - generic [ref=e104]:
+            - generic [ref=e186]:
+              - generic [ref=e187]:
+                - generic [ref=e188]: https://ui-avatars.com/api/?name=Test
+                - generic [ref=e189]:
+                  - generic [ref=e190]: 测试博客
+                  - generic [ref=e191]: https://test-blog.example.com
+              - paragraph [ref=e193]: 这是一个测试博客
+              - generic [ref=e194]:
+                - button "编辑" [ref=e195] [cursor=pointer]
+                - button "删除" [ref=e196] [cursor=pointer]
+            - generic [ref=e105]:
+              - generic [ref=e106]:
+                - generic [ref=e107]: https://avatars.githubusercontent.com/u/5889006?v=4
+                - generic [ref=e108]:
+                  - generic [ref=e109]: Jimmy Cai
+                  - generic [ref=e110]: https://jimmycai.com/
+              - paragraph [ref=e112]: Author of Hugo Stack theme
+              - generic [ref=e113]:
+                - button "编辑" [ref=e114] [cursor=pointer]
+                - button "删除" [ref=e115] [cursor=pointer]
+            - generic [ref=e116]:
+              - generic [ref=e117]:
+                - generic [ref=e118]: https://nan0in27.cn/img/avatar_hu_85437ba0800ccf1d.png
+                - generic [ref=e119]:
+                  - generic [ref=e120]: Nan0inPsyLog
+                  - generic [ref=e121]: https://nan0in27.cn/
+              - paragraph [ref=e123]: We love CS, thus we can pwn the world
+              - generic [ref=e124]:
+                - button "编辑" [ref=e125] [cursor=pointer]
+                - button "删除" [ref=e126] [cursor=pointer]
+            - generic [ref=e127]:
+              - generic [ref=e128]:
+                - generic [ref=e129]: /avatar.jpg
+                - generic [ref=e130]:
+                  - generic [ref=e131]: Nanhu Shijie
+                  - generic [ref=e132]: https://jolla.pp.ua/
+              - paragraph [ref=e134]: 一个生活爱好者!
+              - generic [ref=e135]:
+                - button "编辑" [ref=e136] [cursor=pointer]
+                - button "删除" [ref=e137] [cursor=pointer]
+            - generic [ref=e138]:
+              - generic [ref=e139]:
+                - generic [ref=e140]: /avatar.jpg
+                - generic [ref=e141]:
+                  - generic [ref=e142]: Liu Zijian Blog
+                  - generic [ref=e143]: https://blog.liuzijian.com/
+              - paragraph [ref=e145]: Keep on going never give up
+              - generic [ref=e146]:
+                - button "编辑" [ref=e147] [cursor=pointer]
+                - button "删除" [ref=e148] [cursor=pointer]
+    - button [ref=e149] [cursor=pointer]:
+      - img [ref=e150]
+      - img [ref=e153]
+  - alert [ref=e197]:
+    - img [ref=e199]
+    - paragraph [ref=e201]: 保存成功

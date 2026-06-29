@@ -91,7 +91,7 @@ func (r *articleRepository) ListPublished(offset, limit int, categoryId, tagId u
 }
 
 // ListAll 所有文章列表（后台）
-func (r *articleRepository) ListAll(offset, limit int, status, keyword string) ([]*entity.Article, int64, error) {
+func (r *articleRepository) ListAll(offset, limit int, status, keyword string, categoryID uint) ([]*entity.Article, int64, error) {
 	var articles []*entity.Article
 	var total int64
 
@@ -101,6 +101,9 @@ func (r *articleRepository) ListAll(offset, limit int, status, keyword string) (
 	}
 	if status != "" {
 		query = query.Where("status = ?", status)
+	}
+	if categoryID > 0 {
+		query = query.Where("category_id = ?", categoryID)
 	}
 
 	err := query.Count(&total).Error
@@ -123,18 +126,6 @@ func (r *articleRepository) ListAll(offset, limit int, status, keyword string) (
 func (r *articleRepository) IncrementViewCount(id uint) error {
 	return r.db.Model(&entity.Article{}).Where("id = ?", id).
 		UpdateColumn("view_count", gorm.Expr("view_count + 1")).Error
-}
-
-// IncrementLikeCount 增加点赞数
-func (r *articleRepository) IncrementLikeCount(id uint) (int64, error) {
-	err := r.db.Model(&entity.Article{}).Where("id = ?", id).
-		UpdateColumn("like_count", gorm.Expr("like_count + 1")).Error
-	if err != nil {
-		return 0, err
-	}
-	var article entity.Article
-	err = r.db.Select("like_count").First(&article, id).Error
-	return article.LikeCount, err
 }
 
 // BatchDelete 批量删除

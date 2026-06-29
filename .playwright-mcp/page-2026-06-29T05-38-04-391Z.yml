@@ -1,0 +1,63 @@
+- generic [ref=e4]:
+  - complementary [ref=e5]:
+    - generic [ref=e6]:
+      - figure [ref=e7]:
+        - link "Avatar" [ref=e8] [cursor=pointer]:
+          - /url: "#/"
+          - img "Avatar" [ref=e9]
+        - generic [ref=e10]: 🤖
+      - generic [ref=e11]:
+        - heading "Liu Houliang" [level=1] [ref=e12]:
+          - link "Liu Houliang" [ref=e13] [cursor=pointer]:
+            - /url: "#/"
+        - heading "日常落灰的个人博客，擅长面向搜索引擎编程。分享 Golang 开发、AI 和 NAS 折腾经验" [level=2] [ref=e14]
+    - list [ref=e15]:
+      - listitem [ref=e16]:
+        - link "Email" [ref=e17] [cursor=pointer]:
+          - /url: mailto:admin@liuhouliang.com
+          - img [ref=e18]
+      - listitem [ref=e21]:
+        - link "GitHub" [ref=e22] [cursor=pointer]:
+          - /url: https://github.com/liu-houliang
+          - img [ref=e23]
+      - listitem [ref=e26]:
+        - link "Twitter / X" [ref=e27] [cursor=pointer]:
+          - /url: https://x.com/liu_houliang
+          - img [ref=e28]
+      - listitem [ref=e30]:
+        - link "Telegram" [ref=e31] [cursor=pointer]:
+          - /url: https://t.me/liu_houliang
+          - img [ref=e32]
+    - generic [ref=e35] [cursor=pointer]:
+      - textbox "输入关键词..." [ref=e36]
+      - img [ref=e37]
+    - navigation [ref=e40]:
+      - listitem [ref=e41]:
+        - link "主页" [ref=e42] [cursor=pointer]:
+          - /url: "#/"
+          - img [ref=e43]
+          - generic [ref=e46]: 主页
+      - listitem [ref=e47]:
+        - link "文章" [ref=e48] [cursor=pointer]:
+          - /url: "#/archives"
+          - img [ref=e49]
+          - generic [ref=e51]: 文章
+      - listitem [ref=e52]:
+        - link "友链" [ref=e53] [cursor=pointer]:
+          - /url: "#/links"
+          - img [ref=e54]
+          - generic [ref=e57]: 友链
+      - listitem [ref=e58]:
+        - link "娱乐" [ref=e59] [cursor=pointer]:
+          - /url: "#/media"
+          - img [ref=e60]
+          - generic [ref=e63]: 娱乐
+      - listitem [ref=e64]:
+        - link "关于我" [ref=e65] [cursor=pointer]:
+          - /url: "#/about"
+          - img [ref=e66]
+          - generic [ref=e69]: 关于我
+    - button "暗色模式" [ref=e71] [cursor=pointer]:
+      - img [ref=e72]
+      - text: 暗色模式
+  - main [ref=e74]

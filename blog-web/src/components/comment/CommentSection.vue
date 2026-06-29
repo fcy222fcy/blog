@@ -1,7 +1,7 @@
 <template>
   <div class="comment-section">
-    <!-- 评论表单 -->
-    <div class="comment-form-wrapper">
+    <!-- 评论表单卡片 -->
+    <div class="comment-form-card">
       <form class="comment-form" @submit.prevent="submitComment">
         <div class="form-header">
           <div class="form-field">
@@ -30,6 +30,10 @@
             rows="4"
             required
           ></textarea>
+          <div v-if="form.content" class="form-preview">
+            <div class="preview-label">预览:</div>
+            <div class="preview-content" v-html="renderMarkdown(form.content)"></div>
+          </div>
         </div>
         <div class="form-footer">
           <div class="form-tools">
@@ -100,7 +104,7 @@
         <div v-for="comment in sortedComments" :key="comment.id" class="comment-item">
           <div class="comment-main">
             <div class="avatar">
-              <img v-if="comment.avatar" :src="comment.avatar" :alt="comment.nickname" />
+              <img v-if="comment.email" :src="getAvatar(comment.email)" :alt="comment.nickname" />
               <span v-else>{{ comment.nickname.charAt(0).toUpperCase() }}</span>
             </div>
             <div class="comment-body">
@@ -111,10 +115,10 @@
               <div class="comment-content">{{ comment.content }}</div>
               <div class="comment-actions">
                 <button class="action-btn like-btn" @click="likeComment(comment)">
-                  <span class="icon">♡</span>
+                  <span class="icon"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg></span>
                 </button>
                 <button class="action-btn reply-btn" @click="startReply(comment)">
-                  <span class="icon">💬</span>
+                  <span class="icon"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg></span>
                 </button>
               </div>
             </div>
@@ -140,7 +144,7 @@
             <div v-for="reply in comment.replies" :key="reply.id" class="reply-item">
               <div class="comment-main small">
                 <div class="avatar small">
-                  <img v-if="reply.avatar" :src="reply.avatar" :alt="reply.nickname" />
+                  <img v-if="reply.email" :src="getAvatar(reply.email)" :alt="reply.nickname" />
                   <span v-else>{{ reply.nickname.charAt(0).toUpperCase() }}</span>
                 </div>
                 <div class="comment-body">
@@ -155,10 +159,10 @@
                   </div>
                   <div class="comment-actions">
                     <button class="action-btn like-btn" @click="likeComment(reply)">
-                      <span class="icon">♡</span>
+                      <span class="icon"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg></span>
                     </button>
                     <button class="action-btn reply-btn" @click="startReply(comment, reply)">
-                      <span class="icon">💬</span>
+                      <span class="icon"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg></span>
                     </button>
                   </div>
                 </div>
@@ -177,6 +181,8 @@ import { useRoute } from 'vue-router'
 import { getCommentsByArticle, createComment } from '../../api/comment'
 import EmojiPicker from 'vue3-emoji-picker'
 import 'vue3-emoji-picker/css'
+import { getAvatarUrl } from '../../utils/avatar'
+import { marked } from 'marked'
 
 const route = useRoute()
 const textareaRef = ref(null)
@@ -236,6 +242,17 @@ const insertEmoji = (emoji) => {
 // EmojiPicker 选择回调
 const onEmojiSelect = (emoji) => {
   insertEmoji(emoji)
+}
+
+// 根据邮箱获取头像
+const getAvatar = (email) => {
+  return getAvatarUrl(email, 80)
+}
+
+// Markdown 渲染
+const renderMarkdown = (text) => {
+  if (!text) return ''
+  return marked.parse(text)
 }
 
 // 插入 Markdown 格式
@@ -372,9 +389,9 @@ const submitReply = async () => {
 
   submitting.value = true
   try {
-    const articleId = route.params.id || route.params.slug
+    const articleSlug = route.params.slug || route.params.id
     await createComment({
-      article_id: parseInt(articleId),
+      article_slug: articleSlug,
       nickname: form.value.nickname || '匿名用户',
       email: form.value.email,
       content: replyContent.value,
@@ -430,19 +447,21 @@ onUnmounted(() => {
 
 <style scoped>
 .comment-section {
-  margin-top: 40px;
-  padding-top: 40px;
-  border-top: 1px solid #e8e8e8;
+  margin-top: 32px;
+  background: #fdfdfb;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+  padding: 24px;
 }
 
-/* 评论表单 */
-.comment-form-wrapper {
-  background: #ffffff;
-  border-radius: 12px;
-  margin-bottom: 32px;
+/* 评论表单内嵌卡片 */
+.comment-form-card {
+  background: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 8px;
   overflow: hidden;
-  border: 1px solid #e8e8e8;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  margin-bottom: 24px;
 }
 
 .comment-form {
@@ -515,12 +534,40 @@ onUnmounted(() => {
   color: #999;
 }
 
+/* 预览区 */
+.form-preview {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px dashed #e8e8e8;
+}
+
+.preview-label {
+  font-size: 0.85rem;
+  color: #999;
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+
+.preview-content {
+  font-size: 0.9rem;
+  color: #333;
+  line-height: 1.6;
+}
+
+.preview-content p {
+  margin: 0 0 8px;
+}
+
+.preview-content p:last-child {
+  margin-bottom: 0;
+}
+
 .form-footer {
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 12px 20px;
-  border-top: 1px solid #e8e8e8;
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
 }
 
 .form-tools {
@@ -622,7 +669,11 @@ onUnmounted(() => {
 
 /* 评论列表 */
 .comment-list-wrapper {
-  margin-top: 24px;
+  padding: 0;
+}
+
+.comment-list-wrapper .comment-header-bar {
+  padding: 0;
 }
 
 .comment-header-bar {
@@ -674,28 +725,29 @@ onUnmounted(() => {
 .comment-list {
   display: flex;
   flex-direction: column;
-  gap: 24px;
 }
 
 .comment-item {
-  background: #ffffff;
-  padding: 20px;
-  border-radius: 12px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  padding: 16px 0;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.comment-item:last-child {
+  border-bottom: none;
 }
 
 .comment-main {
   display: flex;
-  gap: 16px;
-}
-
-.comment-main.small {
   gap: 12px;
 }
 
+.comment-main.small {
+  gap: 10px;
+}
+
 .avatar {
-  width: 48px;
-  height: 48px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
   background: linear-gradient(135deg, #10b981 0%, #059669 100%);
   color: white;
@@ -703,15 +755,15 @@ onUnmounted(() => {
   align-items: center;
   justify-content: center;
   font-weight: 600;
-  font-size: 1.1rem;
+  font-size: 1rem;
   flex-shrink: 0;
   overflow: hidden;
 }
 
 .avatar.small {
-  width: 36px;
-  height: 36px;
-  font-size: 0.9rem;
+  width: 32px;
+  height: 32px;
+  font-size: 0.8rem;
 }
 
 .avatar img {
@@ -729,22 +781,22 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
 }
 
 .nickname {
   font-weight: 600;
   color: #333;
-  font-size: 0.95rem;
+  font-size: 0.9rem;
 }
 
 .admin-badge {
   display: inline-block;
-  padding: 2px 8px;
+  padding: 1px 6px;
   background: #10b981;
   color: white;
-  font-size: 0.75rem;
-  border-radius: 4px;
+  font-size: 0.7rem;
+  border-radius: 3px;
   font-weight: 500;
 }
 
@@ -756,8 +808,9 @@ onUnmounted(() => {
 .comment-content {
   color: #333;
   line-height: 1.6;
-  margin-bottom: 12px;
+  margin-bottom: 8px;
   word-wrap: break-word;
+  font-size: 0.95rem;
 }
 
 .reply-to {
@@ -767,7 +820,7 @@ onUnmounted(() => {
 
 .comment-actions {
   display: flex;
-  gap: 16px;
+  gap: 12px;
 }
 
 .action-btn {
@@ -777,20 +830,25 @@ onUnmounted(() => {
   background: none;
   border: none;
   color: #999;
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   cursor: pointer;
-  padding: 4px 8px;
+  padding: 2px 4px;
   border-radius: 4px;
   transition: all 0.2s;
 }
 
 .action-btn:hover {
   color: #10b981;
-  background: rgba(16, 185, 129, 0.1);
 }
 
 .action-btn .icon {
-  font-size: 1rem;
+  display: flex;
+  align-items: center;
+}
+
+.action-btn .icon svg {
+  width: 16px;
+  height: 16px;
 }
 
 .like-btn:hover {
@@ -799,18 +857,15 @@ onUnmounted(() => {
 
 /* 回复表单 */
 .reply-form {
-  margin-top: 16px;
-  margin-left: 64px;
-  padding: 16px;
-  background: #f9f9f9;
-  border-radius: 8px;
+  margin-top: 12px;
+  margin-left: 52px;
 }
 
 .reply-form textarea {
   width: 100%;
-  padding: 12px;
+  padding: 10px 12px;
   border: 1px solid #e8e8e8;
-  border-radius: 8px;
+  border-radius: 6px;
   background: #ffffff;
   color: #333;
   font-size: 0.9rem;
@@ -832,17 +887,17 @@ onUnmounted(() => {
 .reply-actions {
   display: flex;
   justify-content: flex-end;
-  gap: 12px;
-  margin-top: 12px;
+  gap: 10px;
+  margin-top: 10px;
 }
 
 .cancel-btn {
-  padding: 8px 16px;
+  padding: 6px 14px;
   background: transparent;
   color: #666;
   border: 1px solid #e8e8e8;
-  border-radius: 6px;
-  font-size: 0.9rem;
+  border-radius: 4px;
+  font-size: 0.85rem;
   cursor: pointer;
   transition: all 0.2s;
 }
@@ -852,23 +907,25 @@ onUnmounted(() => {
 }
 
 .reply-form .submit-btn {
-  padding: 8px 16px;
-  font-size: 0.9rem;
+  padding: 6px 14px;
+  font-size: 0.85rem;
   background: #10b981;
 }
 
 /* 子评论列表 */
 .reply-list {
-  margin-top: 16px;
-  margin-left: 64px;
+  margin-top: 12px;
+  margin-left: 52px;
+  padding-left: 12px;
+  border-left: 2px solid #f0f0f0;
 }
 
 .reply-item {
-  padding: 16px 0;
+  padding: 10px 0;
 }
 
 .reply-item:not(:last-child) {
-  border-bottom: 1px dashed #e8e8e8;
+  border-bottom: 1px solid #f5f5f5;
 }
 
 @media (max-width: 768px) {
@@ -893,7 +950,7 @@ onUnmounted(() => {
 
   .reply-form,
   .reply-list {
-    margin-left: 48px;
+    margin-left: 44px;
   }
 
   .emoji-panel {

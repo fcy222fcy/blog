@@ -1,0 +1,382 @@
+- generic [ref=e4]:
+  - complementary [ref=e5]:
+    - generic [ref=e6]:
+      - figure [ref=e7]:
+        - link "Avatar" [ref=e8] [cursor=pointer]:
+          - /url: "#/"
+          - img "Avatar" [ref=e9]
+        - generic [ref=e10]: 🤖
+      - generic [ref=e11]:
+        - heading "Liu Houliang" [level=1] [ref=e12]:
+          - link "Liu Houliang" [ref=e13] [cursor=pointer]:
+            - /url: "#/"
+        - heading "日常落灰的个人博客，擅长面向搜索引擎编程。分享 Golang 开发、AI 和 NAS 折腾经验" [level=2] [ref=e14]
+    - list [ref=e15]:
+      - listitem [ref=e16]:
+        - link "Email" [ref=e17] [cursor=pointer]:
+          - /url: mailto:admin@liuhouliang.com
+          - img [ref=e18]
+      - listitem [ref=e21]:
+        - link "GitHub" [ref=e22] [cursor=pointer]:
+          - /url: https://github.com/liu-houliang
+          - img [ref=e23]
+      - listitem [ref=e26]:
+        - link "Twitter / X" [ref=e27] [cursor=pointer]:
+          - /url: https://x.com/liu_houliang
+          - img [ref=e28]
+      - listitem [ref=e30]:
+        - link "Telegram" [ref=e31] [cursor=pointer]:
+          - /url: https://t.me/liu_houliang
+          - img [ref=e32]
+    - generic [ref=e35] [cursor=pointer]:
+      - textbox "输入关键词..." [ref=e36]
+      - img [ref=e37]
+    - navigation [ref=e40]:
+      - listitem [ref=e41]:
+        - link "主页" [ref=e42] [cursor=pointer]:
+          - /url: "#/"
+          - img [ref=e43]
+          - generic [ref=e46]: 主页
+      - listitem [ref=e47]:
+        - link "文章" [ref=e48] [cursor=pointer]:
+          - /url: "#/archives"
+          - img [ref=e49]
+          - generic [ref=e51]: 文章
+      - listitem [ref=e52]:
+        - link "友链" [ref=e53] [cursor=pointer]:
+          - /url: "#/links"
+          - img [ref=e54]
+          - generic [ref=e57]: 友链
+      - listitem [ref=e58]:
+        - link "娱乐" [ref=e59] [cursor=pointer]:
+          - /url: "#/media"
+          - img [ref=e60]
+          - generic [ref=e63]: 娱乐
+      - listitem [ref=e64]:
+        - link "关于我" [ref=e65] [cursor=pointer]:
+          - /url: "#/about"
+          - img [ref=e66]
+          - generic [ref=e69]: 关于我
+    - button "暗色模式" [ref=e71] [cursor=pointer]:
+      - img [ref=e72]
+      - text: 暗色模式
+  - main [ref=e74]:
+    - generic [ref=e75]:
+      - article [ref=e76]:
+        - generic [ref=e77]:
+          - generic [ref=e78]:
+            - generic [ref=e79]: 每日一问
+            - generic [ref=e80]:
+              - button "◀ 前一天" [ref=e81] [cursor=pointer]
+              - button "2026-06-20" [ref=e82] [cursor=pointer]:
+                - img [ref=e83]
+                - generic [ref=e85]: 2026-06-20
+              - button "后一天 ▶" [ref=e86] [cursor=pointer]
+          - heading "什么是最好的编程语言？" [level=2] [ref=e87]
+          - generic [ref=e88]:
+            - paragraph [ref=e89]: 没有最好的编程语言，只有最适合的。Python 适合数据科学，JavaScript 适合 Web 开发，Go 适合后端服务。选择语言要根据具体需求和项目类型。
+            - generic [ref=e91] [cursor=pointer]: 👉 点击查看答案
+          - generic [ref=e92]:
+            - button "42" [ref=e93] [cursor=pointer]:
+              - img [ref=e94]
+              - generic [ref=e96]: "42"
+            - button "8" [ref=e97] [cursor=pointer]:
+              - img [ref=e98]
+              - generic [ref=e100]: "8"
+      - article [ref=e101]:
+        - link "搭建网站 我的博客主题已开源，欢迎使用 基于 Hugo Theme Stack 打造的开箱即用博客模板，包含多项美化和功能增强。 日期 2026-06-20 时长 3 分钟 浏览量 279 语言 中文" [ref=e102] [cursor=pointer]:
+          - /url: "#/post/my-blog-theme-open-source"
+          - generic [ref=e103]: 搭建网站
+          - heading "我的博客主题已开源，欢迎使用" [level=2] [ref=e104]
+          - paragraph [ref=e105]: 基于 Hugo Theme Stack 打造的开箱即用博客模板，包含多项美化和功能增强。
+          - generic [ref=e106]:
+            - generic [ref=e107]:
+              - term [ref=e108]: 日期
+              - definition [ref=e109]:
+                - img [ref=e110]
+                - text: 2026-06-20
+            - generic [ref=e112]:
+              - term [ref=e113]: 时长
+              - definition [ref=e114]:
+                - img [ref=e115]
+                - text: 3 分钟
+            - generic [ref=e118]:
+              - term [ref=e119]: 浏览量
+              - definition [ref=e120]:
+                - img [ref=e121]
+                - text: "279"
+            - generic [ref=e124]:
+              - term [ref=e125]: 语言
+              - definition [ref=e126]:
+                - img [ref=e127]
+                - text: 中文
+      - article [ref=e130]:
+        - link "搭建网站 Vue 3 组合式 API 入门指南 本文介绍了 Vue 3 组合式 API 的基本概念和使用方法，帮助开发者快速上手新特性。 日期 2026-06-26 时长 8 分钟 浏览量 176 语言 中文" [ref=e131] [cursor=pointer]:
+          - /url: "#/post/vue3-composition-api-guide"
+          - generic [ref=e132]: 搭建网站
+          - heading "Vue 3 组合式 API 入门指南" [level=2] [ref=e133]
+          - paragraph [ref=e134]: 本文介绍了 Vue 3 组合式 API 的基本概念和使用方法，帮助开发者快速上手新特性。
+          - generic [ref=e135]:
+            - generic [ref=e136]:
+              - term [ref=e137]: 日期
+              - definition [ref=e138]:
+                - img [ref=e139]
+                - text: 2026-06-26
+            - generic [ref=e141]:
+              - term [ref=e142]: 时长
+              - definition [ref=e143]:
+                - img [ref=e144]
+                - text: 8 分钟
+            - generic [ref=e147]:
+              - term [ref=e148]: 浏览量
+              - definition [ref=e149]:
+                - img [ref=e150]
+                - text: "176"
+            - generic [ref=e153]:
+              - term [ref=e154]: 语言
+              - definition [ref=e155]:
+                - img [ref=e156]
+                - text: 中文
+      - article [ref=e159]:
+        - link "搭建网站 Gin 框架快速上手 Gin 是 Go 语言中最流行的 Web 框架之一，本文将带你快速入门 Gin 框架的使用。 日期 2026-06-26 时长 10 分钟 浏览量 256 语言 中文" [ref=e160] [cursor=pointer]:
+          - /url: "#/post/gin-framework-quickstart"
+          - generic [ref=e161]: 搭建网站
+          - heading "Gin 框架快速上手" [level=2] [ref=e162]
+          - paragraph [ref=e163]: Gin 是 Go 语言中最流行的 Web 框架之一，本文将带你快速入门 Gin 框架的使用。
+          - generic [ref=e164]:
+            - generic [ref=e165]:
+              - term [ref=e166]: 日期
+              - definition [ref=e167]:
+                - img [ref=e168]
+                - text: 2026-06-26
+            - generic [ref=e170]:
+              - term [ref=e171]: 时长
+              - definition [ref=e172]:
+                - img [ref=e173]
+                - text: 10 分钟
+            - generic [ref=e176]:
+              - term [ref=e177]: 浏览量
+              - definition [ref=e178]:
+                - img [ref=e179]
+                - text: "256"
+            - generic [ref=e182]:
+              - term [ref=e183]: 语言
+              - definition [ref=e184]:
+                - img [ref=e185]
+                - text: 中文
+      - article [ref=e188]:
+        - link "软件开发 MySQL 索引优化实战 本文通过实际案例介绍了 MySQL 索引的使用方法和优化技巧，帮助提升数据库查询性能。 日期 2026-06-26 时长 12 分钟 浏览量 189 语言 中文" [ref=e189] [cursor=pointer]:
+          - /url: "#/post/mysql-index-optimization"
+          - generic [ref=e190]: 软件开发
+          - heading "MySQL 索引优化实战" [level=2] [ref=e191]
+          - paragraph [ref=e192]: 本文通过实际案例介绍了 MySQL 索引的使用方法和优化技巧，帮助提升数据库查询性能。
+          - generic [ref=e193]:
+            - generic [ref=e194]:
+              - term [ref=e195]: 日期
+              - definition [ref=e196]:
+                - img [ref=e197]
+                - text: 2026-06-26
+            - generic [ref=e199]:
+              - term [ref=e200]: 时长
+              - definition [ref=e201]:
+                - img [ref=e202]
+                - text: 12 分钟
+            - generic [ref=e205]:
+              - term [ref=e206]: 浏览量
+              - definition [ref=e207]:
+                - img [ref=e208]
+                - text: "189"
+            - generic [ref=e211]:
+              - term [ref=e212]: 语言
+              - definition [ref=e213]:
+                - img [ref=e214]
+                - text: 中文
+      - article [ref=e217]:
+        - link "生活记录 周末随笔：程序员的成长之路 一个程序员对于技术成长的思考和感悟，分享一些个人经验和建议。 日期 2026-06-26 时长 5 分钟 浏览量 342 语言 中文" [ref=e218] [cursor=pointer]:
+          - /url: "#/post/weekend-thoughts-programmer-growth"
+          - generic [ref=e219]: 生活记录
+          - heading "周末随笔：程序员的成长之路" [level=2] [ref=e220]
+          - paragraph [ref=e221]: 一个程序员对于技术成长的思考和感悟，分享一些个人经验和建议。
+          - generic [ref=e222]:
+            - generic [ref=e223]:
+              - term [ref=e224]: 日期
+              - definition [ref=e225]:
+                - img [ref=e226]
+                - text: 2026-06-26
+            - generic [ref=e228]:
+              - term [ref=e229]: 时长
+              - definition [ref=e230]:
+                - img [ref=e231]
+                - text: 5 分钟
+            - generic [ref=e234]:
+              - term [ref=e235]: 浏览量
+              - definition [ref=e236]:
+                - img [ref=e237]
+                - text: "342"
+            - generic [ref=e240]:
+              - term [ref=e241]: 语言
+              - definition [ref=e242]:
+                - img [ref=e243]
+                - text: 中文
+      - article [ref=e246]:
+        - link "软件开发 Docker 容器化部署实践 本文介绍了 Docker 容器化的基本概念和实际部署技巧，适合初学者入门。 日期 2026-06-26 时长 15 分钟 浏览量 423 语言 中文" [ref=e247] [cursor=pointer]:
+          - /url: "#/post/docker-deployment-practice"
+          - generic [ref=e248]: 软件开发
+          - heading "Docker 容器化部署实践" [level=2] [ref=e249]
+          - paragraph [ref=e250]: 本文介绍了 Docker 容器化的基本概念和实际部署技巧，适合初学者入门。
+          - generic [ref=e251]:
+            - generic [ref=e252]:
+              - term [ref=e253]: 日期
+              - definition [ref=e254]:
+                - img [ref=e255]
+                - text: 2026-06-26
+            - generic [ref=e257]:
+              - term [ref=e258]: 时长
+              - definition [ref=e259]:
+                - img [ref=e260]
+                - text: 15 分钟
+            - generic [ref=e263]:
+              - term [ref=e264]: 浏览量
+              - definition [ref=e265]:
+                - img [ref=e266]
+                - text: "423"
+            - generic [ref=e269]:
+              - term [ref=e270]: 语言
+              - definition [ref=e271]:
+                - img [ref=e272]
+                - text: 中文
+      - article [ref=e275]:
+        - link "软件开发 使用 Redis 实现缓存和会话管理 本文介绍了如何使用 Redis 实现应用缓存和会话管理，提升系统性能。 日期 2026-06-26 时长 11 分钟 浏览量 198 语言 中文" [ref=e276] [cursor=pointer]:
+          - /url: "#/post/redis-cache-session-management"
+          - generic [ref=e277]: 软件开发
+          - heading "使用 Redis 实现缓存和会话管理" [level=2] [ref=e278]
+          - paragraph [ref=e279]: 本文介绍了如何使用 Redis 实现应用缓存和会话管理，提升系统性能。
+          - generic [ref=e280]:
+            - generic [ref=e281]:
+              - term [ref=e282]: 日期
+              - definition [ref=e283]:
+                - img [ref=e284]
+                - text: 2026-06-26
+            - generic [ref=e286]:
+              - term [ref=e287]: 时长
+              - definition [ref=e288]:
+                - img [ref=e289]
+                - text: 11 分钟
+            - generic [ref=e292]:
+              - term [ref=e293]: 浏览量
+              - definition [ref=e294]:
+                - img [ref=e295]
+                - text: "198"
+            - generic [ref=e298]:
+              - term [ref=e299]: 语言
+              - definition [ref=e300]:
+                - img [ref=e301]
+                - text: 中文
+      - article [ref=e304]:
+        - link "软件开发 DesktopSnap：开源轻量桌面图标恢复工具 基于 WinUI3 开发的轻量级桌面工具。支持多显示器布局一键备份与恢复，已上架微软商店。 日期 2026-06-20 时长 3 分钟 浏览量 329 语言 中文" [ref=e305] [cursor=pointer]:
+          - /url: "#/post/desktopsnap"
+          - generic [ref=e306]: 软件开发
+          - heading "DesktopSnap：开源轻量桌面图标恢复工具" [level=2] [ref=e307]
+          - paragraph [ref=e308]: 基于 WinUI3 开发的轻量级桌面工具。支持多显示器布局一键备份与恢复，已上架微软商店。
+          - generic [ref=e309]:
+            - generic [ref=e310]:
+              - term [ref=e311]: 日期
+              - definition [ref=e312]:
+                - img [ref=e313]
+                - text: 2026-06-20
+            - generic [ref=e315]:
+              - term [ref=e316]: 时长
+              - definition [ref=e317]:
+                - img [ref=e318]
+                - text: 3 分钟
+            - generic [ref=e321]:
+              - term [ref=e322]: 浏览量
+              - definition [ref=e323]:
+                - img [ref=e324]
+                - text: "329"
+            - generic [ref=e327]:
+              - term [ref=e328]: 语言
+              - definition [ref=e329]:
+                - img [ref=e330]
+                - text: 中文
+      - article [ref=e333]:
+        - link "搭建网站 用 Cloudflare Workers 免费给博客增加 AI 助手 利用 Cloudflare Workers 和 AI 能力，为博客添加智能问答功能。 日期 2026-06-20 时长 6 分钟 浏览量 161 语言 中文" [ref=e334] [cursor=pointer]:
+          - /url: "#/post/cloudflare-ai-assistant"
+          - generic [ref=e335]: 搭建网站
+          - heading "用 Cloudflare Workers 免费给博客增加 AI 助手" [level=2] [ref=e336]
+          - paragraph [ref=e337]: 利用 Cloudflare Workers 和 AI 能力，为博客添加智能问答功能。
+          - generic [ref=e338]:
+            - generic [ref=e339]:
+              - term [ref=e340]: 日期
+              - definition [ref=e341]:
+                - img [ref=e342]
+                - text: 2026-06-20
+            - generic [ref=e344]:
+              - term [ref=e345]: 时长
+              - definition [ref=e346]:
+                - img [ref=e347]
+                - text: 6 分钟
+            - generic [ref=e350]:
+              - term [ref=e351]: 浏览量
+              - definition [ref=e352]:
+                - img [ref=e353]
+                - text: "161"
+            - generic [ref=e356]:
+              - term [ref=e357]: 语言
+              - definition [ref=e358]:
+                - img [ref=e359]
+                - text: 中文
+      - article [ref=e362]:
+        - link "生活记录 清明假期：收拾家务、整理心情 清明假期的日常记录，整理家务，调整心态。 日期 2026-06-20 时长 9 分钟 浏览量 101 语言 中文" [ref=e363] [cursor=pointer]:
+          - /url: "#/post/qingming-holiday"
+          - generic [ref=e364]: 生活记录
+          - heading "清明假期：收拾家务、整理心情" [level=2] [ref=e365]
+          - paragraph [ref=e366]: 清明假期的日常记录，整理家务，调整心态。
+          - generic [ref=e367]:
+            - generic [ref=e368]:
+              - term [ref=e369]: 日期
+              - definition [ref=e370]:
+                - img [ref=e371]
+                - text: 2026-06-20
+            - generic [ref=e373]:
+              - term [ref=e374]: 时长
+              - definition [ref=e375]:
+                - img [ref=e376]
+                - text: 9 分钟
+            - generic [ref=e379]:
+              - term [ref=e380]: 浏览量
+              - definition [ref=e381]:
+                - img [ref=e382]
+                - text: "101"
+            - generic [ref=e385]:
+              - term [ref=e386]: 语言
+              - definition [ref=e387]:
+                - img [ref=e388]
+                - text: 中文
+      - article [ref=e391]:
+        - link "生活记录 逐渐难以逃离对于 AI 的焦虑 养龙虾热潮让人们看到了 AI 的威力，也让人们更加因为没有用上 AI 技术而感到焦虑。 日期 2026-06-20 时长 10 分钟 浏览量 115 语言 中文" [ref=e392] [cursor=pointer]:
+          - /url: "#/post/ai-anxiety"
+          - generic [ref=e393]: 生活记录
+          - heading "逐渐难以逃离对于 AI 的焦虑" [level=2] [ref=e394]
+          - paragraph [ref=e395]: 养龙虾热潮让人们看到了 AI 的威力，也让人们更加因为没有用上 AI 技术而感到焦虑。
+          - generic [ref=e396]:
+            - generic [ref=e397]:
+              - term [ref=e398]: 日期
+              - definition [ref=e399]:
+                - img [ref=e400]
+                - text: 2026-06-20
+            - generic [ref=e402]:
+              - term [ref=e403]: 时长
+              - definition [ref=e404]:
+                - img [ref=e405]
+                - text: 10 分钟
+            - generic [ref=e408]:
+              - term [ref=e409]: 浏览量
+              - definition [ref=e410]:
+                - img [ref=e411]
+                - text: "115"
+            - generic [ref=e414]:
+              - term [ref=e415]: 语言
+              - definition [ref=e416]:
+                - img [ref=e417]
+                - text: 中文

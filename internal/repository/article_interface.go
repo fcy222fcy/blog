@@ -27,13 +27,10 @@ type ArticleRepository interface {
 	ListPublished(offset, limit int, categoryId, tagId uint, keyword string) ([]*entity.Article, int64, error)
 
 	// ListAll 所有文章列表（后台）
-	ListAll(offset, limit int, status, keyword string) ([]*entity.Article, int64, error)
+	ListAll(offset, limit int, status, keyword string, categoryID uint) ([]*entity.Article, int64, error)
 
 	// IncrementViewCount 增加浏览量
 	IncrementViewCount(id uint) error
-
-	// IncrementLikeCount 增加点赞数
-	IncrementLikeCount(id uint) (int64, error)
 
 	// BatchDelete 批量删除
 	BatchDelete(ids []uint) error

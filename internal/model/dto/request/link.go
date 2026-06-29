@@ -11,7 +11,7 @@ type CreateLinkRequest struct {
 	Name        string `json:"name" binding:"required,min=1,max=100"`
 	URL         string `json:"url" binding:"required,url"`
 	Description string `json:"description" binding:"max=200"`
-	Avatar      string `json:"avatar" binding:"url"`
+	Avatar      string `json:"avatar" binding:"omitempty,max=500"`
 	Logo        string `json:"logo" binding:"max=10"`
 	SortOrder   int    `json:"sort_order"`
 	Status      string `json:"status" binding:"omitempty,oneof=pending approved rejected"`
@@ -22,7 +22,7 @@ type UpdateLinkRequest struct {
 	Name        string `json:"name" binding:"min=1,max=100"`
 	URL         string `json:"url" binding:"url"`
 	Description string `json:"description" binding:"max=200"`
-	Avatar      string `json:"avatar" binding:"url"`
+	Avatar      string `json:"avatar" binding:"omitempty,max=500"`
 	Logo        string `json:"logo" binding:"max=10"`
 	SortOrder   int    `json:"sort_order"`
 	Status      string `json:"status" binding:"omitempty,oneof=pending approved rejected"`
@@ -38,6 +38,6 @@ type ApplyLinkRequest struct {
 	Name        string `json:"name" binding:"required,min=1,max=100"`
 	URL         string `json:"url" binding:"required,url"`
 	Description string `json:"description" binding:"max=200"`
-	Avatar      string `json:"avatar" binding:"url"`
+	Avatar      string `json:"avatar" binding:"omitempty,max=500"`
 	Email       string `json:"email" binding:"required,email"`
 }

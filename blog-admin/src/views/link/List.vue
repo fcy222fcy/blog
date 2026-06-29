@@ -22,7 +22,8 @@
       <div v-for="link in filteredLinks" :key="link.id" class="link-card">
         <div class="link-card-header">
           <div class="link-card-avatar" :style="{ background: getGradient(link.id) }">
-            {{ link.avatar || '🔗' }}
+            <img v-if="link.avatar && (link.avatar.startsWith('http://') || link.avatar.startsWith('https://') || link.avatar.startsWith('/'))" :src="link.avatar" alt="avatar" style="width:100%;height:100%;object-fit:cover;border-radius:inherit;">
+            <span v-else>{{ link.avatar || '🔗' }}</span>
           </div>
           <div class="link-card-info">
             <div class="link-card-name">{{ link.name }}</div>
@@ -63,8 +64,8 @@
             <textarea class="form-textarea" v-model="form.description" placeholder="输入描述..." rows="2"></textarea>
           </div>
           <div class="form-group" style="margin-bottom: 0;">
-            <label class="form-label">头像 (emoji)</label>
-            <input type="text" class="form-input" v-model="form.avatar" placeholder="输入 emoji 如 🤖">
+            <label class="form-label">头像</label>
+            <input type="text" class="form-input" v-model="form.avatar" placeholder="输入 emoji 如 🤖 或图片 URL">
           </div>
         </div>
         <div class="modal-footer">

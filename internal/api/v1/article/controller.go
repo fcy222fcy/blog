@@ -85,29 +85,6 @@ func (c *Controller) GetArchives(ctx *gin.Context) {
 	response.Success(ctx, result)
 }
 
-// LikeArticle 文章点赞
-func (c *Controller) LikeArticle(ctx *gin.Context) {
-	id, err := strconv.ParseUint(ctx.Param("id"), 10, 32)
-	if err != nil {
-		response.BadRequest(ctx, "文章ID无效")
-		return
-	}
-
-	likeCount, err := c.articleSvc.LikeArticle(uint(id))
-	if err != nil {
-		if bizerrors.IsBizError(err) {
-			logger.Warn("文章点赞业务错误", zap.Uint64("id", id), zap.Error(err))
-			response.BizError(ctx, err)
-		} else {
-			logger.Error("文章点赞失败", zap.Uint64("id", id), zap.Error(err))
-			response.ServerError(ctx, "服务器内部错误")
-		}
-		return
-	}
-
-	response.Success(ctx, gin.H{"like_count": likeCount})
-}
-
 // GetAdminArticleList 获取文章列表（后台）
 func (c *Controller) GetAdminArticleList(ctx *gin.Context) {
 	var req request.ArticleListRequest

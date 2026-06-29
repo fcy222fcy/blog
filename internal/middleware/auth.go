@@ -32,11 +32,16 @@ func Auth() gin.HandlerFunc {
 
 		tokenString := parts[1]
 
+		// 从上下文获取 JWT 配置
+		jwtConfig, exists := c.Get("jwt_config")
+		if !exists {
+			response.Unauthorized(c, "JWT 配置未初始化")
+			c.Abort()
+			return
+		}
+
 		// 解析 Token
-		jwtInstance := jwt.NewJWT(config.JWTConfig{
-			Secret:     "your-secret-key-here",
-			ExpireHour: 72,
-		})
+		jwtInstance := jwt.NewJWT(jwtConfig.(config.JWTConfig))
 
 		claims, err := jwtInstance.ParseToken(tokenString)
 		if err != nil {

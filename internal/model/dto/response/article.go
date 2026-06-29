@@ -13,7 +13,6 @@ type ArticleResponse struct {
 	Category     CategoryResponse  `json:"category"`
 	Tags         []TagResponse     `json:"tags"`
 	ViewCount    int64             `json:"view_count"`
-	LikeCount    int64             `json:"like_count"`
 	CommentCount int64             `json:"comment_count"`
 	Status       string            `json:"status"`
 	IsTop        bool              `json:"is_top"`
@@ -31,7 +30,6 @@ type ArticleDetailResponse struct {
 	Summary      string    `json:"summary"`
 	Cover        string    `json:"cover"`
 	ViewCount    int64     `json:"view_count"`
-	LikeCount    int64     `json:"like_count"`
 	CommentCount int64     `json:"comment_count"`
 	Status       string    `json:"status"`
 	IsTop        bool      `json:"is_top"`
@@ -64,7 +62,6 @@ type ArticleListResponse struct {
 	Category     CategoryResponse `json:"category"`
 	Tags         []TagResponse    `json:"tags"`
 	ViewCount    int64            `json:"view_count"`
-	LikeCount    int64            `json:"like_count"`
 	CommentCount int64            `json:"comment_count"`
 	ReadingTime  int              `json:"reading_time"`
 	CreatedAt    time.Time        `json:"created_at"`

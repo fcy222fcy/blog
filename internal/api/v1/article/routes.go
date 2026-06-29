@@ -22,7 +22,6 @@ func registerPublicRoutes(rg *gin.RouterGroup, controller *Controller) {
 		articles.GET("", controller.GetArticleList)
 		articles.GET("/archives", controller.GetArchives)
 		articles.GET("/:slug", controller.GetArticleDetail)
-		articles.POST("/:id/like", controller.LikeArticle)
 	}
 }
 

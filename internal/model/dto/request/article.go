@@ -3,7 +3,7 @@ package request
 // ArticleListRequest 文章列表请求
 type ArticleListRequest struct {
 	PageRequest
-	Category uint   `json:"category" form:"category"`
+	Category uint   `json:"category_id" form:"category_id"`
 	Tag      uint   `json:"tag" form:"tag"`
 	Keyword  string `json:"keyword" form:"keyword"`
 	Status   string `json:"status" form:"status"`

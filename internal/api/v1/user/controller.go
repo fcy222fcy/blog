@@ -23,7 +23,7 @@ func NewController(userSvc service.UserService) *Controller {
 
 // GetUserInfo 获取用户信息
 func (c *Controller) GetUserInfo(ctx *gin.Context) {
-	userID, exists := ctx.Get("userID")
+	userID, exists := ctx.Get("user_id")
 	if !exists {
 		response.Unauthorized(ctx, "未登录")
 		return
@@ -46,7 +46,7 @@ func (c *Controller) GetUserInfo(ctx *gin.Context) {
 
 // UpdateUserInfo 更新用户信息
 func (c *Controller) UpdateUserInfo(ctx *gin.Context) {
-	userID, exists := ctx.Get("userID")
+	userID, exists := ctx.Get("user_id")
 	if !exists {
 		response.Unauthorized(ctx, "未登录")
 		return

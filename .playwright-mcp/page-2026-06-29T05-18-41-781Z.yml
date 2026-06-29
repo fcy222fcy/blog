@@ -1,0 +1,246 @@
+- generic [ref=e36]:
+  - complementary [ref=e37]:
+    - generic [ref=e38]:
+      - generic [ref=e39] [cursor=pointer]:
+        - img "头像" [ref=e40]
+        - generic [ref=e41]: 更换头像
+      - generic [ref=e42]: Liu Houliang
+      - generic [ref=e43]: 日常落灰的个人博客，分享 Golang、AI 和 NAS 折腾经验
+      - button "编辑资料" [ref=e44] [cursor=pointer]
+    - navigation [ref=e45]:
+      - generic [ref=e46] [cursor=pointer]:
+        - img [ref=e48]
+        - generic [ref=e51]: 仪表盘
+      - generic [ref=e52] [cursor=pointer]:
+        - img [ref=e54]
+        - generic [ref=e57]: 文章
+      - generic [ref=e58] [cursor=pointer]:
+        - img [ref=e60]
+        - generic [ref=e62]: 分类
+      - generic [ref=e63] [cursor=pointer]:
+        - img [ref=e65]
+        - generic [ref=e67]: 标签
+      - generic [ref=e68] [cursor=pointer]:
+        - img [ref=e70]
+        - generic [ref=e72]: 评论
+      - generic [ref=e73] [cursor=pointer]:
+        - img [ref=e75]
+        - generic [ref=e78]: 友链
+      - generic [ref=e79] [cursor=pointer]:
+        - img [ref=e81]
+        - generic [ref=e85]: 媒体库
+      - generic [ref=e86] [cursor=pointer]:
+        - img [ref=e88]
+        - generic [ref=e90]: 娱乐
+      - generic [ref=e91] [cursor=pointer]:
+        - img [ref=e93]
+        - generic [ref=e96]: 每日一问
+      - generic [ref=e97] [cursor=pointer]:
+        - img [ref=e99]
+        - generic [ref=e102]: 关于我
+    - generic [ref=e103]:
+      - generic [ref=e104] [cursor=pointer]:
+        - img [ref=e106]
+        - generic [ref=e109]: English
+      - generic [ref=e110] [cursor=pointer]:
+        - img [ref=e112]
+        - generic [ref=e114]: 暗色模式
+  - generic [ref=e115]:
+    - banner [ref=e116]:
+      - heading "文章" [level=1] [ref=e1186]
+      - button "通知" [ref=e120] [cursor=pointer]:
+        - img [ref=e121]
+    - main [ref=e124]:
+      - generic [ref=e1187]:
+        - generic [ref=e1188]:
+          - generic [ref=e1189]:
+            - generic [ref=e1190]: 文章总数
+            - generic [ref=e1191]: "12"
+          - generic [ref=e1192]:
+            - generic [ref=e1193]: 已发布
+            - generic [ref=e1194]: "10"
+          - generic [ref=e1195]:
+            - generic [ref=e1196]: 草稿
+            - generic [ref=e1197]: "0"
+          - generic [ref=e1198]:
+            - generic [ref=e1199]: 总浏览量
+            - generic [ref=e1200]: "2456"
+        - generic [ref=e1201]:
+          - generic [ref=e1202]:
+            - generic [ref=e1203]: 文章列表
+            - generic [ref=e1204]:
+              - generic [ref=e1205]:
+                - generic [ref=e1206]: ⌕
+                - textbox "搜索文章..." [active] [ref=e1207]
+              - combobox [ref=e1208]:
+                - option "全部分类"
+                - option "搭建网站"
+                - option "软件开发" [selected]
+                - option "生活记录"
+              - combobox [ref=e1209]:
+                - option "全部状态" [selected]
+                - option "已发布"
+                - option "草稿"
+              - button "新建文章" [ref=e1210] [cursor=pointer]:
+                - img [ref=e1211]
+                - generic [ref=e1212]: 新建文章
+          - generic [ref=e1213]:
+            - generic [ref=e1417]:
+              - generic [ref=e1418]:
+                - heading "Vue 3 组合式 API 入门指南" [level=3] [ref=e1419] [cursor=pointer]
+                - generic [ref=e1420]: 已发布
+              - paragraph [ref=e1421]: 本文介绍了 Vue 3 组合式 API 的基本概念和使用方法，帮助开发者快速上手新特性。
+              - generic [ref=e1422]:
+                - generic [ref=e1423]:
+                  - generic [ref=e1424]: 搭建网站
+                  - generic [ref=e1425]: ·
+                  - generic [ref=e1426]: 2026-06-26
+                  - generic [ref=e1427]: ·
+                  - generic [ref=e1428]: 176 次浏览
+                - generic [ref=e1429]:
+                  - button "编辑" [ref=e1430] [cursor=pointer]
+                  - button "删除" [ref=e1431] [cursor=pointer]
+            - generic [ref=e1432]:
+              - generic [ref=e1433]:
+                - heading "Gin 框架快速上手" [level=3] [ref=e1434] [cursor=pointer]
+                - generic [ref=e1435]: 已发布
+              - paragraph [ref=e1436]: Gin 是 Go 语言中最流行的 Web 框架之一，本文将带你快速入门 Gin 框架的使用。
+              - generic [ref=e1437]:
+                - generic [ref=e1438]:
+                  - generic [ref=e1439]: 搭建网站
+                  - generic [ref=e1440]: ·
+                  - generic [ref=e1441]: 2026-06-26
+                  - generic [ref=e1442]: ·
+                  - generic [ref=e1443]: 256 次浏览
+                - generic [ref=e1444]:
+                  - button "编辑" [ref=e1445] [cursor=pointer]
+                  - button "删除" [ref=e1446] [cursor=pointer]
+            - generic [ref=e1447]:
+              - generic [ref=e1448]:
+                - heading "MySQL 索引优化实战" [level=3] [ref=e1449] [cursor=pointer]
+                - generic [ref=e1450]: 已发布
+              - paragraph [ref=e1451]: 本文通过实际案例介绍了 MySQL 索引的使用方法和优化技巧，帮助提升数据库查询性能。
+              - generic [ref=e1452]:
+                - generic [ref=e1453]:
+                  - generic [ref=e1454]: 软件开发
+                  - generic [ref=e1455]: ·
+                  - generic [ref=e1456]: 2026-06-26
+                  - generic [ref=e1457]: ·
+                  - generic [ref=e1458]: 189 次浏览
+                - generic [ref=e1459]:
+                  - button "编辑" [ref=e1460] [cursor=pointer]
+                  - button "删除" [ref=e1461] [cursor=pointer]
+            - generic [ref=e1462]:
+              - generic [ref=e1463]:
+                - heading "周末随笔：程序员的成长之路" [level=3] [ref=e1464] [cursor=pointer]
+                - generic [ref=e1465]: 已发布
+              - paragraph [ref=e1466]: 一个程序员对于技术成长的思考和感悟，分享一些个人经验和建议。
+              - generic [ref=e1467]:
+                - generic [ref=e1468]:
+                  - generic [ref=e1469]: 生活记录
+                  - generic [ref=e1470]: ·
+                  - generic [ref=e1471]: 2026-06-26
+                  - generic [ref=e1472]: ·
+                  - generic [ref=e1473]: 342 次浏览
+                - generic [ref=e1474]:
+                  - button "编辑" [ref=e1475] [cursor=pointer]
+                  - button "删除" [ref=e1476] [cursor=pointer]
+            - generic [ref=e1289]:
+              - generic [ref=e1290]:
+                - heading "Docker 容器化部署实践" [level=3] [ref=e1291] [cursor=pointer]
+                - generic [ref=e1292]: 已发布
+              - paragraph [ref=e1293]: 本文介绍了 Docker 容器化的基本概念和实际部署技巧，适合初学者入门。
+              - generic [ref=e1294]:
+                - generic [ref=e1295]:
+                  - generic [ref=e1296]: 软件开发
+                  - generic [ref=e1297]: ·
+                  - generic [ref=e1298]: 2026-06-26
+                  - generic [ref=e1299]: ·
+                  - generic [ref=e1300]: 423 次浏览
+                - generic [ref=e1301]:
+                  - button "编辑" [ref=e1302] [cursor=pointer]
+                  - button "删除" [ref=e1303] [cursor=pointer]
+            - generic [ref=e1477]:
+              - generic [ref=e1478]:
+                - heading "使用 Redis 实现缓存和会话管理" [level=3] [ref=e1479] [cursor=pointer]
+                - generic [ref=e1480]: 已发布
+              - paragraph [ref=e1481]: 本文介绍了如何使用 Redis 实现应用缓存和会话管理，提升系统性能。
+              - generic [ref=e1482]:
+                - generic [ref=e1483]:
+                  - generic [ref=e1484]: 软件开发
+                  - generic [ref=e1485]: ·
+                  - generic [ref=e1486]: 2026-06-26
+                  - generic [ref=e1487]: ·
+                  - generic [ref=e1488]: 198 次浏览
+                - generic [ref=e1489]:
+                  - button "编辑" [ref=e1490] [cursor=pointer]
+                  - button "删除" [ref=e1491] [cursor=pointer]
+            - generic [ref=e1492]:
+              - generic [ref=e1493]:
+                - heading "我的博客主题已开源，欢迎使用" [level=3] [ref=e1494] [cursor=pointer]
+                - generic [ref=e1495]: 已发布
+              - paragraph [ref=e1496]: 基于 Hugo Theme Stack 打造的开箱即用博客模板，包含多项美化和功能增强。
+              - generic [ref=e1497]:
+                - generic [ref=e1498]:
+                  - generic [ref=e1499]: 搭建网站
+                  - generic [ref=e1500]: ·
+                  - generic [ref=e1501]: 2026-06-20
+                  - generic [ref=e1502]: ·
+                  - generic [ref=e1503]: 281 次浏览
+                - generic [ref=e1504]:
+                  - button "编辑" [ref=e1505] [cursor=pointer]
+                  - button "删除" [ref=e1506] [cursor=pointer]
+            - generic [ref=e1507]:
+              - generic [ref=e1508]:
+                - heading "DesktopSnap：开源轻量桌面图标恢复工具" [level=3] [ref=e1509] [cursor=pointer]
+                - generic [ref=e1510]: 已发布
+              - paragraph [ref=e1511]: 基于 WinUI3 开发的轻量级桌面工具。支持多显示器布局一键备份与恢复，已上架微软商店。
+              - generic [ref=e1512]:
+                - generic [ref=e1513]:
+                  - generic [ref=e1514]: 软件开发
+                  - generic [ref=e1515]: ·
+                  - generic [ref=e1516]: 2026-06-20
+                  - generic [ref=e1517]: ·
+                  - generic [ref=e1518]: 329 次浏览
+                - generic [ref=e1519]:
+                  - button "编辑" [ref=e1520] [cursor=pointer]
+                  - button "删除" [ref=e1521] [cursor=pointer]
+            - generic [ref=e1522]:
+              - generic [ref=e1523]:
+                - heading "用 Cloudflare Workers 免费给博客增加 AI 助手" [level=3] [ref=e1524] [cursor=pointer]
+                - generic [ref=e1525]: 已发布
+              - paragraph [ref=e1526]: 利用 Cloudflare Workers 和 AI 能力，为博客添加智能问答功能。
+              - generic [ref=e1527]:
+                - generic [ref=e1528]:
+                  - generic [ref=e1529]: 搭建网站
+                  - generic [ref=e1530]: ·
+                  - generic [ref=e1531]: 2026-06-20
+                  - generic [ref=e1532]: ·
+                  - generic [ref=e1533]: 161 次浏览
+                - generic [ref=e1534]:
+                  - button "编辑" [ref=e1535] [cursor=pointer]
+                  - button "删除" [ref=e1536] [cursor=pointer]
+            - generic [ref=e1537]:
+              - generic [ref=e1538]:
+                - heading "清明假期：收拾家务、整理心情" [level=3] [ref=e1539] [cursor=pointer]
+                - generic [ref=e1540]: 已发布
+              - paragraph [ref=e1541]: 清明假期的日常记录，整理家务，调整心态。
+              - generic [ref=e1542]:
+                - generic [ref=e1543]:
+                  - generic [ref=e1544]: 生活记录
+                  - generic [ref=e1545]: ·
+                  - generic [ref=e1546]: 2026-06-20
+                  - generic [ref=e1547]: ·
+                  - generic [ref=e1548]: 101 次浏览
+                - generic [ref=e1549]:
+                  - button "编辑" [ref=e1550] [cursor=pointer]
+                  - button "删除" [ref=e1551] [cursor=pointer]
+          - generic [ref=e1365]:
+            - generic [ref=e1366]: 共 12 篇文章
+            - generic [ref=e1367]:
+              - button "上一页" [disabled] [ref=e1368]
+              - button "1" [ref=e1369] [cursor=pointer]
+              - button "下一页" [ref=e1370] [cursor=pointer]
+  - button [ref=e196] [cursor=pointer]:
+    - img [ref=e197]
+    - img [ref=e200]

@@ -1,0 +1,199 @@
+- generic [ref=e3]:
+  - generic [ref=e4]:
+    - complementary [ref=e5]:
+      - generic [ref=e6]:
+        - figure [ref=e7]:
+          - link "Avatar" [ref=e8] [cursor=pointer]:
+            - /url: "#/"
+            - img "Avatar" [ref=e9]
+          - generic [ref=e10]: 🤖
+        - generic [ref=e11]:
+          - heading "Liu Houliang" [level=1] [ref=e12]:
+            - link "Liu Houliang" [ref=e13] [cursor=pointer]:
+              - /url: "#/"
+          - heading "日常落灰的个人博客，擅长面向搜索引擎编程。分享 Golang 开发、AI 和 NAS 折腾经验" [level=2] [ref=e14]
+      - list [ref=e15]:
+        - listitem [ref=e16]:
+          - link "Email" [ref=e17] [cursor=pointer]:
+            - /url: mailto:admin@liuhouliang.com
+            - img [ref=e18]
+        - listitem [ref=e21]:
+          - link "GitHub" [ref=e22] [cursor=pointer]:
+            - /url: https://github.com/liu-houliang
+            - img [ref=e23]
+        - listitem [ref=e26]:
+          - link "Twitter / X" [ref=e27] [cursor=pointer]:
+            - /url: https://x.com/liu_houliang
+            - img [ref=e28]
+        - listitem [ref=e30]:
+          - link "Telegram" [ref=e31] [cursor=pointer]:
+            - /url: https://t.me/liu_houliang
+            - img [ref=e32]
+      - generic [ref=e35] [cursor=pointer]:
+        - textbox "输入关键词..." [ref=e36]
+        - img [ref=e37]
+      - navigation [ref=e40]:
+        - listitem [ref=e41]:
+          - link "主页" [ref=e42] [cursor=pointer]:
+            - /url: "#/"
+            - img [ref=e43]
+            - generic [ref=e46]: 主页
+        - listitem [ref=e47]:
+          - link "文章" [ref=e48] [cursor=pointer]:
+            - /url: "#/archives"
+            - img [ref=e49]
+            - generic [ref=e51]: 文章
+        - listitem [ref=e52]:
+          - link "友链" [ref=e53] [cursor=pointer]:
+            - /url: "#/links"
+            - img [ref=e54]
+            - generic [ref=e57]: 友链
+        - listitem [ref=e58]:
+          - link "娱乐" [ref=e59] [cursor=pointer]:
+            - /url: "#/media"
+            - img [ref=e60]
+            - generic [ref=e63]: 娱乐
+        - listitem [ref=e64]:
+          - link "关于我" [ref=e65] [cursor=pointer]:
+            - /url: "#/about"
+            - img [ref=e66]
+            - generic [ref=e69]: 关于我
+      - button "暗色模式" [ref=e71] [cursor=pointer]:
+        - img [ref=e72]
+        - text: 暗色模式
+    - main [ref=e74]:
+      - generic [ref=e75]:
+        - link "← 返回列表" [ref=e76] [cursor=pointer]:
+          - /url: "#/"
+        - article [ref=e77]:
+          - heading "我的博客主题已开源，欢迎使用" [level=1] [ref=e78]
+          - generic [ref=e79]:
+            - generic [ref=e80]:
+              - img [ref=e81]
+              - text: 2026-06-20
+            - generic [ref=e83]:
+              - img [ref=e84]
+              - text: 时长 1 分钟
+            - generic [ref=e87]:
+              - img [ref=e88]
+              - text: 浏览量 287
+          - generic [ref=e91]:
+            - heading "引言" [level=2] [ref=e92]
+            - paragraph [ref=e93]: 基于 Hugo Theme Stack 打造的开箱即用博客模板，包含多项美化和功能增强。
+            - heading "特性" [level=2] [ref=e94]
+            - list [ref=e95]:
+              - listitem [ref=e96]: 响应式设计
+              - listitem [ref=e97]: 深色/浅色主题
+              - listitem [ref=e98]: 代码高亮
+              - listitem [ref=e99]: 搜索功能
+            - heading "使用方法" [level=2] [ref=e100]
+            - paragraph [ref=e101]: 如果你喜欢我的博客样式，不妨试试它！
+        - generic [ref=e102]:
+          - generic [ref=e104]:
+            - generic [ref=e105]:
+              - generic [ref=e106]:
+                - generic [ref=e107]: 昵称
+                - textbox "昵称" [ref=e108]: 付涛
+              - generic [ref=e109]:
+                - generic [ref=e110]: 邮箱(可选)
+                - textbox "邮箱" [ref=e111]: 2696057150@qq.com
+            - textbox "欢迎评论，填写邮箱可收到回复提醒~" [ref=e113]
+            - generic [ref=e114]:
+              - generic [ref=e115]:
+                - button "Markdown" [ref=e116] [cursor=pointer]:
+                  - img [ref=e117]
+                - button "表情" [ref=e120] [cursor=pointer]:
+                  - img [ref=e121]
+                - generic "图片" [ref=e123] [cursor=pointer]:
+                  - img [ref=e124]
+                - button "链接" [ref=e127] [cursor=pointer]:
+                  - img [ref=e128]
+              - generic [ref=e130]:
+                - generic [ref=e131]: 0 字
+                - button "登录" [ref=e132] [cursor=pointer]
+                - button "提交" [disabled] [ref=e133]
+          - generic [ref=e134]:
+            - generic [ref=e135]:
+              - heading "4 评论" [level=3] [ref=e136]
+              - generic [ref=e137]:
+                - button "按正序" [ref=e138] [cursor=pointer]
+                - button "按倒序" [ref=e139] [cursor=pointer]
+                - button "按热度" [ref=e140] [cursor=pointer]
+            - generic [ref=e141]:
+              - generic [ref=e142]:
+                - generic [ref=e143]:
+                  - img "付涛" [ref=e145]
+                  - generic [ref=e146]:
+                    - generic [ref=e147]:
+                      - generic [ref=e148]: 付涛
+                      - generic [ref=e149]: 1 分钟前
+                    - generic [ref=e150]: 博主的博客主题非常棒！请问后续会考虑支持更多自定义功能吗？
+                    - generic [ref=e151]:
+                      - button [ref=e152] [cursor=pointer]:
+                        - img [ref=e154]
+                      - button [ref=e156] [cursor=pointer]:
+                        - img [ref=e158]
+                - generic [ref=e162]:
+                  - img "Liu Houliang" [ref=e164]
+                  - generic [ref=e165]:
+                    - generic [ref=e166]:
+                      - generic [ref=e167]: Liu Houliang
+                      - generic [ref=e168]: 刚刚
+                    - generic [ref=e169]: 谢谢付涛的支持！后续会考虑添加更多自定义功能，包括自定义配色、布局调整等。敬请期待！🎉
+                    - generic [ref=e170]:
+                      - button [ref=e171] [cursor=pointer]:
+                        - img [ref=e173]
+                      - button [ref=e175] [cursor=pointer]:
+                        - img [ref=e177]
+              - generic [ref=e179]:
+                - generic [ref=e180]:
+                  - img "测试用户C" [ref=e182]
+                  - generic [ref=e183]:
+                    - generic [ref=e184]:
+                      - generic [ref=e185]: 测试用户C
+                      - generic [ref=e186]: 14 分钟前
+                    - generic [ref=e187]: 这是根评论，用于测试评论树
+                    - generic [ref=e188]:
+                      - button [ref=e189] [cursor=pointer]:
+                        - img [ref=e191]
+                      - button [ref=e193] [cursor=pointer]:
+                        - img [ref=e195]
+                - generic [ref=e199]:
+                  - img "测试用户D" [ref=e201]
+                  - generic [ref=e202]:
+                    - generic [ref=e203]:
+                      - generic [ref=e204]: 测试用户D
+                      - generic [ref=e205]: 14 分钟前
+                    - generic [ref=e206]: 这是对根评论的回复
+                    - generic [ref=e207]:
+                      - button [ref=e208] [cursor=pointer]:
+                        - img [ref=e210]
+                      - button [ref=e212] [cursor=pointer]:
+                        - img [ref=e214]
+              - generic [ref=e217]:
+                - img "访客A" [ref=e219]
+                - generic [ref=e220]:
+                  - generic [ref=e221]:
+                    - generic [ref=e222]: 访客A
+                    - generic [ref=e223]: 38 分钟前
+                  - generic [ref=e224]: 第二条评论，测试多条评论显示效果
+                  - generic [ref=e225]:
+                    - button [ref=e226] [cursor=pointer]:
+                      - img [ref=e228]
+                    - button [ref=e230] [cursor=pointer]:
+                      - img [ref=e232]
+              - generic [ref=e235]:
+                - img "测试用户" [ref=e237]
+                - generic [ref=e238]:
+                  - generic [ref=e239]:
+                    - generic [ref=e240]: 测试用户
+                    - generic [ref=e241]: 50 分钟前
+                  - generic [ref=e242]: 这是一条自动化测试评论，博客主题很棒！
+                  - generic [ref=e243]:
+                    - button [ref=e244] [cursor=pointer]:
+                      - img [ref=e246]
+                    - button [ref=e248] [cursor=pointer]:
+                      - img [ref=e250]
+  - button [ref=e252] [cursor=pointer]:
+    - img [ref=e253]
+    - img [ref=e256]

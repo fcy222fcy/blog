@@ -12,7 +12,6 @@ type Article struct {
 	Category    Category   `gorm:"foreignKey:CategoryID" json:"category"`
 	Tags        []Tag      `gorm:"many2many:article_tags;" json:"tags"`
 	ViewCount   int64      `gorm:"default:0" json:"view_count"`
-	LikeCount   int64      `gorm:"default:0" json:"like_count"`
 	CommentCount int64     `gorm:"default:0" json:"comment_count"`
 	Status      string     `gorm:"type:varchar(20);default:published" json:"status"` // published: 已发布 draft: 草稿
 	IsTop       bool       `gorm:"default:false" json:"is_top"`

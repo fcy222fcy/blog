@@ -11,7 +11,3 @@ export const getArticleDetail = (slug) => {
 export const getArchives = () => {
   return request.get('/articles/archives')
 }
-
-export const likeArticle = (id) => {
-  return request.post(`/articles/${id}/like`)
-}

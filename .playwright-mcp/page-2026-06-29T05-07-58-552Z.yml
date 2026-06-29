@@ -1,0 +1,137 @@
+- generic [ref=e3]:
+  - complementary [ref=e4]:
+    - generic [ref=e5]:
+      - generic [ref=e6] [cursor=pointer]:
+        - img "头像" [ref=e7]
+        - generic [ref=e8]: 更换头像
+      - generic [ref=e9]: Liu Houliang
+      - generic [ref=e10]: 日常落灰的个人博客，分享 Golang、AI 和 NAS 折腾经验
+      - button "编辑资料" [ref=e11] [cursor=pointer]
+    - navigation [ref=e12]:
+      - generic [ref=e13] [cursor=pointer]:
+        - img [ref=e15]
+        - generic [ref=e18]: 仪表盘
+      - generic [ref=e19] [cursor=pointer]:
+        - img [ref=e21]
+        - generic [ref=e24]: 文章
+      - generic [ref=e25] [cursor=pointer]:
+        - img [ref=e27]
+        - generic [ref=e29]: 分类
+      - generic [ref=e30] [cursor=pointer]:
+        - img [ref=e32]
+        - generic [ref=e34]: 标签
+      - generic [ref=e35] [cursor=pointer]:
+        - img [ref=e37]
+        - generic [ref=e39]: 评论
+      - generic [ref=e40] [cursor=pointer]:
+        - img [ref=e42]
+        - generic [ref=e45]: 友链
+      - generic [ref=e46] [cursor=pointer]:
+        - img [ref=e48]
+        - generic [ref=e52]: 媒体库
+      - generic [ref=e53] [cursor=pointer]:
+        - img [ref=e55]
+        - generic [ref=e57]: 娱乐
+      - generic [ref=e58] [cursor=pointer]:
+        - img [ref=e60]
+        - generic [ref=e63]: 每日一问
+      - generic [ref=e64] [cursor=pointer]:
+        - img [ref=e66]
+        - generic [ref=e69]: 关于我
+    - generic [ref=e70]:
+      - generic [ref=e71] [cursor=pointer]:
+        - img [ref=e73]
+        - generic [ref=e76]: English
+      - generic [ref=e77] [cursor=pointer]:
+        - img [ref=e79]
+        - generic [ref=e81]: 暗色模式
+  - generic [ref=e82]:
+    - banner [ref=e83]:
+      - heading "每日一问" [level=1] [ref=e686]
+      - button "通知" [ref=e87] [cursor=pointer]:
+        - img [ref=e88]
+    - main [ref=e91]:
+      - generic [ref=e687]:
+        - generic [ref=e688]:
+          - generic [ref=e689]:
+            - generic [ref=e690]: 问题总数
+            - generic [ref=e691]: "4"
+          - generic [ref=e692]:
+            - generic [ref=e693]: 启用问题
+            - generic [ref=e694]: "4"
+          - generic [ref=e695]:
+            - generic [ref=e696]: 总浏览量
+            - generic [ref=e697]: "1147"
+          - generic [ref=e698]:
+            - generic [ref=e699]: 总点赞数
+            - generic [ref=e700]: "493"
+        - generic [ref=e701]:
+          - generic [ref=e702]:
+            - generic [ref=e703]: 问题管理
+            - generic [ref=e704]:
+              - generic [ref=e705]:
+                - generic [ref=e706]: ⌕
+                - textbox "搜索问题..." [ref=e707]
+              - combobox [ref=e708]:
+                - option "全部状态" [selected]
+                - option "启用"
+                - option "禁用"
+              - button "新建问题" [ref=e709] [cursor=pointer]:
+                - img [ref=e710]
+                - generic [ref=e711]: 新建问题
+          - table [ref=e713]:
+            - rowgroup [ref=e714]:
+              - row "问题 显示日期 状态 浏览/点赞 操作" [ref=e715]:
+                - columnheader "问题" [ref=e716]
+                - columnheader "显示日期" [ref=e717]
+                - columnheader "状态" [ref=e718]
+                - columnheader "浏览/点赞" [ref=e719]
+                - columnheader "操作" [ref=e720]
+            - rowgroup [ref=e721]:
+              - row "什么是最好的编程语言？ 2026-06-20 启用 257 / 42 编辑 禁用 删除" [ref=e722]:
+                - cell "什么是最好的编程语言？" [ref=e723]
+                - cell "2026-06-20" [ref=e724]
+                - cell "启用" [ref=e725]:
+                  - generic [ref=e726]: 启用
+                - cell "257 / 42" [ref=e727]
+                - cell "编辑 禁用 删除" [ref=e728]:
+                  - generic [ref=e729]:
+                    - button "编辑" [ref=e730] [cursor=pointer]
+                    - button "禁用" [ref=e731] [cursor=pointer]
+                    - button "删除" [ref=e732] [cursor=pointer]
+              - row "如何成为一名优秀的软件工程师？ 2026-06-19 启用 238 / 128 编辑 禁用 删除" [ref=e733]:
+                - cell "如何成为一名优秀的软件工程师？" [ref=e734]
+                - cell "2026-06-19" [ref=e735]
+                - cell "启用" [ref=e736]:
+                  - generic [ref=e737]: 启用
+                - cell "238 / 128" [ref=e738]
+                - cell "编辑 禁用 删除" [ref=e739]:
+                  - generic [ref=e740]:
+                    - button "编辑" [ref=e741] [cursor=pointer]
+                    - button "禁用" [ref=e742] [cursor=pointer]
+                    - button "删除" [ref=e743] [cursor=pointer]
+              - row "远程办公的优缺点是什么？ 2026-06-18 启用 194 / 89 编辑 禁用 删除" [ref=e744]:
+                - cell "远程办公的优缺点是什么？" [ref=e745]
+                - cell "2026-06-18" [ref=e746]
+                - cell "启用" [ref=e747]:
+                  - generic [ref=e748]: 启用
+                - cell "194 / 89" [ref=e749]
+                - cell "编辑 禁用 删除" [ref=e750]:
+                  - generic [ref=e751]:
+                    - button "编辑" [ref=e752] [cursor=pointer]
+                    - button "禁用" [ref=e753] [cursor=pointer]
+                    - button "删除" [ref=e754] [cursor=pointer]
+              - row "如何看待人工智能的发展？ 2026-06-17 启用 458 / 234 编辑 禁用 删除" [ref=e755]:
+                - cell "如何看待人工智能的发展？" [ref=e756]
+                - cell "2026-06-17" [ref=e757]
+                - cell "启用" [ref=e758]:
+                  - generic [ref=e759]: 启用
+                - cell "458 / 234" [ref=e760]
+                - cell "编辑 禁用 删除" [ref=e761]:
+                  - generic [ref=e762]:
+                    - button "编辑" [ref=e763] [cursor=pointer]
+                    - button "禁用" [ref=e764] [cursor=pointer]
+                    - button "删除" [ref=e765] [cursor=pointer]
+  - button [ref=e163] [cursor=pointer]:
+    - img [ref=e164]
+    - img [ref=e167]

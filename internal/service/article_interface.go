@@ -16,9 +16,6 @@ type ArticleService interface {
 	// GetArticleArchives 获取文章归档
 	GetArticleArchives() ([]response.ArchiveResponse, error)
 
-	// LikeArticle 文章点赞
-	LikeArticle(id uint) (int64, error)
-
 	// GetAdminArticleList 获取文章列表（后台）
 	GetAdminArticleList(req *request.ArticleListRequest) (*response.PageResponse, error)
 

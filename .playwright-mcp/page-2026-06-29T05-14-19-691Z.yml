@@ -1,0 +1,191 @@
+- generic [ref=e36]:
+  - complementary [ref=e37]:
+    - generic [ref=e38]:
+      - generic [ref=e39] [cursor=pointer]:
+        - img "头像" [ref=e40]
+        - generic [ref=e41]: 更换头像
+      - generic [ref=e42]: Liu Houliang
+      - generic [ref=e43]: 日常落灰的个人博客，分享 Golang、AI 和 NAS 折腾经验
+      - button "编辑资料" [ref=e44] [cursor=pointer]
+    - navigation [ref=e45]:
+      - generic [ref=e46] [cursor=pointer]:
+        - img [ref=e48]
+        - generic [ref=e51]: 仪表盘
+      - generic [ref=e52] [cursor=pointer]:
+        - img [ref=e54]
+        - generic [ref=e57]: 文章
+      - generic [ref=e58] [cursor=pointer]:
+        - img [ref=e60]
+        - generic [ref=e62]: 分类
+      - generic [ref=e63] [cursor=pointer]:
+        - img [ref=e65]
+        - generic [ref=e67]: 标签
+      - generic [ref=e68] [cursor=pointer]:
+        - img [ref=e70]
+        - generic [ref=e72]: 评论
+      - generic [ref=e73] [cursor=pointer]:
+        - img [ref=e75]
+        - generic [ref=e78]: 友链
+      - generic [ref=e79] [cursor=pointer]:
+        - img [ref=e81]
+        - generic [ref=e85]: 媒体库
+      - generic [ref=e86] [cursor=pointer]:
+        - img [ref=e88]
+        - generic [ref=e90]: 娱乐
+      - generic [ref=e91] [cursor=pointer]:
+        - img [ref=e93]
+        - generic [ref=e96]: 每日一问
+      - generic [ref=e97] [cursor=pointer]:
+        - img [ref=e99]
+        - generic [ref=e102]: 关于我
+    - generic [ref=e103]:
+      - generic [ref=e104] [cursor=pointer]:
+        - img [ref=e106]
+        - generic [ref=e109]: English
+      - generic [ref=e110] [cursor=pointer]:
+        - img [ref=e112]
+        - generic [ref=e114]: 暗色模式
+  - generic [ref=e115]:
+    - banner [ref=e116]:
+      - heading "仪表盘" [level=1] [ref=e902]
+      - button "通知" [ref=e120] [cursor=pointer]:
+        - img [ref=e121]
+    - main [ref=e124]:
+      - generic [ref=e903]:
+        - button "返回列表" [ref=e905] [cursor=pointer]:
+          - img [ref=e906]
+          - generic [ref=e908]: 返回列表
+        - generic [ref=e909]:
+          - generic [ref=e911]:
+            - generic [ref=e913]: Markdown 编辑
+            - generic [ref=e914]:
+              - textbox "输入文章标题..." [ref=e916]
+              - generic [ref=e917]:
+                - generic [ref=e918]:
+                  - generic [ref=e919]: 分类
+                  - combobox [ref=e920]:
+                    - option "选择分类" [selected]
+                    - option "搭建网站"
+                    - option "软件开发"
+                    - option "生活记录"
+                - generic [ref=e921]:
+                  - generic [ref=e922]: 状态
+                  - combobox [ref=e923]:
+                    - option "草稿" [selected]
+                    - option "发布"
+              - generic [ref=e924]:
+                - generic [ref=e925]: 标签
+                - combobox [ref=e927]:
+                  - option "选择标签..." [selected]
+                  - option "Hugo"
+                  - option "Go"
+                  - option "AI"
+                  - option "开源"
+                  - option "Cloudflare"
+              - generic [ref=e928]:
+                - generic [ref=e930]:
+                  - generic [ref=e931]:
+                    - generic "加粗" [ref=e932] [cursor=pointer]:
+                      - img [ref=e933]
+                    - generic "下划线" [ref=e935] [cursor=pointer]:
+                      - img [ref=e936]
+                    - generic "斜体" [ref=e938] [cursor=pointer]:
+                      - img [ref=e939]
+                    - generic "删除线" [ref=e941] [cursor=pointer]:
+                      - img [ref=e942]
+                    - generic "标题" [ref=e945] [cursor=pointer]:
+                      - img [ref=e946]
+                    - menu [ref=e950]:
+                      - menuitem "一级标题" [ref=e951] [cursor=pointer]
+                      - menuitem "二级标题" [ref=e952] [cursor=pointer]
+                      - menuitem "三级标题" [ref=e953] [cursor=pointer]
+                      - menuitem "四级标题" [ref=e954] [cursor=pointer]
+                      - menuitem "五级标题" [ref=e955] [cursor=pointer]
+                      - menuitem "六级标题" [ref=e956] [cursor=pointer]
+                    - generic "下标" [ref=e957] [cursor=pointer]:
+                      - img [ref=e958]
+                    - generic "上标" [ref=e960] [cursor=pointer]:
+                      - img [ref=e961]
+                    - generic "引用" [ref=e963] [cursor=pointer]:
+                      - img [ref=e964]
+                    - generic "无序列表" [ref=e966] [cursor=pointer]:
+                      - img [ref=e967]
+                    - generic "有序列表" [ref=e969] [cursor=pointer]:
+                      - img [ref=e970]
+                    - generic "任务列表" [ref=e972] [cursor=pointer]:
+                      - img [ref=e973]
+                    - generic "行内代码" [ref=e976] [cursor=pointer]:
+                      - img [ref=e977]
+                    - generic "块级代码" [ref=e979] [cursor=pointer]:
+                      - img [ref=e980]
+                    - generic "链接" [ref=e982] [cursor=pointer]:
+                      - img [ref=e983]
+                    - generic "图片" [ref=e985] [cursor=pointer]:
+                      - img [ref=e986]
+                    - menu [ref=e990]:
+                      - menuitem "添加链接" [ref=e991] [cursor=pointer]
+                      - menuitem "上传图片" [ref=e992] [cursor=pointer]
+                      - menuitem "裁剪上传" [ref=e993] [cursor=pointer]
+                    - generic "表格" [ref=e994] [cursor=pointer]:
+                      - img [ref=e995]
+                    - generic "mermaid图" [ref=e1052] [cursor=pointer]:
+                      - img [ref=e1053]
+                    - menu [ref=e1057]:
+                      - menuitem "流程图" [ref=e1058] [cursor=pointer]
+                      - menuitem "时序图" [ref=e1059] [cursor=pointer]
+                      - menuitem "甘特图" [ref=e1060] [cursor=pointer]
+                      - menuitem "类图" [ref=e1061] [cursor=pointer]
+                      - menuitem "状态图" [ref=e1062] [cursor=pointer]
+                      - menuitem "饼图" [ref=e1063] [cursor=pointer]
+                      - menuitem "关系图" [ref=e1064] [cursor=pointer]
+                      - menuitem "旅程图" [ref=e1065] [cursor=pointer]
+                    - generic "katex公式" [ref=e1066] [cursor=pointer]:
+                      - img [ref=e1067]
+                    - menu [ref=e1071]:
+                      - menuitem "行内公式" [ref=e1072] [cursor=pointer]
+                      - menuitem "块级公式" [ref=e1073] [cursor=pointer]
+                    - generic "后退" [ref=e1075] [cursor=pointer]:
+                      - img [ref=e1076]
+                    - generic "前进" [ref=e1078] [cursor=pointer]:
+                      - img [ref=e1079]
+                    - generic "保存" [ref=e1081] [cursor=pointer]:
+                      - img [ref=e1082]
+                  - generic [ref=e1084]:
+                    - generic "美化" [ref=e1085] [cursor=pointer]:
+                      - img [ref=e1086]
+                    - generic "浏览器全屏" [ref=e1088] [cursor=pointer]:
+                      - img [ref=e1089]
+                    - generic "屏幕全屏" [ref=e1091] [cursor=pointer]:
+                      - img [ref=e1092]
+                    - generic "预览" [ref=e1094] [cursor=pointer]:
+                      - img [ref=e1095]
+                    - generic "仅预览" [ref=e1097] [cursor=pointer]:
+                      - img [ref=e1098]
+                    - generic "html代码预览" [ref=e1100] [cursor=pointer]:
+                      - img [ref=e1101]
+                    - generic "目录" [ref=e1103] [cursor=pointer]:
+                      - img [ref=e1104]
+                    - generic "源码地址" [ref=e1106] [cursor=pointer]:
+                      - img [ref=e1107]
+                - textbox [ref=e1113]
+                - generic [ref=e1117]:
+                  - generic [ref=e1119]:
+                    - generic [ref=e1120]: "字数:"
+                    - generic [ref=e1121]: "0"
+                  - generic [ref=e1123]:
+                    - generic [ref=e1124]: 同步滚动
+                    - generic [ref=e1125] [cursor=pointer]: ✓
+          - generic [ref=e1129]: 实时预览
+        - generic [ref=e1132]:
+          - button "返回列表" [ref=e1133] [cursor=pointer]:
+            - img [ref=e1134]
+            - generic [ref=e1136]: 返回列表
+          - button "💾 保存草稿" [ref=e1137] [cursor=pointer]:
+            - generic [ref=e1138]: 💾
+            - generic [ref=e1139]: 保存草稿
+          - button "🚀 发布文章" [ref=e1140] [cursor=pointer]:
+            - generic [ref=e1141]: 🚀
+            - generic [ref=e1142]: 发布文章
+  - button [ref=e196] [cursor=pointer]:
+    - img [ref=e197]
+    - img [ref=e200]

@@ -68,6 +68,12 @@ func (r *Router) Setup() *gin.Engine {
 	// API v1 路由组
 	apiV1 := r.engine.Group("/api/v1")
 
+	// 注入 JWT 配置到上下文，供各模块 Auth 中间件使用
+	apiV1.Use(func(c *gin.Context) {
+		c.Set("jwt_config", r.config.JWT)
+		c.Next()
+	})
+
 	// 注册各模块路由
 	auth.RegisterRoutes(apiV1, r.authController)
 	article.RegisterRoutes(apiV1, r.articleController)

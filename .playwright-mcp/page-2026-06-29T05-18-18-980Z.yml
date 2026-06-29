@@ -1,0 +1,110 @@
+- generic [ref=e36]:
+  - complementary [ref=e37]:
+    - generic [ref=e38]:
+      - generic [ref=e39] [cursor=pointer]:
+        - img "头像" [ref=e40]
+        - generic [ref=e41]: 更换头像
+      - generic [ref=e42]: Liu Houliang
+      - generic [ref=e43]: 日常落灰的个人博客，分享 Golang、AI 和 NAS 折腾经验
+      - button "编辑资料" [ref=e44] [cursor=pointer]
+    - navigation [ref=e45]:
+      - generic [ref=e46] [cursor=pointer]:
+        - img [ref=e48]
+        - generic [ref=e51]: 仪表盘
+      - generic [ref=e52] [cursor=pointer]:
+        - img [ref=e54]
+        - generic [ref=e57]: 文章
+      - generic [ref=e58] [cursor=pointer]:
+        - img [ref=e60]
+        - generic [ref=e62]: 分类
+      - generic [ref=e63] [cursor=pointer]:
+        - img [ref=e65]
+        - generic [ref=e67]: 标签
+      - generic [ref=e68] [cursor=pointer]:
+        - img [ref=e70]
+        - generic [ref=e72]: 评论
+      - generic [ref=e73] [cursor=pointer]:
+        - img [ref=e75]
+        - generic [ref=e78]: 友链
+      - generic [ref=e79] [cursor=pointer]:
+        - img [ref=e81]
+        - generic [ref=e85]: 媒体库
+      - generic [ref=e86] [cursor=pointer]:
+        - img [ref=e88]
+        - generic [ref=e90]: 娱乐
+      - generic [ref=e91] [cursor=pointer]:
+        - img [ref=e93]
+        - generic [ref=e96]: 每日一问
+      - generic [ref=e97] [cursor=pointer]:
+        - img [ref=e99]
+        - generic [ref=e102]: 关于我
+    - generic [ref=e103]:
+      - generic [ref=e104] [cursor=pointer]:
+        - img [ref=e106]
+        - generic [ref=e109]: English
+      - generic [ref=e110] [cursor=pointer]:
+        - img [ref=e112]
+        - generic [ref=e114]: 暗色模式
+  - generic [ref=e115]:
+    - banner [ref=e116]:
+      - heading "文章" [level=1] [ref=e1186]
+      - button "通知" [ref=e120] [cursor=pointer]:
+        - img [ref=e121]
+    - main [ref=e124]:
+      - generic [ref=e1187]:
+        - generic [ref=e1188]:
+          - generic [ref=e1189]:
+            - generic [ref=e1190]: 文章总数
+            - generic [ref=e1191]: "1"
+          - generic [ref=e1192]:
+            - generic [ref=e1193]: 已发布
+            - generic [ref=e1194]: "1"
+          - generic [ref=e1195]:
+            - generic [ref=e1196]: 草稿
+            - generic [ref=e1197]: "0"
+          - generic [ref=e1198]:
+            - generic [ref=e1199]: 总浏览量
+            - generic [ref=e1200]: "423"
+        - generic [ref=e1201]:
+          - generic [ref=e1202]:
+            - generic [ref=e1203]: 文章列表
+            - generic [ref=e1204]:
+              - generic [ref=e1205]:
+                - generic [ref=e1206]: ⌕
+                - textbox "搜索文章..." [active] [ref=e1207]: Docker
+              - combobox [ref=e1208]:
+                - option "全部分类" [selected]
+                - option "搭建网站"
+                - option "软件开发"
+                - option "生活记录"
+              - combobox [ref=e1209]:
+                - option "全部状态" [selected]
+                - option "已发布"
+                - option "草稿"
+              - button "新建文章" [ref=e1210] [cursor=pointer]:
+                - img [ref=e1211]
+                - generic [ref=e1212]: 新建文章
+          - generic [ref=e1289]:
+            - generic [ref=e1290]:
+              - heading "Docker 容器化部署实践" [level=3] [ref=e1291] [cursor=pointer]
+              - generic [ref=e1292]: 已发布
+            - paragraph [ref=e1293]: 本文介绍了 Docker 容器化的基本概念和实际部署技巧，适合初学者入门。
+            - generic [ref=e1294]:
+              - generic [ref=e1295]:
+                - generic [ref=e1296]: 软件开发
+                - generic [ref=e1297]: ·
+                - generic [ref=e1298]: 2026-06-26
+                - generic [ref=e1299]: ·
+                - generic [ref=e1300]: 423 次浏览
+              - generic [ref=e1301]:
+                - button "编辑" [ref=e1302] [cursor=pointer]
+                - button "删除" [ref=e1303] [cursor=pointer]
+          - generic [ref=e1365]:
+            - generic [ref=e1366]: 共 1 篇文章
+            - generic [ref=e1367]:
+              - button "上一页" [disabled] [ref=e1368]
+              - button "1" [ref=e1369] [cursor=pointer]
+              - button "下一页" [disabled] [ref=e1370]
+  - button [ref=e196] [cursor=pointer]:
+    - img [ref=e197]
+    - img [ref=e200]

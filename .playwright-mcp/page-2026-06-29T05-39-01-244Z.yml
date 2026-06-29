@@ -1,0 +1,80 @@
+- generic [ref=e3]:
+  - complementary [ref=e4]:
+    - generic [ref=e5]:
+      - generic [ref=e6] [cursor=pointer]:
+        - img "头像" [ref=e7]
+        - generic [ref=e8]: 更换头像
+      - generic [ref=e9]: Liu Houliang
+      - generic [ref=e10]: 日常落灰的个人博客，分享 Golang、AI 和 NAS 折腾经验
+      - button "编辑资料" [ref=e11] [cursor=pointer]
+    - navigation [ref=e12]:
+      - generic [ref=e13] [cursor=pointer]:
+        - img [ref=e15]
+        - generic [ref=e18]: 仪表盘
+      - generic [ref=e19] [cursor=pointer]:
+        - img [ref=e21]
+        - generic [ref=e24]: 文章
+      - generic [ref=e25] [cursor=pointer]:
+        - img [ref=e27]
+        - generic [ref=e29]: 分类
+      - generic [ref=e30] [cursor=pointer]:
+        - img [ref=e32]
+        - generic [ref=e34]: 标签
+      - generic [ref=e35] [cursor=pointer]:
+        - img [ref=e37]
+        - generic [ref=e39]: 评论
+      - generic [ref=e40] [cursor=pointer]:
+        - img [ref=e42]
+        - generic [ref=e45]: 友链
+      - generic [ref=e46] [cursor=pointer]:
+        - img [ref=e48]
+        - generic [ref=e52]: 媒体库
+      - generic [ref=e53] [cursor=pointer]:
+        - img [ref=e55]
+        - generic [ref=e57]: 娱乐
+      - generic [ref=e58] [cursor=pointer]:
+        - img [ref=e60]
+        - generic [ref=e63]: 每日一问
+      - generic [ref=e64] [cursor=pointer]:
+        - img [ref=e66]
+        - generic [ref=e69]: 关于我
+    - generic [ref=e70]:
+      - generic [ref=e71] [cursor=pointer]:
+        - img [ref=e73]
+        - generic [ref=e76]: English
+      - generic [ref=e77] [cursor=pointer]:
+        - img [ref=e79]
+        - generic [ref=e81]: 暗色模式
+  - generic [ref=e82]:
+    - banner [ref=e83]:
+      - heading "评论" [level=1] [ref=e85]
+      - button "通知" [ref=e87] [cursor=pointer]:
+        - img [ref=e88]
+    - main [ref=e91]:
+      - generic [ref=e92]:
+        - generic [ref=e93]:
+          - generic [ref=e94]:
+            - generic [ref=e95]: 全部评论
+            - generic [ref=e96]: "0"
+          - generic [ref=e97]:
+            - generic [ref=e98]: 待审核
+            - generic [ref=e99]: "0"
+          - generic [ref=e100]:
+            - generic [ref=e101]: 已通过
+            - generic [ref=e102]: "0"
+          - generic [ref=e103]:
+            - generic [ref=e104]: 已拒绝
+            - generic [ref=e105]: "0"
+        - generic [ref=e106]:
+          - combobox [ref=e107]:
+            - option "全部状态" [selected]
+            - option "待审核"
+            - option "已通过"
+            - option "已拒绝"
+          - generic [ref=e108]:
+            - generic [ref=e109]: ⌕
+            - textbox "搜索评论..." [ref=e110]
+        - generic [ref=e112]: 暂无评论
+  - button [ref=e113] [cursor=pointer]:
+    - img [ref=e114]
+    - img [ref=e117]

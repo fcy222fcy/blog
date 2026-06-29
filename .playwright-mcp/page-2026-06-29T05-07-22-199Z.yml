@@ -1,0 +1,105 @@
+- generic [ref=e3]:
+  - complementary [ref=e4]:
+    - generic [ref=e5]:
+      - generic [ref=e6] [cursor=pointer]:
+        - img "头像" [ref=e7]
+        - generic [ref=e8]: 更换头像
+      - generic [ref=e9]: Liu Houliang
+      - generic [ref=e10]: 日常落灰的个人博客，分享 Golang、AI 和 NAS 折腾经验
+      - button "编辑资料" [ref=e11] [cursor=pointer]
+    - navigation [ref=e12]:
+      - generic [ref=e13] [cursor=pointer]:
+        - img [ref=e15]
+        - generic [ref=e18]: 仪表盘
+      - generic [ref=e19] [cursor=pointer]:
+        - img [ref=e21]
+        - generic [ref=e24]: 文章
+      - generic [ref=e25] [cursor=pointer]:
+        - img [ref=e27]
+        - generic [ref=e29]: 分类
+      - generic [ref=e30] [cursor=pointer]:
+        - img [ref=e32]
+        - generic [ref=e34]: 标签
+      - generic [ref=e35] [cursor=pointer]:
+        - img [ref=e37]
+        - generic [ref=e39]: 评论
+      - generic [ref=e40] [cursor=pointer]:
+        - img [ref=e42]
+        - generic [ref=e45]: 友链
+      - generic [ref=e46] [cursor=pointer]:
+        - img [ref=e48]
+        - generic [ref=e52]: 媒体库
+      - generic [ref=e53] [cursor=pointer]:
+        - img [ref=e55]
+        - generic [ref=e57]: 娱乐
+      - generic [ref=e58] [cursor=pointer]:
+        - img [ref=e60]
+        - generic [ref=e63]: 每日一问
+      - generic [ref=e64] [cursor=pointer]:
+        - img [ref=e66]
+        - generic [ref=e69]: 关于我
+    - generic [ref=e70]:
+      - generic [ref=e71] [cursor=pointer]:
+        - img [ref=e73]
+        - generic [ref=e76]: English
+      - generic [ref=e77] [cursor=pointer]:
+        - img [ref=e79]
+        - generic [ref=e81]: 暗色模式
+  - generic [ref=e82]:
+    - banner [ref=e83]:
+      - heading "分类" [level=1] [ref=e354]
+      - button "通知" [ref=e87] [cursor=pointer]:
+        - img [ref=e88]
+    - main [ref=e91]:
+      - generic [ref=e355]:
+        - generic [ref=e356]:
+          - generic [ref=e357]:
+            - generic [ref=e358]: 分类总数
+            - generic [ref=e359]: "3"
+          - generic [ref=e360]:
+            - generic [ref=e361]: 文章总数
+            - generic [ref=e362]: "12"
+        - generic [ref=e363]:
+          - generic [ref=e364]:
+            - generic [ref=e365]: ⌕
+            - textbox "搜索分类..." [ref=e366]
+          - button "新建分类" [ref=e367] [cursor=pointer]:
+            - img [ref=e368]
+            - generic [ref=e369]: 新建分类
+        - generic [ref=e370]:
+          - generic [ref=e371]:
+            - generic [ref=e373]: "?"
+            - generic [ref=e374]:
+              - generic [ref=e375]: 搭建网站
+              - generic [ref=e376]: build
+              - generic [ref=e377]: 网站搭建、博客部署相关
+              - generic [ref=e378]:
+                - generic [ref=e379]: 4 篇文章
+                - generic [ref=e380]:
+                  - button "编辑" [ref=e381] [cursor=pointer]
+                  - button "删除" [ref=e382] [cursor=pointer]
+          - generic [ref=e383]:
+            - generic [ref=e385]: "?"
+            - generic [ref=e386]:
+              - generic [ref=e387]: 软件开发
+              - generic [ref=e388]: dev
+              - generic [ref=e389]: 编程、开发工具、技术分享
+              - generic [ref=e390]:
+                - generic [ref=e391]: 5 篇文章
+                - generic [ref=e392]:
+                  - button "编辑" [ref=e393] [cursor=pointer]
+                  - button "删除" [ref=e394] [cursor=pointer]
+          - generic [ref=e395]:
+            - generic [ref=e397]: "?"
+            - generic [ref=e398]:
+              - generic [ref=e399]: 生活记录
+              - generic [ref=e400]: life
+              - generic [ref=e401]: 日常生活、随笔感悟
+              - generic [ref=e402]:
+                - generic [ref=e403]: 3 篇文章
+                - generic [ref=e404]:
+                  - button "编辑" [ref=e405] [cursor=pointer]
+                  - button "删除" [ref=e406] [cursor=pointer]
+  - button [ref=e163] [cursor=pointer]:
+    - img [ref=e164]
+    - img [ref=e167]

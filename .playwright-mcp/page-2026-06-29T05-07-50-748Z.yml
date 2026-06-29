@@ -1,0 +1,108 @@
+- generic [ref=e3]:
+  - complementary [ref=e4]:
+    - generic [ref=e5]:
+      - generic [ref=e6] [cursor=pointer]:
+        - img "头像" [ref=e7]
+        - generic [ref=e8]: 更换头像
+      - generic [ref=e9]: Liu Houliang
+      - generic [ref=e10]: 日常落灰的个人博客，分享 Golang、AI 和 NAS 折腾经验
+      - button "编辑资料" [ref=e11] [cursor=pointer]
+    - navigation [ref=e12]:
+      - generic [ref=e13] [cursor=pointer]:
+        - img [ref=e15]
+        - generic [ref=e18]: 仪表盘
+      - generic [ref=e19] [cursor=pointer]:
+        - img [ref=e21]
+        - generic [ref=e24]: 文章
+      - generic [ref=e25] [cursor=pointer]:
+        - img [ref=e27]
+        - generic [ref=e29]: 分类
+      - generic [ref=e30] [cursor=pointer]:
+        - img [ref=e32]
+        - generic [ref=e34]: 标签
+      - generic [ref=e35] [cursor=pointer]:
+        - img [ref=e37]
+        - generic [ref=e39]: 评论
+      - generic [ref=e40] [cursor=pointer]:
+        - img [ref=e42]
+        - generic [ref=e45]: 友链
+      - generic [ref=e46] [cursor=pointer]:
+        - img [ref=e48]
+        - generic [ref=e52]: 媒体库
+      - generic [ref=e53] [cursor=pointer]:
+        - img [ref=e55]
+        - generic [ref=e57]: 娱乐
+      - generic [ref=e58] [cursor=pointer]:
+        - img [ref=e60]
+        - generic [ref=e63]: 每日一问
+      - generic [ref=e64] [cursor=pointer]:
+        - img [ref=e66]
+        - generic [ref=e69]: 关于我
+    - generic [ref=e70]:
+      - generic [ref=e71] [cursor=pointer]:
+        - img [ref=e73]
+        - generic [ref=e76]: English
+      - generic [ref=e77] [cursor=pointer]:
+        - img [ref=e79]
+        - generic [ref=e81]: 暗色模式
+  - generic [ref=e82]:
+    - banner [ref=e83]:
+      - heading "友链" [level=1] [ref=e628]
+      - button "通知" [ref=e87] [cursor=pointer]:
+        - img [ref=e88]
+    - main [ref=e91]:
+      - generic [ref=e629]:
+        - generic [ref=e631]:
+          - generic [ref=e632]: 友链总数
+          - generic [ref=e633]: "4"
+        - generic [ref=e634]:
+          - generic [ref=e635]:
+            - generic [ref=e636]: ⌕
+            - textbox "搜索友链..." [ref=e637]
+          - button "添加链接" [ref=e638] [cursor=pointer]:
+            - img [ref=e639]
+            - generic [ref=e640]: 添加链接
+        - generic [ref=e641]:
+          - generic [ref=e642]:
+            - generic [ref=e643]:
+              - generic [ref=e644]: https://avatars.githubusercontent.com/u/5889006?v=4
+              - generic [ref=e645]:
+                - generic [ref=e646]: Jimmy Cai
+                - generic [ref=e647]: https://jimmycai.com/
+            - paragraph [ref=e649]: Author of Hugo Stack theme
+            - generic [ref=e650]:
+              - button "编辑" [ref=e651] [cursor=pointer]
+              - button "删除" [ref=e652] [cursor=pointer]
+          - generic [ref=e653]:
+            - generic [ref=e654]:
+              - generic [ref=e655]: https://nan0in27.cn/img/avatar_hu_85437ba0800ccf1d.png
+              - generic [ref=e656]:
+                - generic [ref=e657]: Nan0inPsyLog
+                - generic [ref=e658]: https://nan0in27.cn/
+            - paragraph [ref=e660]: We love CS, thus we can pwn the world
+            - generic [ref=e661]:
+              - button "编辑" [ref=e662] [cursor=pointer]
+              - button "删除" [ref=e663] [cursor=pointer]
+          - generic [ref=e664]:
+            - generic [ref=e665]:
+              - generic [ref=e666]: /avatar.jpg
+              - generic [ref=e667]:
+                - generic [ref=e668]: Nanhu Shijie
+                - generic [ref=e669]: https://jolla.pp.ua/
+            - paragraph [ref=e671]: 一个生活爱好者!
+            - generic [ref=e672]:
+              - button "编辑" [ref=e673] [cursor=pointer]
+              - button "删除" [ref=e674] [cursor=pointer]
+          - generic [ref=e675]:
+            - generic [ref=e676]:
+              - generic [ref=e677]: /avatar.jpg
+              - generic [ref=e678]:
+                - generic [ref=e679]: Liu Zijian Blog
+                - generic [ref=e680]: https://blog.liuzijian.com/
+            - paragraph [ref=e682]: Keep on going never give up
+            - generic [ref=e683]:
+              - button "编辑" [ref=e684] [cursor=pointer]
+              - button "删除" [ref=e685] [cursor=pointer]
+  - button [ref=e163] [cursor=pointer]:
+    - img [ref=e164]
+    - img [ref=e167]

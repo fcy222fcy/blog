@@ -9,7 +9,12 @@
 
     <div class="friend-grid">
       <a v-for="link in links" :key="link.id" :href="link.url" class="friend-card" target="_blank">
-        <img class="friend-avatar-img" :src="link.avatar || '/avatar.jpg'" :alt="link.name">
+        <div class="friend-avatar-img" v-if="link.avatar && (link.avatar.startsWith('http://') || link.avatar.startsWith('https://') || link.avatar.startsWith('/'))">
+          <img :src="link.avatar" :alt="link.name">
+        </div>
+        <div class="friend-avatar-emoji" v-else>
+          {{ link.avatar || '🔗' }}
+        </div>
         <h3>{{ link.name }}</h3>
         <p>{{ link.description }}</p>
       </a>
@@ -44,4 +49,27 @@ onMounted(async () => {
 
 <style scoped>
 /* 友链页面样式在全局main.css中定义 */
+.friend-avatar-img {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  overflow: hidden;
+  margin-bottom: 12px;
+}
+.friend-avatar-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.friend-avatar-emoji {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 36px;
+  margin-bottom: 12px;
+}
 </style>
