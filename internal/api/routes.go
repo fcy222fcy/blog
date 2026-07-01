@@ -10,10 +10,13 @@ import (
 	"blog/internal/api/v1/tag"
 	"blog/internal/api/v1/user"
 	"blog/internal/middleware"
+	"blog/internal/model/dto/request"
 	"blog/internal/service"
 	"blog/pkg/config"
 
 	"github.com/gin-gonic/gin"
+	"github.com/gin-gonic/gin/binding"
+	"github.com/go-playground/validator/v10"
 )
 
 // Router 路由器
@@ -44,8 +47,15 @@ func NewRouter(
 	dailyQuestionSvc service.DailyQuestionService,
 	config *config.Config,
 ) *Router {
+	engine := gin.Default()
+
+	// 注册自定义验证器
+	if v, ok := binding.Validator.Engine().(*validator.Validate); ok {
+		v.RegisterValidation("datetime", request.ValidateDate)
+	}
+
 	return &Router{
-		engine:                 gin.Default(),
+		engine:                 engine,
 		config:                 config,
 		authController:         auth.NewController(authSvc),
 		userController:         user.NewController(userSvc),
@@ -63,7 +73,8 @@ func (r *Router) Setup() *gin.Engine {
 	// 全局中间件
 	r.engine.Use(middleware.Recovery())
 	r.engine.Use(middleware.Logger())
-	r.engine.Use(middleware.CORS())
+	// 使用配置的 CORS 来源，如果没有配置则限制为同源
+	r.engine.Use(middleware.CORS("http://localhost:3000", "http://localhost:8888"))
 
 	// API v1 路由组
 	apiV1 := r.engine.Group("/api/v1")

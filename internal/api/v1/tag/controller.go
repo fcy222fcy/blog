@@ -65,8 +65,8 @@ func (c *Controller) CreateTag(ctx *gin.Context) {
 // UpdateTag 更新标签
 func (c *Controller) UpdateTag(ctx *gin.Context) {
 	id, err := strconv.ParseUint(ctx.Param("id"), 10, 32)
-	if err != nil {
-		response.BadRequest(ctx, "参数错误")
+	if err != nil || id == 0 {
+		response.BadRequest(ctx, "无效的标签ID")
 		return
 	}
 
@@ -94,8 +94,8 @@ func (c *Controller) UpdateTag(ctx *gin.Context) {
 // DeleteTag 删除标签
 func (c *Controller) DeleteTag(ctx *gin.Context) {
 	id, err := strconv.ParseUint(ctx.Param("id"), 10, 32)
-	if err != nil {
-		response.BadRequest(ctx, "参数错误")
+	if err != nil || id == 0 {
+		response.BadRequest(ctx, "无效的标签ID")
 		return
 	}
 

@@ -111,8 +111,8 @@ func (c *Controller) GetNextQuestion(ctx *gin.Context) {
 // LikeQuestion 问题点赞
 func (c *Controller) LikeQuestion(ctx *gin.Context) {
 	id, err := strconv.ParseUint(ctx.Param("id"), 10, 32)
-	if err != nil {
-		response.BadRequest(ctx, "问题ID无效")
+	if err != nil || id == 0 {
+		response.BadRequest(ctx, "无效的问题ID")
 		return
 	}
 
@@ -180,8 +180,8 @@ func (c *Controller) CreateQuestion(ctx *gin.Context) {
 // UpdateQuestion 更新问题
 func (c *Controller) UpdateQuestion(ctx *gin.Context) {
 	id, err := strconv.ParseUint(ctx.Param("id"), 10, 32)
-	if err != nil {
-		response.BadRequest(ctx, "问题ID无效")
+	if err != nil || id == 0 {
+		response.BadRequest(ctx, "无效的问题ID")
 		return
 	}
 
@@ -209,8 +209,8 @@ func (c *Controller) UpdateQuestion(ctx *gin.Context) {
 // DeleteQuestion 删除问题
 func (c *Controller) DeleteQuestion(ctx *gin.Context) {
 	id, err := strconv.ParseUint(ctx.Param("id"), 10, 32)
-	if err != nil {
-		response.BadRequest(ctx, "问题ID无效")
+	if err != nil || id == 0 {
+		response.BadRequest(ctx, "无效的问题ID")
 		return
 	}
 
@@ -232,8 +232,8 @@ func (c *Controller) DeleteQuestion(ctx *gin.Context) {
 // UpdateQuestionStatus 更新问题状态
 func (c *Controller) UpdateQuestionStatus(ctx *gin.Context) {
 	id, err := strconv.ParseUint(ctx.Param("id"), 10, 32)
-	if err != nil {
-		response.BadRequest(ctx, "问题ID无效")
+	if err != nil || id == 0 {
+		response.BadRequest(ctx, "无效的问题ID")
 		return
 	}
 

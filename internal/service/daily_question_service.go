@@ -8,6 +8,7 @@ import (
 	bizerrors "blog/pkg/errors"
 	"blog/pkg/logger"
 	"fmt"
+	"strings"
 )
 
 // dailyQuestionService 每日一问服务实现
@@ -113,6 +114,21 @@ func (s *dailyQuestionService) GetAdminQuestionList(req *request.DailyQuestionLi
 
 // CreateQuestion 创建问题
 func (s *dailyQuestionService) CreateQuestion(req *request.CreateDailyQuestionRequest) (uint, error) {
+	// 验证问题内容
+	if strings.TrimSpace(req.Question) == "" {
+		return 0, bizerrors.New(bizerrors.CodeInvalidParams, "问题内容不能为空")
+	}
+
+	// 验证答案
+	if strings.TrimSpace(req.Answer) == "" {
+		return 0, bizerrors.New(bizerrors.CodeInvalidParams, "答案不能为空")
+	}
+
+	// 验证日期格式
+	if req.Date == "" {
+		return 0, bizerrors.New(bizerrors.CodeInvalidParams, "日期不能为空")
+	}
+
 	existing, _ := s.dailyQuestionRepo.FindByDate(req.Date)
 	if existing != nil {
 		return 0, bizerrors.New(bizerrors.CodeDailyQuestionDateExists, bizerrors.GetMessage(bizerrors.CodeDailyQuestionDateExists))

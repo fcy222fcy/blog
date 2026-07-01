@@ -12,9 +12,9 @@ type ArticleListRequest struct {
 // CreateArticleRequest 创建文章请求
 type CreateArticleRequest struct {
 	Title      string `json:"title" binding:"required,min=1,max=200"`
-	Content    string `json:"content" binding:"required"`
-	Summary    string `json:"summary"`
-	Cover      string `json:"cover"`
+	Content    string `json:"content" binding:"required,max=50000"`
+	Summary    string `json:"summary" binding:"max=500"`
+	Cover      string `json:"cover" binding:"max=500"`
 	CategoryID uint   `json:"category_id" binding:"required"`
 	TagIDs     []uint `json:"tag_ids"`
 	Status     string `json:"status" binding:"omitempty,oneof=published draft"`

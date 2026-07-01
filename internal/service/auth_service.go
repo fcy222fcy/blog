@@ -9,8 +9,22 @@ import (
 	"blog/pkg/jwt"
 	"blog/pkg/logger"
 	"fmt"
+	"strings"
+
 	"go.uber.org/zap"
 )
+
+// validateInput 验证输入是否包含危险字符
+func validateInput(input string) bool {
+	dangerous := []string{"'", "--", "#", ";", "/*", "*/", "UNION", "SELECT", "DROP", "DELETE", "INSERT", "UPDATE", "OR ", "AND "}
+	upper := strings.ToUpper(input)
+	for _, d := range dangerous {
+		if strings.Contains(upper, d) {
+			return false
+		}
+	}
+	return true
+}
 
 // authService 认证服务实现
 type authService struct {
@@ -29,6 +43,11 @@ func NewAuthService(userRepo repository.UserRepository, jwt *jwt.JWT) AuthServic
 // Login 用户登录
 func (s *authService) Login(req *request.LoginRequest) (*response.LoginResponse, error) {
 	logger.Infof("用户登录, username: %s", req.Username)
+
+	// 验证输入是否包含危险字符
+	if !validateInput(req.Username) || !validateInput(req.Password) {
+		return nil, bizerrors.New(bizerrors.CodeInvalidParams, "输入包含非法字符")
+	}
 
 	// 查找用户
 	user, err := s.userRepo.FindByUsername(req.Username)

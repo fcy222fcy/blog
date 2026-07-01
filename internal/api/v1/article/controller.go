@@ -111,8 +111,8 @@ func (c *Controller) GetAdminArticleList(ctx *gin.Context) {
 // GetAdminArticleDetail 获取文章详情（后台）
 func (c *Controller) GetAdminArticleDetail(ctx *gin.Context) {
 	id, err := strconv.ParseUint(ctx.Param("id"), 10, 32)
-	if err != nil {
-		response.BadRequest(ctx, "文章ID无效")
+	if err != nil || id == 0 {
+		response.BadRequest(ctx, "无效的文章ID")
 		return
 	}
 
@@ -157,8 +157,8 @@ func (c *Controller) CreateArticle(ctx *gin.Context) {
 // UpdateArticle 更新文章
 func (c *Controller) UpdateArticle(ctx *gin.Context) {
 	id, err := strconv.ParseUint(ctx.Param("id"), 10, 32)
-	if err != nil {
-		response.BadRequest(ctx, "文章ID无效")
+	if err != nil || id == 0 {
+		response.BadRequest(ctx, "无效的文章ID")
 		return
 	}
 
@@ -186,8 +186,8 @@ func (c *Controller) UpdateArticle(ctx *gin.Context) {
 // DeleteArticle 删除文章
 func (c *Controller) DeleteArticle(ctx *gin.Context) {
 	id, err := strconv.ParseUint(ctx.Param("id"), 10, 32)
-	if err != nil {
-		response.BadRequest(ctx, "文章ID无效")
+	if err != nil || id == 0 {
+		response.BadRequest(ctx, "无效的文章ID")
 		return
 	}
 

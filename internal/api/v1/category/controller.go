@@ -42,8 +42,8 @@ func (c *Controller) GetCategoryList(ctx *gin.Context) {
 // GetCategoryDetail 获取分类详情
 func (c *Controller) GetCategoryDetail(ctx *gin.Context) {
 	id, err := strconv.ParseUint(ctx.Param("id"), 10, 32)
-	if err != nil {
-		response.BadRequest(ctx, "参数错误")
+	if err != nil || id == 0 {
+		response.BadRequest(ctx, "无效的分类ID")
 		return
 	}
 
@@ -88,8 +88,8 @@ func (c *Controller) CreateCategory(ctx *gin.Context) {
 // UpdateCategory 更新分类
 func (c *Controller) UpdateCategory(ctx *gin.Context) {
 	id, err := strconv.ParseUint(ctx.Param("id"), 10, 32)
-	if err != nil {
-		response.BadRequest(ctx, "参数错误")
+	if err != nil || id == 0 {
+		response.BadRequest(ctx, "无效的分类ID")
 		return
 	}
 
@@ -117,8 +117,8 @@ func (c *Controller) UpdateCategory(ctx *gin.Context) {
 // DeleteCategory 删除分类
 func (c *Controller) DeleteCategory(ctx *gin.Context) {
 	id, err := strconv.ParseUint(ctx.Param("id"), 10, 32)
-	if err != nil {
-		response.BadRequest(ctx, "参数错误")
+	if err != nil || id == 0 {
+		response.BadRequest(ctx, "无效的分类ID")
 		return
 	}
 

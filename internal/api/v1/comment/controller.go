@@ -100,8 +100,8 @@ func (c *Controller) GetAdminCommentList(ctx *gin.Context) {
 // UpdateCommentStatus 更新评论状态
 func (c *Controller) UpdateCommentStatus(ctx *gin.Context) {
 	id, err := strconv.ParseUint(ctx.Param("id"), 10, 32)
-	if err != nil {
-		response.BadRequest(ctx, "评论ID无效")
+	if err != nil || id == 0 {
+		response.BadRequest(ctx, "无效的评论ID")
 		return
 	}
 
@@ -131,8 +131,8 @@ func (c *Controller) UpdateCommentStatus(ctx *gin.Context) {
 // DeleteComment 删除评论
 func (c *Controller) DeleteComment(ctx *gin.Context) {
 	id, err := strconv.ParseUint(ctx.Param("id"), 10, 32)
-	if err != nil {
-		response.BadRequest(ctx, "评论ID无效")
+	if err != nil || id == 0 {
+		response.BadRequest(ctx, "无效的评论ID")
 		return
 	}
 

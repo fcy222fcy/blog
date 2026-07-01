@@ -89,7 +89,23 @@ func ServerError(c *gin.Context, message string) {
 // BizError 业务错误响应
 func BizError(c *gin.Context, err error) {
 	if bizError, ok := err.(*bizErr.BizError); ok {
-		c.JSON(http.StatusOK, Response{
+		httpStatus := http.StatusOK
+		// 根据错误码范围返回合适的 HTTP 状态码
+		switch {
+		case bizError.Code >= 1000 && bizError.Code < 2000:
+			// 用户/认证业务错误 (1000-1999) -> 401
+			httpStatus = http.StatusUnauthorized
+		case bizError.Code >= 2000 && bizError.Code < 3000:
+			// 参数错误 (2000-2999) -> 400
+			httpStatus = http.StatusBadRequest
+		case bizError.Code >= 3000 && bizError.Code < 4000:
+			// 资源错误 (3000-3999) -> 404
+			httpStatus = http.StatusNotFound
+		case bizError.Code >= 4000 && bizError.Code < 5000:
+			// 业务错误 (4000-4999) -> 400
+			httpStatus = http.StatusBadRequest
+		}
+		c.JSON(httpStatus, Response{
 			Code:    bizError.Code,
 			Message: bizError.Message,
 			Data:    nil,

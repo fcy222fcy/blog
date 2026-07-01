@@ -13,7 +13,7 @@ type CreateCommentRequest struct {
 	ArticleSlug string `json:"article_slug"`
 	Content     string `json:"content" binding:"required,min=1,max=1000"`
 	Nickname    string `json:"nickname" binding:"required,min=1,max=50"`
-	Email       string `json:"email" binding:"omitempty,email"`
+	Email       string `json:"email" binding:"omitempty,email,max=100"`
 	Website     string `json:"website" binding:"max=200"`
 	ParentID    *uint  `json:"parent_id"`
 }

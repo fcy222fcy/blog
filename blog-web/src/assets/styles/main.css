@@ -622,6 +622,9 @@ button, input { font: inherit; }
   border-color: var(--accent-color);
   color: var(--accent-color);
 }
+.dq-daily-date-wrapper {
+  position: relative;
+}
 .dq-daily-title {
   font-size: 18px;
   font-weight: 700;
@@ -701,6 +704,117 @@ button, input { font: inherit; }
 .dq-daily-like-btn.liked {
   color: var(--accent-color);
   background: rgba(var(--accent-color-rgb), 0.1);
+}
+
+/* ===== 日历选择器 ===== */
+.dq-calendar-popup {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 100;
+  background: var(--card-background);
+  border: 1px solid var(--card-separator-color);
+  border-radius: var(--card-border-radius);
+  box-shadow: var(--shadow-l3);
+  padding: 16px;
+  min-width: 280px;
+}
+.dq-calendar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+.dq-calendar-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--card-text-color-main);
+}
+.dq-calendar-nav {
+  background: none;
+  border: 1px solid var(--card-separator-color);
+  padding: 4px 10px;
+  font-size: 12px;
+  color: var(--card-text-color-secondary);
+  cursor: pointer;
+  border-radius: 4px;
+}
+.dq-calendar-nav:hover {
+  border-color: var(--accent-color);
+  color: var(--accent-color);
+}
+.dq-calendar-weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+  margin-bottom: 4px;
+}
+.dq-calendar-weekdays span {
+  text-align: center;
+  font-size: 11px;
+  color: var(--card-text-color-tertiary);
+  padding: 4px 0;
+  font-weight: 600;
+}
+.dq-calendar-days {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+}
+.dq-calendar-day {
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  font-size: 12px;
+  color: var(--card-text-color-main);
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all 0.15s ease;
+}
+.dq-calendar-day:hover:not(:disabled) {
+  background: rgba(var(--accent-color-rgb), 0.1);
+  color: var(--accent-color);
+}
+.dq-calendar-day.other-month {
+  color: var(--card-text-color-tertiary);
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.dq-calendar-day.is-today {
+  font-weight: 700;
+  color: var(--accent-color);
+}
+.dq-calendar-day.is-selected {
+  background: var(--accent-color);
+  color: var(--accent-color-text);
+}
+.dq-calendar-day.has-question::after {
+  content: '';
+  position: absolute;
+  bottom: 2px;
+  width: 4px;
+  height: 4px;
+  background: var(--accent-color);
+  border-radius: 50%;
+}
+.dq-calendar-close {
+  width: 100%;
+  margin-top: 12px;
+  padding: 8px;
+  background: var(--body-background);
+  border: 1px solid var(--card-separator-color);
+  border-radius: 4px;
+  font-size: 12px;
+  color: var(--card-text-color-secondary);
+  cursor: pointer;
+}
+.dq-calendar-close:hover {
+  border-color: var(--accent-color);
+  color: var(--accent-color);
 }
 
 /* ===== 响应式 ===== */

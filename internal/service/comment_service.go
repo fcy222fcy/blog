@@ -11,6 +11,7 @@ import (
 	"blog/pkg/logger"
 	"fmt"
 	"strconv"
+	"strings"
 )
 
 // commentService 评论服务实现
@@ -67,6 +68,16 @@ func (s *commentService) GetCommentsByArticle(articleParam string, req *request.
 
 // CreateComment 创建评论
 func (s *commentService) CreateComment(req *request.CreateCommentRequest) (uint, error) {
+	// 验证评论内容
+	if strings.TrimSpace(req.Content) == "" {
+		return 0, bizerrors.New(bizerrors.CodeInvalidParams, "评论内容不能为空")
+	}
+
+	// 验证昵称
+	if strings.TrimSpace(req.Nickname) == "" {
+		return 0, bizerrors.New(bizerrors.CodeInvalidParams, "昵称不能为空")
+	}
+
 	// 解析文章参数：优先用 slug，再用 ID
 	var article *entity.Article
 	var err error

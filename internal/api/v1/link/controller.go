@@ -88,8 +88,8 @@ func (c *Controller) CreateLink(ctx *gin.Context) {
 // UpdateLink 更新友链
 func (c *Controller) UpdateLink(ctx *gin.Context) {
 	id, err := strconv.ParseUint(ctx.Param("id"), 10, 32)
-	if err != nil {
-		response.BadRequest(ctx, "友链ID无效")
+	if err != nil || id == 0 {
+		response.BadRequest(ctx, "无效的友链ID")
 		return
 	}
 
@@ -117,8 +117,8 @@ func (c *Controller) UpdateLink(ctx *gin.Context) {
 // DeleteLink 删除友链
 func (c *Controller) DeleteLink(ctx *gin.Context) {
 	id, err := strconv.ParseUint(ctx.Param("id"), 10, 32)
-	if err != nil {
-		response.BadRequest(ctx, "友链ID无效")
+	if err != nil || id == 0 {
+		response.BadRequest(ctx, "无效的友链ID")
 		return
 	}
 
@@ -140,8 +140,8 @@ func (c *Controller) DeleteLink(ctx *gin.Context) {
 // UpdateLinkStatus 更新友链状态
 func (c *Controller) UpdateLinkStatus(ctx *gin.Context) {
 	id, err := strconv.ParseUint(ctx.Param("id"), 10, 32)
-	if err != nil {
-		response.BadRequest(ctx, "友链ID无效")
+	if err != nil || id == 0 {
+		response.BadRequest(ctx, "无效的友链ID")
 		return
 	}
 
