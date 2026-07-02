@@ -1,6 +1,7 @@
 package api
 
 import (
+	"blog/internal/api/v1/about_page"
 	"blog/internal/api/v1/article"
 	"blog/internal/api/v1/auth"
 	"blog/internal/api/v1/category"
@@ -11,12 +12,15 @@ import (
 	"blog/internal/api/v1/user"
 	"blog/internal/middleware"
 	"blog/internal/model/dto/request"
+	"blog/internal/repository"
 	"blog/internal/service"
 	"blog/pkg/config"
+	"blog/pkg/logger"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
 	"github.com/go-playground/validator/v10"
+	"go.uber.org/zap"
 )
 
 // Router 路由器
@@ -33,6 +37,12 @@ type Router struct {
 	commentController      *comment.Controller
 	linkController         *link.Controller
 	dailyQuestionController *daily_question.Controller
+	aboutPageController    *about_page.Controller
+
+	// 仓库（用于仪表盘统计）
+	articleRepo  repository.ArticleRepository
+	linkRepo     repository.LinkRepository
+	commentRepo  repository.CommentRepository
 }
 
 // NewRouter 创建路由器
@@ -45,6 +55,10 @@ func NewRouter(
 	commentSvc service.CommentService,
 	linkSvc service.LinkService,
 	dailyQuestionSvc service.DailyQuestionService,
+	aboutPageSvc service.AboutPageService,
+	articleRepo repository.ArticleRepository,
+	linkRepo repository.LinkRepository,
+	commentRepo repository.CommentRepository,
 	config *config.Config,
 ) *Router {
 	engine := gin.Default()
@@ -65,6 +79,10 @@ func NewRouter(
 		commentController:      comment.NewController(commentSvc),
 		linkController:         link.NewController(linkSvc),
 		dailyQuestionController: daily_question.NewController(dailyQuestionSvc),
+		aboutPageController:    about_page.NewController(aboutPageSvc),
+		articleRepo:            articleRepo,
+		linkRepo:               linkRepo,
+		commentRepo:            commentRepo,
 	}
 }
 
@@ -98,6 +116,9 @@ func (r *Router) Setup() *gin.Engine {
 	// 注册仪表盘路由（需要登录）
 	r.registerDashboardRoutes(apiV1)
 
+	// 注册关于页面路由
+	r.registerAboutPageRoutes(apiV1)
+
 	return r.engine
 }
 
@@ -115,13 +136,72 @@ func (r *Router) registerDashboardRoutes(rg *gin.RouterGroup) {
 	}
 }
 
+// registerAboutPageRoutes 注册关于页面路由
+func (r *Router) registerAboutPageRoutes(rg *gin.RouterGroup) {
+	// 公开路由（无需登录）
+	about := rg.Group("/about")
+	{
+		about.GET("", r.aboutPageController.GetAboutPage)
+	}
+
+	// 需要登录的路由
+	protected := rg.Group("")
+	protected.Use(middleware.Auth())
+	{
+		protected.PUT("/admin/about", r.aboutPageController.UpdateAboutPage)
+	}
+}
+
 // getDashboardStats 获取仪表盘统计
 func (r *Router) getDashboardStats(c *gin.Context) {
-	// TODO: 实现仪表盘统计
+	// 统计文章数量
+	articleCount, err := r.articleRepo.Count("")
+	if err != nil {
+		logger.Warn("统计文章数量失败", zap.Error(err))
+	}
+
+	// 统计已发布文章数量
+	publishedCount, err := r.articleRepo.Count("published")
+	if err != nil {
+		logger.Warn("统计已发布文章数量失败", zap.Error(err))
+	}
+
+	// 统计总浏览量
+	totalViews, err := r.articleRepo.SumViewCount()
+	if err != nil {
+		logger.Warn("统计总浏览量失败", zap.Error(err))
+	}
+
+	// 统计友链数量
+	linkCount, err := r.linkRepo.Count("approved")
+	if err != nil {
+		logger.Warn("统计友链数量失败", zap.Error(err))
+	}
+
+	// 统计评论数量
+	commentCount, err := r.commentRepo.Count("")
+	if err != nil {
+		logger.Warn("统计评论数量失败", zap.Error(err))
+	}
+
+	// 统计待审核评论数量
+	pendingCommentCount, err := r.commentRepo.Count("pending")
+	if err != nil {
+		logger.Warn("统计待审核评论数量失败", zap.Error(err))
+	}
+
 	c.JSON(200, gin.H{
 		"code":    0,
 		"message": "success",
-		"data":    gin.H{},
+		"data": gin.H{
+			"article_count":      articleCount,
+			"published_count":    publishedCount,
+			"draft_count":        articleCount - publishedCount,
+			"total_views":        totalViews,
+			"link_count":         linkCount,
+			"comment_count":      commentCount,
+			"pending_count":      pendingCommentCount,
+		},
 	})
 }
 

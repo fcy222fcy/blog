@@ -130,8 +130,15 @@ const menuItems = [
 
 const currentPath = computed(() => route.path)
 const currentPageTitle = computed(() => {
-  const item = menuItems.find(i => i.path === route.path)
-  return item?.title || '仪表盘'
+  // 精确匹配
+  const exactItem = menuItems.find(i => i.path === route.path)
+  if (exactItem) return exactItem.title
+
+  // 前缀匹配（处理子路由，如 /articles/123）
+  const prefixItem = menuItems.find(i => route.path.startsWith(i.path + '/') || route.path.startsWith(i.path + '?'))
+  if (prefixItem) return prefixItem.title
+
+  return '仪表盘'
 })
 
 const navigateTo = (path) => {

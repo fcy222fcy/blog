@@ -90,6 +90,7 @@ func (a *App) initDependencies() {
 	commentRepo := repository.NewCommentRepository(a.db.DB)
 	linkRepo := repository.NewLinkRepository(a.db.DB)
 	dailyQuestionRepo := repository.NewDailyQuestionRepository(a.db.DB)
+	aboutPageRepo := repository.NewAboutPageRepository(a.db.DB)
 
 	// Service
 	jwtInstance := jwt.NewJWT(a.config.JWT)
@@ -102,6 +103,7 @@ func (a *App) initDependencies() {
 	commentSvc := service.NewCommentService(commentRepo, articleRepo, userRepo, emailSvc, a.config)
 	linkSvc := service.NewLinkService(linkRepo)
 	dailyQuestionSvc := service.NewDailyQuestionService(dailyQuestionRepo)
+	aboutPageSvc := service.NewAboutPageService(aboutPageRepo)
 
 	// Router
 	a.router = api.NewRouter(
@@ -113,6 +115,10 @@ func (a *App) initDependencies() {
 		commentSvc,
 		linkSvc,
 		dailyQuestionSvc,
+		aboutPageSvc,
+		articleRepo,
+		linkRepo,
+		commentRepo,
 		a.config,
 	)
 }

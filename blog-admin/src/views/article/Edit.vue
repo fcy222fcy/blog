@@ -1,81 +1,62 @@
 <template>
-  <div>
-    <div style="margin-bottom: 16px;">
-      <button class="btn btn-secondary" @click="$router.push('/articles')">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
-        <span>返回列表</span>
-      </button>
+  <div class="article-edit-container">
+    <!-- 顶部标题栏 -->
+    <div class="article-title-bar">
+      <input type="text" class="title-input" v-model="form.title" placeholder="输入文章标题...">
     </div>
 
-    <div class="edit-layout">
-      <div class="edit-panel">
-        <div class="card">
-          <div class="card-header">
-            <div class="card-title">Markdown 编辑</div>
-          </div>
-          <div class="card-body">
-            <div class="form-group" style="margin-bottom: 12px;">
-              <input type="text" class="title-input" v-model="form.title" placeholder="输入文章标题...">
-            </div>
-            <div class="form-row">
-              <div class="form-group" style="flex: 1;">
-                <label class="form-label">分类</label>
-                <select class="form-select" v-model="form.category_id">
-                  <option value="">选择分类</option>
-                  <option v-for="cat in categories" :key="cat.id" :value="cat.id">{{ cat.name }}</option>
-                </select>
-              </div>
-              <div class="form-group" style="flex: 1;">
-                <label class="form-label">状态</label>
-                <select class="form-select" v-model="form.status">
-                  <option value="draft">草稿</option>
-                  <option value="published">发布</option>
-                </select>
-              </div>
-            </div>
-            <div class="form-group">
-              <label class="form-label">标签</label>
-              <div class="tags-container">
-                <span v-for="tagId in form.tag_ids" :key="tagId" class="tag-item">
-                  {{ getTagName(tagId) }}
-                  <button class="tag-remove" @click="removeTag(tagId)">×</button>
-                </span>
-                <select class="form-select tag-select" v-model="selectedTag" @change="addTag">
-                  <option value="">选择标签...</option>
-                  <option v-for="tag in availableTags" :key="tag.id" :value="tag.id">{{ tag.name }}</option>
-                </select>
-              </div>
-            </div>
-            <MdEditor v-model="form.content" :theme="editorTheme" style="height: 500px;" />
-          </div>
-        </div>
+    <!-- 元信息栏 -->
+    <div class="article-meta-bar">
+      <div class="meta-item">
+        <label class="form-label">分类</label>
+        <select class="form-select" v-model="form.category_id">
+          <option value="">选择分类</option>
+          <option v-for="cat in categories" :key="cat.id" :value="cat.id">{{ cat.name }}</option>
+        </select>
       </div>
-
-      <div class="edit-panel">
-        <div class="card">
-          <div class="card-header">
-            <div class="card-title">实时预览</div>
-          </div>
-          <div class="card-body">
-            <div class="preview-content" v-html="previewHtml"></div>
-          </div>
+      <div class="meta-item">
+        <label class="form-label">状态</label>
+        <select class="form-select" v-model="form.status">
+          <option value="draft">草稿</option>
+          <option value="published">发布</option>
+        </select>
+      </div>
+      <div class="meta-item meta-item-grow">
+        <label class="form-label">标签</label>
+        <div class="tags-container">
+          <span v-for="tagId in form.tag_ids" :key="tagId" class="tag-item">
+            {{ getTagName(tagId) }}
+            <button class="tag-remove" @click="removeTag(tagId)">×</button>
+          </span>
+          <select class="form-select tag-select" v-model="selectedTag" @change="addTag">
+            <option value="">选择标签...</option>
+            <option v-for="tag in availableTags" :key="tag.id" :value="tag.id">{{ tag.name }}</option>
+          </select>
         </div>
       </div>
     </div>
 
-    <div style="margin-top: 16px; display: flex; gap: 12px; justify-content: flex-end;">
+    <!-- 编辑器主体 -->
+    <div class="editor-main">
+      <MdEditor v-model="form.content" :theme="editorTheme" class="md-editor" />
+    </div>
+
+    <!-- 底部操作栏 -->
+    <div class="article-actions">
       <button class="btn btn-secondary" @click="$router.push('/articles')">
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
         <span>返回列表</span>
       </button>
-      <button class="btn btn-secondary" @click="handleSaveDraft">
-        <span>💾</span>
-        <span>保存草稿</span>
-      </button>
-      <button class="btn btn-primary" @click="handlePublish">
-        <span>🚀</span>
-        <span>发布文章</span>
-      </button>
+      <div class="action-right">
+        <button class="btn btn-secondary" @click="handleSaveDraft">
+          <span>💾</span>
+          <span>保存草稿</span>
+        </button>
+        <button class="btn btn-primary" @click="handlePublish">
+          <span>🚀</span>
+          <span>发布文章</span>
+        </button>
+      </div>
     </div>
   </div>
 </template>
@@ -84,7 +65,6 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
-import { marked } from 'marked'
 import { MdEditor } from 'md-editor-v3'
 import 'md-editor-v3/lib/style.css'
 import { getArticleDetail, createArticle, updateArticle } from '../../api/article'
@@ -108,14 +88,6 @@ const form = ref({
 
 const categories = ref([])
 const tags = ref([])
-
-const previewHtml = computed(() => {
-  try {
-    return marked(form.value.content || '')
-  } catch (e) {
-    return '<p>预览加载中...</p>'
-  }
-})
 
 const availableTags = computed(() => {
   return tags.value.filter(t => !form.value.tag_ids.includes(t.id))
@@ -147,7 +119,15 @@ const loadData = async () => {
   if (isEdit.value) {
     try {
       const res = await getArticleDetail(route.params.id)
-      form.value = { ...form.value, ...res.data }
+      if (res.data) {
+        form.value = {
+          ...form.value,
+          ...res.data,
+          category_id: res.data.category_id || '',
+          tag_ids: res.data.tag_ids || [],
+          status: res.data.status || 'draft'
+        }
+      }
     } catch (e) { console.error(e) }
   }
 }
@@ -182,39 +162,77 @@ onMounted(loadData)
 </script>
 
 <style scoped>
-.edit-layout {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
+.article-edit-container {
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 120px);
   gap: 16px;
 }
-.edit-panel {
-  min-width: 0;
+
+/* 标题栏 */
+.article-title-bar {
+  background: var(--card-background);
+  border-radius: var(--card-border-radius);
+  padding: 16px 20px;
+  box-shadow: var(--card-shadow);
 }
+
 .title-input {
   width: 100%;
-  padding: 12px 16px;
-  border: 1px solid var(--card-separator-color);
-  border-radius: var(--card-border-radius);
-  font-size: 18px;
-  font-weight: 600;
-  background: var(--card-background);
+  padding: 8px 0;
+  border: none;
+  font-size: 24px;
+  font-weight: 700;
+  background: transparent;
   color: var(--card-text-color-main);
 }
+
+.title-input::placeholder {
+  color: var(--text-color-tertiary);
+}
+
 .title-input:focus {
   outline: none;
-  border-color: var(--accent-color);
-  box-shadow: 0 0 0 3px rgba(var(--accent-color-rgb), 0.1);
 }
-.form-row {
+
+/* 元信息栏 */
+.article-meta-bar {
   display: flex;
   gap: 16px;
+  background: var(--card-background);
+  border-radius: var(--card-border-radius);
+  padding: 16px 20px;
+  box-shadow: var(--card-shadow);
+  flex-wrap: wrap;
 }
+
+.meta-item {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 150px;
+}
+
+.meta-item-grow {
+  flex: 1;
+  min-width: 200px;
+}
+
+.form-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-color-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
 .tags-container {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
   align-items: center;
 }
+
 .tag-item {
   display: inline-flex;
   align-items: center;
@@ -225,6 +243,7 @@ onMounted(loadData)
   border-radius: var(--tag-border-radius);
   font-size: 13px;
 }
+
 .tag-remove {
   background: none;
   color: var(--accent-color);
@@ -232,45 +251,47 @@ onMounted(loadData)
   padding: 0;
   line-height: 1;
 }
+
 .tag-select {
   width: auto;
   min-width: 120px;
 }
-.preview-content {
-  min-height: 500px;
-  line-height: 1.8;
-  color: var(--card-text-color-main);
-}
-.preview-content :deep(h1) { font-size: 24px; font-weight: 700; margin: 20px 0 12px; }
-.preview-content :deep(h2) { font-size: 20px; font-weight: 600; margin: 18px 0 10px; }
-.preview-content :deep(h3) { font-size: 17px; font-weight: 600; margin: 16px 0 8px; }
-.preview-content :deep(p) { margin: 10px 0; }
-.preview-content :deep(code) {
-  background: var(--body-background);
-  padding: 2px 6px;
-  border-radius: 4px;
-  font-size: 14px;
-}
-.preview-content :deep(pre) {
-  background: var(--body-background);
-  padding: 16px;
+
+/* 编辑器主体 */
+.editor-main {
+  flex: 1;
+  min-height: 0;
+  background: var(--card-background);
   border-radius: var(--card-border-radius);
-  overflow-x: auto;
-}
-.preview-content :deep(blockquote) {
-  border-left: 4px solid var(--accent-color);
-  padding-left: 16px;
-  color: var(--card-text-color-secondary);
-  margin: 12px 0;
-}
-.preview-content :deep(ul), .preview-content :deep(ol) {
-  padding-left: 24px;
-  margin: 10px 0;
+  box-shadow: var(--card-shadow);
+  overflow: hidden;
 }
 
+.md-editor {
+  height: 100%;
+}
+
+/* 底部操作栏 */
+.article-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 0;
+}
+
+.action-right {
+  display: flex;
+  gap: 12px;
+}
+
+/* 响应式 */
 @media (max-width: 1024px) {
-  .edit-layout {
-    grid-template-columns: 1fr;
+  .article-meta-bar {
+    flex-direction: column;
+  }
+
+  .meta-item {
+    width: 100%;
   }
 }
 </style>

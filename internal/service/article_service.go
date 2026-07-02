@@ -130,15 +130,23 @@ func (s *articleService) GetAdminArticleDetail(id uint) (*response.AdminArticleD
 		return nil, bizerrors.New(bizerrors.CodeArticleNotFound, bizerrors.GetMessage(bizerrors.CodeArticleNotFound))
 	}
 
+	// 从 Tags 中提取 tag IDs
+	var tagIDs []uint
+	for _, tag := range article.Tags {
+		tagIDs = append(tagIDs, tag.ID)
+	}
+
 	return &response.AdminArticleDetailResponse{
-		ID:      article.ID,
-		Title:   article.Title,
-		Slug:    article.Slug,
-		Content: article.Content,
-		Summary: article.Summary,
-		Cover:   article.Cover,
-		Status:  article.Status,
-		IsTop:   article.IsTop,
+		ID:         article.ID,
+		Title:      article.Title,
+		Slug:       article.Slug,
+		Content:    article.Content,
+		Summary:    article.Summary,
+		Cover:      article.Cover,
+		Status:     article.Status,
+		IsTop:      article.IsTop,
+		CategoryID: article.CategoryID,
+		TagIDs:     tagIDs,
 	}, nil
 }
 
