@@ -480,15 +480,15 @@ button, input { font: inherit; }
   gap: 6px;
   padding: 8px 18px;
   margin-bottom: 24px;
-  background: var(--card-background);
-  border: 1px solid var(--card-separator-color);
+  background: #1a1a2e;
+  border: 2px solid #333;
   border-radius: var(--card-border-radius);
-  color: var(--card-text-color-secondary);
+  color: #fff;
   font-size: 0.95rem;
   font-weight: 600;
   cursor: pointer;
 }
-.back-btn:hover { border-color: var(--accent-color); color: var(--accent-color); }
+.back-btn:hover { background: #2d2d44; border-color: #555; color: #fff; }
 .post-detail {
   background: var(--card-background);
   border: 1px solid var(--card-border);
@@ -515,6 +515,11 @@ button, input { font: inherit; }
 .post-content pre { background: #272822; color: #f8f8f2; padding: 18px; border-radius: var(--card-border-radius); overflow-x: auto; margin: 16px 0; }
 .post-content pre code { background: none; padding: 0; color: inherit; }
 .post-content blockquote { margin: 16px 0; padding: 12px 20px; border-left: 4px solid var(--accent-color); background: #f2f1eb; border-radius: 0 var(--card-border-radius) var(--card-border-radius) 0; }
+.post-content ol,
+.post-content ul { padding-left: 1.8em; margin: 12px 0; }
+.post-content ol { list-style-type: decimal; }
+.post-content ul { list-style-type: disc; }
+.post-content li { margin: 6px 0; }
 .post-content img { max-width: 100%; border-radius: var(--card-border-radius); }
 
 /* ===== 搜索弹窗 ===== */
@@ -544,6 +549,9 @@ button, input { font: inherit; }
 .search-result-item h3 { margin: 0 0 4px; color: var(--card-text-color-main); font-size: 1rem; }
 .search-result-item p { margin: 0; color: var(--card-text-color-secondary); font-size: 0.92rem; }
 .search-empty { padding: 20px; text-align: center; color: var(--card-text-color-tertiary); }
+.search-view-all { padding: 10px 14px; text-align: center; border-top: 1px solid var(--card-separator-color); margin-top: 4px; }
+.search-view-all a { color: var(--accent-color); text-decoration: none; font-size: 0.92rem; font-weight: 600; }
+.search-view-all a:hover { text-decoration: underline; }
 
 /* ===== 回到顶部 ===== */
 .back-to-top {

@@ -1,0 +1,131 @@
+- generic [active] [ref=f2e1]:
+  - generic [ref=f2e36]:
+    - complementary [ref=f2e37]:
+      - generic [ref=f2e38]:
+        - generic [ref=f2e39] [cursor=pointer]:
+          - img "头像" [ref=f2e40]
+          - generic [ref=f2e41]: 更换头像
+        - generic [ref=f2e42]: Liu Houliang
+        - generic [ref=f2e43]: 日常落灰的个人博客，分享 Golang、AI 和 NAS 折腾经验
+        - button "编辑资料" [ref=f2e44] [cursor=pointer]
+      - navigation [ref=f2e45]:
+        - generic [ref=f2e46] [cursor=pointer]:
+          - img [ref=f2e48]
+          - generic [ref=f2e51]: 仪表盘
+        - generic [ref=f2e52] [cursor=pointer]:
+          - img [ref=f2e54]
+          - generic [ref=f2e57]: 文章
+        - generic [ref=f2e58] [cursor=pointer]:
+          - img [ref=f2e60]
+          - generic [ref=f2e62]: 分类
+        - generic [ref=f2e63] [cursor=pointer]:
+          - img [ref=f2e65]
+          - generic [ref=f2e67]: 标签
+        - generic [ref=f2e68] [cursor=pointer]:
+          - img [ref=f2e70]
+          - generic [ref=f2e72]: 评论
+        - generic [ref=f2e73] [cursor=pointer]:
+          - img [ref=f2e75]
+          - generic [ref=f2e78]: 友链
+        - generic [ref=f2e79] [cursor=pointer]:
+          - img [ref=f2e81]
+          - generic [ref=f2e85]: 媒体库
+        - generic [ref=f2e86] [cursor=pointer]:
+          - img [ref=f2e88]
+          - generic [ref=f2e90]: 娱乐
+        - generic [ref=f2e91] [cursor=pointer]:
+          - img [ref=f2e93]
+          - generic [ref=f2e96]: 每日一问
+        - generic [ref=f2e97] [cursor=pointer]:
+          - img [ref=f2e99]
+          - generic [ref=f2e102]: 关于我
+      - generic [ref=f2e103]:
+        - generic [ref=f2e104] [cursor=pointer]:
+          - img [ref=f2e106]
+          - generic [ref=f2e109]: English
+        - generic [ref=f2e110] [cursor=pointer]:
+          - img [ref=f2e112]
+          - generic [ref=f2e114]: 暗色模式
+    - generic [ref=f2e115]:
+      - banner [ref=f2e116]:
+        - heading "仪表盘" [level=1] [ref=f2e118]
+        - button "通知" [ref=f2e120] [cursor=pointer]:
+          - img [ref=f2e121]
+      - main [ref=f2e124]:
+        - generic [ref=f2e125]:
+          - generic [ref=f2e126]:
+            - generic [ref=f2e127]:
+              - generic [ref=f2e128]: 文章总数
+              - generic [ref=f2e129]: "32"
+            - generic [ref=f2e130]:
+              - generic [ref=f2e131]: 已发布
+              - generic [ref=f2e132]: "31"
+            - generic [ref=f2e133]:
+              - generic [ref=f2e134]: 总浏览量
+              - generic [ref=f2e135]: "10408"
+            - generic [ref=f2e136]:
+              - generic [ref=f2e137]: 友情链接
+              - generic [ref=f2e138]: "4"
+          - generic [ref=f2e139]:
+            - generic [ref=f2e140] [cursor=pointer]:
+              - generic [ref=f2e141]: 📝
+              - generic [ref=f2e142]:
+                - generic [ref=f2e143]: 文章管理
+                - generic [ref=f2e144]: 管理博客文章，发布、编辑、删除
+                - generic [ref=f2e145]: 共 32 篇文章
+              - generic [ref=f2e146]: →
+            - generic [ref=f2e147] [cursor=pointer]:
+              - generic [ref=f2e148]: 🔗
+              - generic [ref=f2e149]:
+                - generic [ref=f2e150]: 友链管理
+                - generic [ref=f2e151]: 管理友情链接，添加、编辑、删除
+                - generic [ref=f2e152]: 共 4 个友链
+              - generic [ref=f2e153]: →
+            - generic [ref=f2e154] [cursor=pointer]:
+              - generic [ref=f2e155]: 🖼️
+              - generic [ref=f2e156]:
+                - generic [ref=f2e157]: 媒体库
+                - generic [ref=f2e158]: 上传和管理图片、文件等媒体资源
+                - generic [ref=f2e159]: 图片、文档、视频
+              - generic [ref=f2e160]: →
+            - generic [ref=f2e161] [cursor=pointer]:
+              - generic [ref=f2e162]: 📂
+              - generic [ref=f2e163]:
+                - generic [ref=f2e164]: 分类管理
+                - generic [ref=f2e165]: 管理文章分类，建立内容结构
+                - generic [ref=f2e166]: 搭建网站、软件开发、生活记录
+              - generic [ref=f2e167]: →
+            - generic [ref=f2e168] [cursor=pointer]:
+              - generic [ref=f2e169]: 🏷️
+              - generic [ref=f2e170]:
+                - generic [ref=f2e171]: 标签管理
+                - generic [ref=f2e172]: 管理文章标签，方便内容检索
+                - generic [ref=f2e173]: Hugo、Go、AI、开源
+              - generic [ref=f2e174]: →
+            - generic [ref=f2e175] [cursor=pointer]:
+              - generic [ref=f2e176]: 💬
+              - generic [ref=f2e177]:
+                - generic [ref=f2e178]: 评论管理
+                - generic [ref=f2e179]: 审核和管理读者评论
+                - generic [ref=f2e180]: 待审核、已通过、已拒绝
+              - generic [ref=f2e181]: →
+            - generic [ref=f2e182] [cursor=pointer]:
+              - generic [ref=f2e183]: 💡
+              - generic [ref=f2e184]:
+                - generic [ref=f2e185]: 每日一问
+                - generic [ref=f2e186]: 管理每日问答内容
+                - generic [ref=f2e187]: 今日问题已设置
+              - generic [ref=f2e188]: →
+            - generic [ref=f2e189] [cursor=pointer]:
+              - generic [ref=f2e190]: 👤
+              - generic [ref=f2e191]:
+                - generic [ref=f2e192]: 关于我
+                - generic [ref=f2e193]: 编辑个人简介和社交信息
+                - generic [ref=f2e194]: 头像、简介、社交链接
+              - generic [ref=f2e195]: →
+    - button [ref=f2e196] [cursor=pointer]:
+      - img [ref=f2e197]
+      - img [ref=f2e200]
+  - alert [ref=f2e202]:
+    - img [ref=f2e204]
+    - paragraph [ref=f2e206]: 登录成功

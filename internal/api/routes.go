@@ -8,6 +8,9 @@ import (
 	"blog/internal/api/v1/comment"
 	"blog/internal/api/v1/daily_question"
 	"blog/internal/api/v1/link"
+	"blog/internal/api/v1/media"
+	"blog/internal/api/v1/rss"
+	"blog/internal/api/v1/sitemap"
 	"blog/internal/api/v1/tag"
 	"blog/internal/api/v1/user"
 	"blog/internal/middleware"
@@ -16,6 +19,7 @@ import (
 	"blog/internal/service"
 	"blog/pkg/config"
 	"blog/pkg/logger"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
@@ -38,11 +42,15 @@ type Router struct {
 	linkController         *link.Controller
 	dailyQuestionController *daily_question.Controller
 	aboutPageController    *about_page.Controller
+	mediaController        *media.Controller
+	rssHandler             *rss.Handler
+	sitemapHandler         *sitemap.Handler
 
 	// 仓库（用于仪表盘统计）
 	articleRepo  repository.ArticleRepository
 	linkRepo     repository.LinkRepository
 	commentRepo  repository.CommentRepository
+	visitRepo    repository.VisitRepository
 }
 
 // NewRouter 创建路由器
@@ -59,6 +67,7 @@ func NewRouter(
 	articleRepo repository.ArticleRepository,
 	linkRepo repository.LinkRepository,
 	commentRepo repository.CommentRepository,
+	visitRepo repository.VisitRepository,
 	config *config.Config,
 ) *Router {
 	engine := gin.Default()
@@ -80,9 +89,13 @@ func NewRouter(
 		linkController:         link.NewController(linkSvc),
 		dailyQuestionController: daily_question.NewController(dailyQuestionSvc),
 		aboutPageController:    about_page.NewController(aboutPageSvc),
+		mediaController:        media.NewController(),
+		rssHandler:             rss.NewHandler(articleRepo),
+		sitemapHandler:         sitemap.NewHandler(articleRepo),
 		articleRepo:            articleRepo,
 		linkRepo:               linkRepo,
 		commentRepo:            commentRepo,
+		visitRepo:              visitRepo,
 	}
 }
 
@@ -112,12 +125,18 @@ func (r *Router) Setup() *gin.Engine {
 	link.RegisterRoutes(apiV1, r.linkController)
 	daily_question.RegisterRoutes(apiV1, r.dailyQuestionController)
 	user.RegisterRoutes(apiV1, r.userController)
+	media.RegisterRoutes(apiV1, r.mediaController)
+	rss.RegisterRoutes(apiV1, r.rssHandler)
+	sitemap.RegisterRoutes(apiV1, r.sitemapHandler)
 
 	// 注册仪表盘路由（需要登录）
 	r.registerDashboardRoutes(apiV1)
 
 	// 注册关于页面路由
 	r.registerAboutPageRoutes(apiV1)
+
+	// 静态文件服务 - 上传的文件
+	r.engine.Static("/uploads", "./uploads")
 
 	return r.engine
 }
@@ -172,6 +191,15 @@ func (r *Router) getDashboardStats(c *gin.Context) {
 		logger.Warn("统计总浏览量失败", zap.Error(err))
 	}
 
+	// 统计今日浏览量
+	var todayViews int64
+	if r.visitRepo != nil {
+		todayViews, err = r.visitRepo.CountTodayViews()
+		if err != nil {
+			logger.Warn("统计今日浏览量失败", zap.Error(err))
+		}
+	}
+
 	// 统计友链数量
 	linkCount, err := r.linkRepo.Count("approved")
 	if err != nil {
@@ -198,6 +226,7 @@ func (r *Router) getDashboardStats(c *gin.Context) {
 			"published_count":    publishedCount,
 			"draft_count":        articleCount - publishedCount,
 			"total_views":        totalViews,
+			"today_views":        todayViews,
 			"link_count":         linkCount,
 			"comment_count":      commentCount,
 			"pending_count":      pendingCommentCount,
@@ -207,10 +236,47 @@ func (r *Router) getDashboardStats(c *gin.Context) {
 
 // getRecentArticles 获取最近文章
 func (r *Router) getRecentArticles(c *gin.Context) {
-	// TODO: 实现最近文章
+	limitStr := c.DefaultQuery("limit", "5")
+	limit, _ := strconv.Atoi(limitStr)
+	if limit <= 0 || limit > 20 {
+		limit = 5
+	}
+
+	articles, err := r.articleRepo.GetRecent(limit)
+	if err != nil {
+		logger.Warn("获取最近文章失败", zap.Error(err))
+		c.JSON(500, gin.H{
+			"code":    500,
+			"message": "获取最近文章失败",
+		})
+		return
+	}
+
+	// 转换为简化响应格式
+	type recentArticle struct {
+		ID          uint   `json:"id"`
+		Title       string `json:"title"`
+		Summary     string `json:"summary"`
+		Cover       string `json:"cover"`
+		ViewCount   int64  `json:"view_count"`
+		CreatedAt   string `json:"created_at"`
+	}
+
+	var result []recentArticle
+	for _, article := range articles {
+		result = append(result, recentArticle{
+			ID:        article.ID,
+			Title:     article.Title,
+			Summary:   article.Summary,
+			Cover:     article.Cover,
+			ViewCount: article.ViewCount,
+			CreatedAt: article.CreatedAt.Format("2006-01-02"),
+		})
+	}
+
 	c.JSON(200, gin.H{
 		"code":    0,
 		"message": "success",
-		"data":    []interface{}{},
+		"data":    result,
 	})
 }

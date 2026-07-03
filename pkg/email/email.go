@@ -28,7 +28,13 @@ func NewEmailService(config config.EmailConfig) EmailService {
 // SendCommentNotification 发送评论通知邮件（通知博主）
 func (s *emailService) SendCommentNotification(to, nickname, articleTitle, articleSlug, commentContent string) error {
 	subject := fmt.Sprintf("新评论通知 - %s", articleTitle)
-	link := fmt.Sprintf("wzx.glaty.cn/%s", articleSlug)
+	link := fmt.Sprintf("https://wzx.glaty.cn/%s", articleSlug)
+
+	// 获取评论者首字母作为头像
+	avatarInitial := string([]rune(nickname)[0])
+	if len([]rune(nickname)) > 1 {
+		avatarInitial = string([]rune(nickname)[:1])
+	}
 
 	body := fmt.Sprintf(`
 <!DOCTYPE html>
@@ -36,41 +42,161 @@ func (s *emailService) SendCommentNotification(to, nickname, articleTitle, artic
 <head>
     <meta charset="UTF-8">
     <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 0; padding: 0; background: #fff; }
-        .container { max-width: 600px; margin: 0 auto; border: 1px solid #e0e0e0; }
-        .header { padding: 20px; border-bottom: 2px solid #333; }
-        .header h3 { margin: 0; font-size: 16px; color: #333; font-weight: 600; }
-        .content { padding: 24px; }
-        .row { display: flex; padding: 10px 0; border-bottom: 1px solid #f0f0f0; }
-        .row:last-child { border-bottom: none; }
-        .row .label { width: 80px; color: #999; font-size: 13px; }
-        .row .value { color: #333; font-size: 14px; }
-        .message { background: #fafafa; padding: 16px; margin: 16px 0; border-radius: 4px; color: #555; line-height: 1.6; font-size: 14px; }
-        .btn { display: inline-block; background: #333; color: #fff; padding: 10px 24px; border-radius: 4px; text-decoration: none; font-size: 14px; margin-top: 16px; }
-        .footer { padding: 16px; background: #fafafa; text-align: center; font-size: 12px; color: #999; border-top: 1px solid #eee; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Droid Sans", "Helvetica Neue", "HarmonyOS Sans SC", sans-serif;
+            margin: 0;
+            padding: 0;
+            background: #f8f7f2;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: #fdfdfb;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .header {
+            padding: 24px;
+            background: linear-gradient(135deg, #1B365D 0%%, #202A44 100%%);
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 20px;
+            color: #fff;
+            font-weight: 700;
+        }
+        .content {
+            padding: 32px;
+        }
+        .avatar-section {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+        .avatar-circle {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%%;
+            background: linear-gradient(135deg, rgba(27, 54, 93, 0.1), rgba(27, 54, 93, 0.2));
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 16px;
+            box-shadow: 0 4px 8px rgba(27, 54, 93, 0.3);
+        }
+        .avatar-circle .initials {
+            font-size: 32px;
+            font-weight: 700;
+            color: #1B365D;
+        }
+        .info-card {
+            background: rgba(27, 54, 93, 0.05);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 24px;
+        }
+        .info-row {
+            display: flex;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(27, 54, 93, 0.1);
+        }
+        .info-row:last-child {
+            border-bottom: none;
+        }
+        .info-label {
+            width: 80px;
+            color: #8c8c8c;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        .info-value {
+            color: #333333;
+            font-size: 14px;
+            flex: 1;
+        }
+        .comment-box {
+            background: #fdfdfb;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            border-left: 4px solid #1B365D;
+            color: #5d5d5d;
+            line-height: 1.7;
+            font-size: 15px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+        .btn-section {
+            text-align: center;
+            margin-top: 28px;
+        }
+        .btn {
+            display: inline-block;
+            background: #1B365D;
+            color: #fff;
+            padding: 12px 32px;
+            border-radius: 25px;
+            text-decoration: none;
+            font-size: 15px;
+            font-weight: 600;
+            box-shadow: 0 4px 8px rgba(27, 54, 93, 0.3);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(27, 54, 93, 0.4);
+        }
+        .footer {
+            padding: 20px;
+            background: rgba(27, 54, 93, 0.05);
+            text-align: center;
+            font-size: 13px;
+            color: #8c8c8c;
+        }
+        .icon {
+            display: inline-block;
+            margin-right: 6px;
+            vertical-align: middle;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h3>新评论通知</h3>
+            <h1>新评论通知</h1>
         </div>
         <div class="content">
-            <div class="row">
-                <div class="label">评论者</div>
-                <div class="value">%s</div>
+            <div class="avatar-section">
+                <div class="avatar-circle">
+                    <span class="initials">%s</span>
+                </div>
+                <div style="color: #333333; font-weight: 600; font-size: 16px;">%s</div>
+                <div style="color: #8c8c8c; font-size: 13px;">评论了您的文章</div>
             </div>
-            <div class="row">
-                <div class="label">文章</div>
-                <div class="value">%s</div>
+
+            <div class="info-card">
+                <div class="info-row">
+                    <div class="info-label">文章</div>
+                    <div class="info-value">%s</div>
+                </div>
             </div>
-            <div class="message">%s</div>
-            <a href="%s" class="btn">查看文章</a>
+
+            <div class="comment-box">
+                <strong>评论内容：</strong><br>
+                %s
+            </div>
+
+            <div class="btn-section">
+                <a href="%s" class="btn">查看文章</a>
+            </div>
         </div>
-        <div class="footer">此邮件由博客系统自动发送，请勿直接回复</div>
+        <div class="footer">
+            此邮件由博客系统自动发送，请勿直接回复
+        </div>
     </div>
 </body>
-</html>`, nickname, articleTitle, commentContent, link)
+</html>`, avatarInitial, nickname, articleTitle, commentContent, link)
 
 	return s.sendMail(to, subject, body)
 }
@@ -78,7 +204,13 @@ func (s *emailService) SendCommentNotification(to, nickname, articleTitle, artic
 // SendReplyNotification 发送回复通知邮件（通知被回复用户）
 func (s *emailService) SendReplyNotification(to, nickname, articleTitle, articleSlug, replyContent string) error {
 	subject := fmt.Sprintf("评论回复通知 - %s", articleTitle)
-	link := fmt.Sprintf("wzx.glaty.cn/%s", articleSlug)
+	link := fmt.Sprintf("https://wzx.glaty.cn/%s", articleSlug)
+
+	// 获取回复者首字母作为头像
+	avatarInitial := string([]rune(nickname)[0])
+	if len([]rune(nickname)) > 1 {
+		avatarInitial = string([]rune(nickname)[:1])
+	}
 
 	body := fmt.Sprintf(`
 <!DOCTYPE html>
@@ -86,41 +218,171 @@ func (s *emailService) SendReplyNotification(to, nickname, articleTitle, article
 <head>
     <meta charset="UTF-8">
     <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 0; padding: 0; background: #fff; }
-        .container { max-width: 600px; margin: 0 auto; border: 1px solid #e0e0e0; }
-        .header { padding: 20px; border-bottom: 2px solid #333; }
-        .header h3 { margin: 0; font-size: 16px; color: #333; font-weight: 600; }
-        .content { padding: 24px; }
-        .row { display: flex; padding: 10px 0; border-bottom: 1px solid #f0f0f0; }
-        .row:last-child { border-bottom: none; }
-        .row .label { width: 80px; color: #999; font-size: 13px; }
-        .row .value { color: #333; font-size: 14px; }
-        .message { background: #fafafa; padding: 16px; margin: 16px 0; border-radius: 4px; color: #555; line-height: 1.6; font-size: 14px; }
-        .btn { display: inline-block; background: #333; color: #fff; padding: 10px 24px; border-radius: 4px; text-decoration: none; font-size: 14px; margin-top: 16px; }
-        .footer { padding: 16px; background: #fafafa; text-align: center; font-size: 12px; color: #999; border-top: 1px solid #eee; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Droid Sans", "Helvetica Neue", "HarmonyOS Sans SC", sans-serif;
+            margin: 0;
+            padding: 0;
+            background: #f8f7f2;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: #fdfdfb;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .header {
+            padding: 24px;
+            background: linear-gradient(135deg, #1B365D 0%%, #202A44 100%%);
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 20px;
+            color: #fff;
+            font-weight: 700;
+        }
+        .content {
+            padding: 32px;
+        }
+        .avatar-section {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+        .avatar-circle {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%%;
+            background: linear-gradient(135deg, rgba(27, 54, 93, 0.1), rgba(27, 54, 93, 0.2));
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 16px;
+            box-shadow: 0 4px 8px rgba(27, 54, 93, 0.3);
+        }
+        .avatar-circle .initials {
+            font-size: 32px;
+            font-weight: 700;
+            color: #1B365D;
+        }
+        .info-card {
+            background: rgba(27, 54, 93, 0.05);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 24px;
+        }
+        .info-row {
+            display: flex;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(27, 54, 93, 0.1);
+        }
+        .info-row:last-child {
+            border-bottom: none;
+        }
+        .info-label {
+            width: 80px;
+            color: #8c8c8c;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        .info-value {
+            color: #333333;
+            font-size: 14px;
+            flex: 1;
+        }
+        .reply-box {
+            background: #fdfdfb;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            border-left: 4px solid #1B365D;
+            color: #5d5d5d;
+            line-height: 1.7;
+            font-size: 15px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+        .btn-section {
+            text-align: center;
+            margin-top: 28px;
+        }
+        .btn {
+            display: inline-block;
+            background: #1B365D;
+            color: #fff;
+            padding: 12px 32px;
+            border-radius: 25px;
+            text-decoration: none;
+            font-size: 15px;
+            font-weight: 600;
+            box-shadow: 0 4px 8px rgba(27, 54, 93, 0.3);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(27, 54, 93, 0.4);
+        }
+        .footer {
+            padding: 20px;
+            background: rgba(27, 54, 93, 0.05);
+            text-align: center;
+            font-size: 13px;
+            color: #8c8c8c;
+        }
+        .reply-icon {
+            display: inline-block;
+            width: 24px;
+            height: 24px;
+            background: #1B365D;
+            border-radius: 50%%;
+            text-align: center;
+            line-height: 24px;
+            color: white;
+            font-size: 12px;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h3>评论回复通知</h3>
+            <h1>评论回复通知</h1>
         </div>
         <div class="content">
-            <div class="row">
-                <div class="label">回复者</div>
-                <div class="value">%s</div>
+            <div class="avatar-section">
+                <div class="avatar-circle">
+                    <span class="initials">%s</span>
+                </div>
+                <div style="color: #333333; font-weight: 600; font-size: 16px;">
+                    <span class="reply-icon">↩</span>%s
+                </div>
+                <div style="color: #8c8c8c; font-size: 13px;">回复了您的评论</div>
             </div>
-            <div class="row">
-                <div class="label">文章</div>
-                <div class="value">%s</div>
+
+            <div class="info-card">
+                <div class="info-row">
+                    <div class="info-label">文章</div>
+                    <div class="info-value">%s</div>
+                </div>
             </div>
-            <div class="message">%s</div>
-            <a href="%s" class="btn">查看回复</a>
+
+            <div class="reply-box">
+                <strong>回复内容：</strong><br>
+                %s
+            </div>
+
+            <div class="btn-section">
+                <a href="%s" class="btn">查看回复</a>
+            </div>
         </div>
-        <div class="footer">此邮件由博客系统自动发送，请勿直接回复</div>
+        <div class="footer">
+            此邮件由博客系统自动发送，请勿直接回复
+        </div>
     </div>
 </body>
-</html>`, nickname, articleTitle, replyContent, link)
+</html>`, avatarInitial, nickname, articleTitle, replyContent, link)
 
 	return s.sendMail(to, subject, body)
 }

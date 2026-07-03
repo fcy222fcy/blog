@@ -162,3 +162,25 @@ func (r *commentRepository) BatchUpdateStatus(ids []uint, status string) error {
 func (r *commentRepository) BatchDelete(ids []uint) error {
 	return r.db.Delete(&entity.Comment{}, ids).Error
 }
+
+// IncrementLikeCount 增加评论点赞数
+func (r *commentRepository) IncrementLikeCount(commentID uint) error {
+	return r.db.Model(&entity.Comment{}).
+		Where("id = ?", commentID).
+		UpdateColumn("like_count", gorm.Expr("like_count + 1")).
+		Error
+}
+
+// CreateLikeLog 创建点赞记录
+func (r *commentRepository) CreateLikeLog(log *entity.CommentLikeLog) error {
+	return r.db.Create(log).Error
+}
+
+// HasLiked 检查是否已点赞
+func (r *commentRepository) HasLiked(commentID uint, visitorIP string) (bool, error) {
+	var count int64
+	err := r.db.Model(&entity.CommentLikeLog{}).
+		Where("comment_id = ? AND visitor_ip = ?", commentID, visitorIP).
+		Count(&count).Error
+	return count > 0, err
+}

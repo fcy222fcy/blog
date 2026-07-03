@@ -20,6 +20,7 @@ func registerPublicRoutes(rg *gin.RouterGroup, controller *Controller) {
 	articles := rg.Group("/articles")
 	{
 		articles.GET("", controller.GetArticleList)
+		articles.GET("/search", controller.Search)
 		articles.GET("/archives", controller.GetArchives)
 		articles.GET("/:slug", controller.GetArticleDetail)
 	}

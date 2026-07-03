@@ -18,7 +18,8 @@
       "Bash(\"/c/Program Files/Google/Chrome/Application/chrome.exe\" --remote-debugging-port=9222)",
       "Bash(curl -s http://localhost:9222/json/version)",
       "Bash(curl -v http://localhost:9222/json/version)",
-      "Bash(taskkill //F //IM chrome.exe)"
+      "Bash(taskkill //F //IM chrome.exe)",
+      "mcp__plugin_playwright_playwright__browser_handle_dialog"
     ]
   }
 }

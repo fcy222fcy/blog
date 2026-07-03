@@ -31,16 +31,25 @@
             <option value="">全部分类</option>
             <option v-for="cat in categories" :key="cat.id" :value="cat.id">{{ cat.name }}</option>
           </select>
-          <select class="form-select" style="width: auto; padding: 9px 32px 9px 12px;" v-model="statusFilter" @change="loadArticles">
-            <option value="">全部状态</option>
-            <option value="published">已发布</option>
-            <option value="draft">草稿</option>
-          </select>
           <button class="btn btn-primary" @click="$router.push('/articles/edit')">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
             <span>新建文章</span>
           </button>
         </div>
+      </div>
+
+      <!-- 状态标签页 -->
+      <div class="article-tabs">
+        <button
+          v-for="tab in statusTabs"
+          :key="tab.value"
+          class="article-tab"
+          :class="{ active: statusFilter === tab.value }"
+          @click="switchTab(tab.value)"
+        >
+          {{ tab.label }}
+          <span v-if="tab.count !== undefined" class="article-tab-count">{{ tab.count }}</span>
+        </button>
       </div>
 
       <div class="article-cards-container">
@@ -88,7 +97,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { getArticleList, deleteArticle } from '../../api/article'
 import { getCategoryList } from '../../api/category'
 import { ElMessage, ElMessageBox } from 'element-plus'
@@ -103,7 +112,30 @@ const categoryFilter = ref('')
 const statusFilter = ref('')
 const stats = ref({ published: 0, draft: 0, totalViews: 0 })
 
+const statusTabs = computed(() => [
+  { label: '全部', value: '', count: total.value },
+  { label: '已发布', value: 'published', count: stats.value.published },
+  { label: '草稿', value: 'draft', count: stats.value.draft }
+])
+
 const formatDate = (d) => d ? d.split('T')[0] : ''
+
+const switchTab = (status) => {
+  statusFilter.value = status
+  page.value = 1
+  loadArticles()
+}
+
+const loadStats = async () => {
+  try {
+    const [publishedRes, draftRes] = await Promise.all([
+      getArticleList({ page: 1, page_size: 1, status: 'published' }),
+      getArticleList({ page: 1, page_size: 1, status: 'draft' })
+    ])
+    stats.value.published = publishedRes.data?.total || 0
+    stats.value.draft = draftRes.data?.total || 0
+  } catch (e) { console.error(e) }
+}
 
 const loadArticles = async () => {
   loading.value = true
@@ -115,9 +147,6 @@ const loadArticles = async () => {
     const res = await getArticleList(params)
     articles.value = res.data?.list || []
     total.value = res.data?.total || 0
-    // 统计状态
-    stats.value.published = articles.value.filter(a => a.status === 'published').length
-    stats.value.draft = articles.value.filter(a => a.status === 'draft').length
     stats.value.totalViews = articles.value.reduce((sum, a) => sum + (a.view_count || 0), 0)
   } catch (e) { console.error(e) }
   loading.value = false
@@ -148,10 +177,62 @@ const handleDelete = async (id) => {
 onMounted(() => {
   loadArticles()
   loadCategories()
+  loadStats()
 })
 </script>
 
 <style scoped>
+.article-tabs {
+  display: flex;
+  gap: 0;
+  border-bottom: 1px solid var(--card-separator-color);
+  padding: 0 20px;
+}
+
+.article-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 12px 20px;
+  border: none;
+  background: none;
+  color: var(--card-text-color-secondary);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s ease;
+  margin-bottom: -1px;
+}
+
+.article-tab:hover {
+  color: var(--card-text-color-main);
+}
+
+.article-tab.active {
+  color: var(--accent-color);
+  border-bottom-color: var(--accent-color);
+}
+
+.article-tab-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: 10px;
+  background: var(--input-background);
+  color: var(--card-text-color-tertiary);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.article-tab.active .article-tab-count {
+  background: rgba(var(--accent-color-rgb), 0.1);
+  color: var(--accent-color);
+}
+
 .article-cards-container {
   padding: 0;
 }

@@ -116,8 +116,28 @@ const loadLinks = async () => {
   } catch (e) { console.error(e) }
 }
 
+const isValidUrl = (url) => {
+  try {
+    new URL(url)
+    return true
+  } catch {
+    return false
+  }
+}
+
 const handleSave = async () => {
-  if (!form.value.name || !form.value.url) { ElMessage.warning('请填写名称和链接'); return }
+  if (!form.value.name || form.value.name.trim().length < 2) {
+    ElMessage.warning('名称至少需要 2 个字符')
+    return
+  }
+  if (!form.value.url) {
+    ElMessage.warning('请输入链接地址')
+    return
+  }
+  if (!isValidUrl(form.value.url)) {
+    ElMessage.warning('请输入有效的链接地址（如 https://example.com）')
+    return
+  }
   try {
     if (editingId.value) { await updateLink(editingId.value, form.value) }
     else { await createLink(form.value) }

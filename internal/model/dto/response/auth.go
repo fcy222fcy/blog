@@ -1,9 +1,19 @@
 package response
 
+// UserInfo 登录时返回的用户信息
+type UserInfo struct {
+	ID       uint   `json:"id"`
+	Username string `json:"username"`
+	Nickname string `json:"nickname"`
+	Avatar   string `json:"avatar"`
+	Email    string `json:"email"`
+}
+
 // LoginResponse 登录响应
 type LoginResponse struct {
-	Token     string `json:"token"`
-	ExpiresAt int64  `json:"expires_at"`
+	Token     string   `json:"token"`
+	ExpiresAt int64    `json:"expires_at"`
+	User      UserInfo `json:"user"`
 }
 
 // UserProfileResponse 用户信息响应

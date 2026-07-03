@@ -21,6 +21,27 @@ func NewController(userSvc service.UserService) *Controller {
 	return &Controller{userSvc: userSvc}
 }
 
+// GetPublicUserInfo 获取公开用户信息（无需登录）
+func (c *Controller) GetPublicUserInfo(ctx *gin.Context) {
+	// 获取第一个管理员用户（博客主人）
+	user, err := c.userSvc.GetFirstAdmin()
+	if err != nil || user == nil {
+		// 返回默认信息
+		response.Success(ctx, gin.H{
+			"nickname": "Liu Houliang",
+			"bio":      "日常落灰的个人博客，擅长面向搜索引擎编程。分享 Golang 开发、AI 和 NAS 折腾经验",
+			"avatar":   "",
+		})
+		return
+	}
+
+	response.Success(ctx, gin.H{
+		"nickname": user.Nickname,
+		"bio":      user.Bio,
+		"avatar":   user.Avatar,
+	})
+}
+
 // GetUserInfo 获取用户信息
 func (c *Controller) GetUserInfo(ctx *gin.Context) {
 	userID, exists := ctx.Get("user_id")

@@ -50,6 +50,15 @@ type ArticleRepository interface {
 	// GetArchives 获取文章归档（按年份分组）
 	GetArchives() ([]map[string][]*entity.Article, error)
 
+	// GetRecent 获取最近文章
+	GetRecent(limit int) ([]entity.Article, error)
+
+	// Search 搜索文章（标题、内容、摘要模糊搜索）
+	Search(keyword string, offset, limit int) ([]*entity.Article, int64, error)
+
+	// UpdateTags 更新文章标签关联
+	UpdateTags(article *entity.Article, tags []entity.Tag) error
+
 	// GetDB 获取数据库实例（用于事务）
 	GetDB() *gorm.DB
 }

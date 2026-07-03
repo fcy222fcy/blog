@@ -48,10 +48,12 @@ func (d *Database) AutoMigrate() error {
 		&entity.Category{},
 		&entity.Tag{},
 		&entity.Comment{},
+		&entity.CommentLikeLog{},
 		&entity.Link{},
 		&entity.DailyQuestion{},
 		&entity.Media{},
 		&entity.AboutPage{},
+		&entity.VisitLog{},
 	)
 }
 

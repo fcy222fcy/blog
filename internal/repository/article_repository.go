@@ -62,7 +62,7 @@ func (r *articleRepository) ListPublished(offset, limit int, categoryId, tagId u
 	var articles []*entity.Article
 	var total int64
 
-	query := r.db.Model(&entity.Article{}).Where("status = ?", "published")
+	query := r.db.Model(&entity.Article{}).Where("status = ?", entity.ArticleStatusPublished)
 	if keyword != "" {
 		query = query.Where("title LIKE ?", "%"+keyword+"%")
 	}
@@ -156,7 +156,7 @@ func (r *articleRepository) FindByCategoryID(categoryID uint, offset, limit int)
 	var articles []*entity.Article
 	var total int64
 
-	query := r.db.Model(&entity.Article{}).Where("category_id = ? AND status = ?", categoryID, "published")
+	query := r.db.Model(&entity.Article{}).Where("category_id = ? AND status = ?", categoryID, entity.ArticleStatusPublished)
 	err := query.Count(&total).Error
 	if err != nil {
 		return nil, 0, err
@@ -176,7 +176,7 @@ func (r *articleRepository) FindByTagID(tagID uint, offset, limit int) ([]*entit
 
 	query := r.db.Model(&entity.Article{}).
 		Joins("JOIN article_tags ON article_tags.article_id = articles.id").
-		Where("article_tags.tag_id = ? AND articles.status = ?", tagID, "published")
+		Where("article_tags.tag_id = ? AND articles.status = ?", tagID, entity.ArticleStatusPublished)
 	err := query.Count(&total).Error
 	if err != nil {
 		return nil, 0, err
@@ -192,7 +192,7 @@ func (r *articleRepository) FindByTagID(tagID uint, offset, limit int) ([]*entit
 // GetArchives 获取文章归档
 func (r *articleRepository) GetArchives() ([]map[string][]*entity.Article, error) {
 	var articles []*entity.Article
-	err := r.db.Where("status = ?", "published").
+	err := r.db.Where("status = ?", entity.ArticleStatusPublished).
 		Order("created_at DESC").
 		Find(&articles).Error
 	if err != nil {
@@ -213,7 +213,51 @@ func (r *articleRepository) GetArchives() ([]map[string][]*entity.Article, error
 	return result, nil
 }
 
+// GetRecent 获取最近文章
+func (r *articleRepository) GetRecent(limit int) ([]entity.Article, error) {
+	var articles []entity.Article
+	err := r.db.
+		Where("status = ?", entity.ArticleStatusPublished).
+		Order("created_at DESC").
+		Limit(limit).
+		Preload("Category").
+		Preload("Tags").
+		Find(&articles).Error
+	return articles, err
+}
+
+// Search 搜索文章（标题、内容、摘要模糊搜索）
+func (r *articleRepository) Search(keyword string, offset, limit int) ([]*entity.Article, int64, error) {
+	var articles []*entity.Article
+	var total int64
+
+	likePattern := "%" + keyword + "%"
+	query := r.db.Model(&entity.Article{}).
+		Where("status = ?", "published").
+		Where("title LIKE ? OR content LIKE ? OR summary LIKE ?", likePattern, likePattern, likePattern)
+
+	if err := query.Count(&total).Error; err != nil {
+		return nil, 0, err
+	}
+
+	err := query.
+		Preload("Category").Preload("Tags").
+		Offset(offset).Limit(limit).
+		Order("is_top DESC, created_at DESC").
+		Find(&articles).Error
+	if err != nil {
+		return nil, 0, err
+	}
+
+	return articles, total, nil
+}
+
 // GetDB 获取数据库实例
 func (r *articleRepository) GetDB() *gorm.DB {
 	return r.db
+}
+
+// UpdateTags 更新文章标签关联
+func (r *articleRepository) UpdateTags(article *entity.Article, tags []entity.Tag) error {
+	return r.db.Model(article).Association("Tags").Replace(tags)
 }

@@ -175,3 +175,28 @@ func (c *Controller) BatchDeleteComments(ctx *gin.Context) {
 
 	response.Success(ctx, nil)
 }
+
+// LikeComment 点赞评论
+func (c *Controller) LikeComment(ctx *gin.Context) {
+	id, err := strconv.ParseUint(ctx.Param("id"), 10, 32)
+	if err != nil || id == 0 {
+		response.BadRequest(ctx, "无效的评论ID")
+		return
+	}
+
+	visitorIP := ctx.ClientIP()
+
+	err = c.commentSvc.LikeComment(uint(id), visitorIP)
+	if err != nil {
+		if bizerrors.IsBizError(err) {
+			logger.Warn("点赞评论业务错误", zap.Uint64("id", id), zap.Error(err))
+			response.BizError(ctx, err)
+		} else {
+			logger.Error("点赞评论失败", zap.Uint64("id", id), zap.Error(err))
+			response.ServerError(ctx, "服务器内部错误")
+		}
+		return
+	}
+
+	response.Success(ctx, nil)
+}

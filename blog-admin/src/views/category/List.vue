@@ -122,7 +122,14 @@ const loadCategories = async () => {
 }
 
 const handleSave = async () => {
-  if (!form.value.name) { ElMessage.warning('请输入分类名称'); return }
+  if (!form.value.name || form.value.name.trim().length < 2) {
+    ElMessage.warning('分类名称至少需要 2 个字符')
+    return
+  }
+  if (form.value.name.length > 50) {
+    ElMessage.warning('分类名称不能超过 50 个字符')
+    return
+  }
   try {
     if (editingId.value) { await updateCategory(editingId.value, form.value) }
     else { await createCategory(form.value) }

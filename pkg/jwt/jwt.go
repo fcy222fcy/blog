@@ -26,20 +26,24 @@ func NewJWT(cfg config.JWTConfig) *JWT {
 	return &JWT{config: cfg}
 }
 
-// GenerateToken 生成 Token
-func (j *JWT) GenerateToken(userID uint, username string) (string, error) {
+// GenerateToken 生成 Token，返回 token 字符串、过期时间戳（Unix 秒）和错误
+func (j *JWT) GenerateToken(userID uint, username string) (string, int64, error) {
+	now := time.Now()
+	expiresAt := now.Add(time.Duration(j.config.ExpireHour) * time.Hour)
+
 	claims := Claims{
 		UserID:   userID,
 		Username: username,
 		RegisteredClaims: jwt.RegisteredClaims{
-			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Duration(j.config.ExpireHour) * time.Hour)),
-			IssuedAt:  jwt.NewNumericDate(time.Now()),
+			ExpiresAt: jwt.NewNumericDate(expiresAt),
+			IssuedAt:  jwt.NewNumericDate(now),
 			Issuer:    "blog",
 		},
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	return token.SignedString([]byte(j.config.Secret))
+	tokenString, err := token.SignedString([]byte(j.config.Secret))
+	return tokenString, expiresAt.Unix(), err
 }
 
 // ParseToken 解析 Token

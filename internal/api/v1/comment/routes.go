@@ -21,6 +21,7 @@ func registerPublicRoutes(rg *gin.RouterGroup, controller *Controller) {
 	{
 		comments.GET("/article/:articleId", controller.GetCommentsByArticle)
 		comments.POST("", controller.CreateComment)
+		comments.POST("/:id/like", controller.LikeComment)
 	}
 }
 

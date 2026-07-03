@@ -3,12 +3,12 @@
     <!-- 侧边栏 -->
     <aside class="sidebar" :class="{ open: menuOpen }">
       <div class="sidebar-header">
-        <div class="sidebar-avatar" @click="$refs.avatarInput.click()">
+        <div class="sidebar-avatar" @click="handleAvatarClick">
           <span v-if="!userInfo.avatar">{{ userInfo.nickname?.charAt(0) || 'U' }}</span>
           <img v-else :src="userInfo.avatar" alt="头像">
           <div class="sidebar-avatar-edit">更换头像</div>
         </div>
-        <input ref="avatarInput" type="file" accept="image/*" style="display: none;">
+        <input ref="avatarInput" type="file" accept="image/*" style="display: none;" @change="handleAvatarUpload">
         <div class="sidebar-username">{{ userInfo.nickname || '用户' }}</div>
         <div class="sidebar-desc">{{ userInfo.bio || '日常落灰的个人博客' }}</div>
         <button class="sidebar-edit-btn" @click="showProfileDialog = true">编辑资料</button>
@@ -102,6 +102,7 @@ const router = useRouter()
 const menuOpen = ref(false)
 const showProfileDialog = ref(false)
 const scheme = ref(localStorage.getItem('scheme') || 'light')
+const avatarInput = ref(null)
 
 const userInfo = ref({
   nickname: 'Liu Houliang',
@@ -154,6 +155,58 @@ const toggleScheme = () => {
 const handleLogout = () => {
   localStorage.removeItem('token')
   router.push('/login')
+}
+
+const handleAvatarClick = () => {
+  avatarInput.value?.click()
+}
+
+const handleAvatarUpload = async (event) => {
+  const file = event.target.files?.[0]
+  if (!file) return
+
+  // 验证文件类型
+  if (!file.type.startsWith('image/')) {
+    ElMessage.error('请选择图片文件')
+    return
+  }
+
+  // 验证文件大小 (2MB)
+  if (file.size > 2 * 1024 * 1024) {
+    ElMessage.error('图片大小不能超过 2MB')
+    return
+  }
+
+  try {
+    const formData = new FormData()
+    formData.append('file', file)
+
+    const token = localStorage.getItem('token')
+    const response = await fetch('/api/v1/media/upload', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`
+      },
+      body: formData
+    })
+
+    const result = await response.json()
+
+    if (response.ok && result.code === 0) {
+      // 更新用户头像
+      await updateUserInfo({ avatar: result.data.url })
+      userInfo.value.avatar = result.data.url
+      ElMessage.success('头像更新成功')
+    } else {
+      ElMessage.error(result.message || '上传失败')
+    }
+  } catch (error) {
+    console.error('头像上传失败:', error)
+    ElMessage.error('上传失败，请重试')
+  }
+
+  // 清空 input 的值
+  event.target.value = ''
 }
 
 const saveProfile = async () => {

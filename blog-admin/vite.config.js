@@ -5,6 +5,8 @@ import Components from 'unplugin-vue-components/vite'
 import { ElementPlusResolver } from 'unplugin-vue-components/resolvers'
 
 export default defineConfig({
+  // 生产环境下 admin 部署在 /admin/ 路径，需要设置 base
+  base: process.env.NODE_ENV === 'production' ? '/admin/' : '/',
   plugins: [
     vue(),
     AutoImport({
@@ -18,6 +20,10 @@ export default defineConfig({
     port: 5174,
     proxy: {
       '/api': {
+        target: 'http://localhost:8888',
+        changeOrigin: true,
+      },
+      '/uploads': {
         target: 'http://localhost:8888',
         changeOrigin: true,
       }

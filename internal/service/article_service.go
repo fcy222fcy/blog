@@ -9,13 +9,47 @@ import (
 	"blog/pkg/logger"
 	"fmt"
 	"sort"
+	"strings"
+	"time"
 )
+
+// calculateReadingTime 计算阅读时间（分钟）
+// 中文约 400 字/分钟，英文约 200 词/分钟
+func calculateReadingTime(content string) int {
+	if content == "" {
+		return 1
+	}
+	// 去除 markdown 标记
+	cleaned := content
+	replacements := []string{"#", "*", "`", ">", "[", "]", "(", ")", "!", "-"}
+	for _, r := range replacements {
+		cleaned = strings.ReplaceAll(cleaned, r, "")
+	}
+	cleaned = strings.TrimSpace(cleaned)
+
+	if cleaned == "" {
+		return 1
+	}
+
+	// 计算中文字符数
+	runeCount := len([]rune(cleaned))
+	// 计算英文单词数
+	wordCount := len(strings.Fields(cleaned))
+
+	// 混合计算：中文字符按 400 字/分钟，英文单词按 200 词/分钟
+	minutes := (runeCount / 400) + (wordCount / 200)
+	if minutes < 1 {
+		return 1
+	}
+	return minutes
+}
 
 // articleService 文章服务实现
 type articleService struct {
 	articleRepo  repository.ArticleRepository
 	categoryRepo repository.CategoryRepository
 	tagRepo      repository.TagRepository
+	visitRepo    repository.VisitRepository
 }
 
 // NewArticleService 创建文章服务
@@ -23,11 +57,13 @@ func NewArticleService(
 	articleRepo repository.ArticleRepository,
 	categoryRepo repository.CategoryRepository,
 	tagRepo repository.TagRepository,
+	visitRepo repository.VisitRepository,
 ) ArticleService {
 	return &articleService{
 		articleRepo:  articleRepo,
 		categoryRepo: categoryRepo,
 		tagRepo:      tagRepo,
+		visitRepo:    visitRepo,
 	}
 }
 
@@ -41,7 +77,7 @@ func (s *articleService) GetArticleList(req *request.ArticleListRequest) (*respo
 }
 
 // GetArticleDetail 获取文章详情（前台）
-func (s *articleService) GetArticleDetail(slug string) (*response.ArticleDetailResponse, error) {
+func (s *articleService) GetArticleDetail(slug string, clientIP string) (*response.ArticleDetailResponse, error) {
 	article, err := s.articleRepo.FindBySlug(slug)
 	if err != nil {
 		return nil, fmt.Errorf("获取文章详情失败, %w", err)
@@ -50,8 +86,29 @@ func (s *articleService) GetArticleDetail(slug string) (*response.ArticleDetailR
 		return nil, bizerrors.New(bizerrors.CodeArticleNotFound, bizerrors.GetMessage(bizerrors.CodeArticleNotFound))
 	}
 
-	// 增加浏览量
-	_ = s.articleRepo.IncrementViewCount(article.ID)
+	// 防刷量：同一 IP 24 小时内只计数一次
+	viewIncremented := false
+	if clientIP != "" && s.visitRepo != nil {
+		since := time.Now().Add(-24 * time.Hour)
+		hasVisited, _ := s.visitRepo.HasVisited(article.ID, clientIP, since)
+		if !hasVisited {
+			_ = s.articleRepo.IncrementViewCount(article.ID)
+			_ = s.visitRepo.Create(&entity.VisitLog{
+				ArticleID: article.ID,
+				IP:        clientIP,
+			})
+			viewIncremented = true
+		}
+	} else {
+		// 无法判断 IP 时仍增加浏览量
+		_ = s.articleRepo.IncrementViewCount(article.ID)
+		viewIncremented = true
+	}
+
+	viewCount := article.ViewCount
+	if viewIncremented {
+		viewCount++
+	}
 
 	return &response.ArticleDetailResponse{
 		ID:           article.ID,
@@ -60,7 +117,7 @@ func (s *articleService) GetArticleDetail(slug string) (*response.ArticleDetailR
 		Content:      article.Content,
 		Summary:      article.Summary,
 		Cover:        article.Cover,
-		ViewCount:    article.ViewCount + 1,
+		ViewCount:    viewCount,
 		CommentCount: article.CommentCount,
 		Status:       article.Status,
 		IsTop:        article.IsTop,
@@ -152,18 +209,32 @@ func (s *articleService) GetAdminArticleDetail(id uint) (*response.AdminArticleD
 
 // CreateArticle 创建文章
 func (s *articleService) CreateArticle(req *request.CreateArticleRequest) (uint, error) {
+	// 查询标签
+	var tags []entity.Tag
+	if len(req.TagIDs) > 0 {
+		tagList, err := s.tagRepo.FindByIDs(req.TagIDs)
+		if err != nil {
+			return 0, fmt.Errorf("查询标签失败, %w", err)
+		}
+		for _, t := range tagList {
+			tags = append(tags, *t)
+		}
+	}
+
 	article := &entity.Article{
-		Title:      req.Title,
-		Content:    req.Content,
-		Summary:    req.Summary,
-		Cover:      req.Cover,
-		CategoryID: req.CategoryID,
-		Status:     req.Status,
-		IsTop:      req.IsTop,
+		Title:       req.Title,
+		Content:     req.Content,
+		Summary:     req.Summary,
+		Cover:       req.Cover,
+		CategoryID:  req.CategoryID,
+		Status:      req.Status,
+		IsTop:       req.IsTop,
+		Tags:        tags,
+		ReadingTime: calculateReadingTime(req.Content),
 	}
 
 	if article.Status == "" {
-		article.Status = "draft"
+		article.Status = entity.ArticleStatusDraft
 	}
 
 	err := s.articleRepo.Create(article)
@@ -171,9 +242,7 @@ func (s *articleService) CreateArticle(req *request.CreateArticleRequest) (uint,
 		return 0, fmt.Errorf("创建文章失败, %w", err)
 	}
 
-	logger.Infof("文章创建成功, id: %d, title: %s", article.ID, article.Title)
-
-	// TODO: 处理标签关联
+	logger.Infof("文章创建成功, id: %d, title: %s, tags: %d", article.ID, article.Title, len(tags))
 
 	return article.ID, nil
 }
@@ -193,6 +262,7 @@ func (s *articleService) UpdateArticle(id uint, req *request.UpdateArticleReques
 	}
 	if req.Content != "" {
 		article.Content = req.Content
+		article.ReadingTime = calculateReadingTime(req.Content)
 	}
 	if req.Summary != "" {
 		article.Summary = req.Summary
@@ -207,6 +277,24 @@ func (s *articleService) UpdateArticle(id uint, req *request.UpdateArticleReques
 		article.Status = req.Status
 	}
 	article.IsTop = req.IsTop
+
+	// 更新标签关联
+	if req.TagIDs != nil {
+		var tags []entity.Tag
+		if len(req.TagIDs) > 0 {
+			tagList, err := s.tagRepo.FindByIDs(req.TagIDs)
+			if err != nil {
+				return fmt.Errorf("查询标签失败, %w", err)
+			}
+			for _, t := range tagList {
+				tags = append(tags, *t)
+			}
+		}
+		// 清除旧关联，建立新关联
+		if err := s.articleRepo.UpdateTags(article, tags); err != nil {
+			return fmt.Errorf("更新文章标签失败, %w", err)
+		}
+	}
 
 	if err := s.articleRepo.Update(article); err != nil {
 		return fmt.Errorf("更新文章失败, %w", err)
@@ -242,4 +330,25 @@ func (s *articleService) BatchDeleteArticles(ids []uint) error {
 
 	logger.Infof("批量删除文章成功, ids: %v", ids)
 	return nil
+}
+
+// Search 搜索文章（标题、内容、摘要模糊搜索）
+func (s *articleService) Search(keyword string, page, pageSize int) (*response.PageResponse, error) {
+	if page <= 0 {
+		page = 1
+	}
+	if pageSize <= 0 {
+		pageSize = 10
+	}
+	if pageSize > 100 {
+		pageSize = 100
+	}
+
+	offset := (page - 1) * pageSize
+	articles, total, err := s.articleRepo.Search(keyword, offset, pageSize)
+	if err != nil {
+		return nil, fmt.Errorf("搜索文章失败, %w", err)
+	}
+
+	return response.NewPageResponse(articles, total, page, pageSize), nil
 }

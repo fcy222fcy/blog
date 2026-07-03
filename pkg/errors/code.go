@@ -44,6 +44,7 @@ const (
 	CodeDailyQuestionNotFound = 3006
 	CodeMediaNotFound         = 3007
 	CodePageNotFound          = 3008
+	CodeRecordNotFound       = 3009
 
 	// 业务错误 (4000+)
 	CodeCategoryNameExists    = 4001
@@ -51,6 +52,7 @@ const (
 	CodeTagNameExists         = 4003
 	CodeTagHasArticles        = 4004
 	CodeDailyQuestionDateExists = 4005
+	CodeCommentAlreadyLiked   = 4006
 )
 
 // 错误码消息映射
@@ -81,6 +83,8 @@ var CodeMessages = map[int]string{
 	CodeDailyQuestionNotFound: "每日一问不存在",
 	CodeMediaNotFound:        "媒体文件不存在",
 	CodePageNotFound:         "页面不存在",
+	CodeRecordNotFound:       "记录不存在",
+	CodeCommentAlreadyLiked:  "您已经点赞过了",
 }
 
 // GetMessage 获取错误码对应的消息

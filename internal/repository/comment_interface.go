@@ -33,4 +33,13 @@ type CommentRepository interface {
 
 	// BatchDelete 批量删除
 	BatchDelete(ids []uint) error
+
+	// IncrementLikeCount 增加评论点赞数
+	IncrementLikeCount(commentID uint) error
+
+	// CreateLikeLog 创建点赞记录
+	CreateLikeLog(log *entity.CommentLikeLog) error
+
+	// HasLiked 检查是否已点赞
+	HasLiked(commentID uint, visitorIP string) (bool, error)
 }

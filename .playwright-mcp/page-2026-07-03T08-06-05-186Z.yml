@@ -1,0 +1,76 @@
+- generic [ref=f1e4]:
+  - complementary [ref=f1e5]:
+    - generic [ref=f1e6]:
+      - figure [ref=f1e7]:
+        - link "Avatar" [ref=f1e8] [cursor=pointer]:
+          - /url: "#/"
+          - img "Avatar" [ref=f1e9]
+        - generic [ref=f1e10]: 🤖
+      - generic [ref=f1e11]:
+        - heading "Liu Houliang" [level=1] [ref=f1e12]:
+          - link "Liu Houliang" [ref=f1e13] [cursor=pointer]:
+            - /url: "#/"
+        - heading "日常落灰的个人博客，分享 Golang、AI 和 NAS 折腾经验" [level=2] [ref=f1e14]
+    - list [ref=f1e15]:
+      - listitem [ref=f1e16]:
+        - link "Email" [ref=f1e17] [cursor=pointer]:
+          - /url: mailto:admin@liuhouliang.com
+          - img [ref=f1e18]
+      - listitem [ref=f1e21]:
+        - link "GitHub" [ref=f1e22] [cursor=pointer]:
+          - /url: https://github.com/liu-houliang
+          - img [ref=f1e23]
+      - listitem [ref=f1e26]:
+        - link "Bilibili" [ref=f1e27] [cursor=pointer]:
+          - /url: https://space.bilibili.com/
+          - img [ref=f1e28]
+      - listitem [ref=f1e30]:
+        - link "WeChat" [ref=f1e31] [cursor=pointer]:
+          - /url: "#"
+          - img [ref=f1e32]
+    - generic [ref=f1e34] [cursor=pointer]:
+      - textbox "输入关键词..." [ref=f1e35]
+      - img [ref=f1e36]
+    - navigation [ref=f1e39]:
+      - listitem [ref=f1e40]:
+        - link "主页" [ref=f1e41] [cursor=pointer]:
+          - /url: "#/"
+          - img [ref=f1e42]
+          - generic [ref=f1e45]: 主页
+      - listitem [ref=f1e46]:
+        - link "文章" [ref=f1e47] [cursor=pointer]:
+          - /url: "#/archives"
+          - img [ref=f1e48]
+          - generic [ref=f1e50]: 文章
+      - listitem [ref=f1e51]:
+        - link "友链" [ref=f1e52] [cursor=pointer]:
+          - /url: "#/links"
+          - img [ref=f1e53]
+          - generic [ref=f1e56]: 友链
+      - listitem [ref=f1e57]:
+        - link "娱乐" [ref=f1e58] [cursor=pointer]:
+          - /url: "#/media"
+          - img [ref=f1e59]
+          - generic [ref=f1e62]: 娱乐
+      - listitem [ref=f1e63]:
+        - link "关于我" [ref=f1e64] [cursor=pointer]:
+          - /url: "#/about"
+          - img [ref=f1e65]
+          - generic [ref=f1e68]: 关于我
+    - button "暗色模式" [ref=f1e70] [cursor=pointer]:
+      - img [ref=f1e71]
+      - text: 暗色模式
+  - main [ref=f1e73]:
+    - generic [ref=f1e3187]:
+      - heading "搜索结果：Vue" [level=1] [ref=f1e3188]:
+        - img [ref=f1e3189]
+        - text: 搜索结果：Vue
+      - generic [ref=f1e3192]:
+        - searchbox "输入关键词搜索文章..." [active] [ref=f1e3193]: Vue
+        - button [ref=f1e3194] [cursor=pointer]:
+          - img [ref=f1e3195]
+      - generic [ref=f1e3198]:
+        - paragraph [ref=f1e3199]: 搜索失败，请稍后重试
+        - button "重试" [ref=f1e3200] [cursor=pointer]:
+          - img [ref=f1e3201]
+          - text: 重试

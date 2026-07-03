@@ -11,7 +11,7 @@ type ArticleService interface {
 	GetArticleList(req *request.ArticleListRequest) (*response.PageResponse, error)
 
 	// GetArticleDetail 获取文章详情（前台）
-	GetArticleDetail(slug string) (*response.ArticleDetailResponse, error)
+	GetArticleDetail(slug string, clientIP string) (*response.ArticleDetailResponse, error)
 
 	// GetArticleArchives 获取文章归档
 	GetArticleArchives() ([]response.ArchiveResponse, error)
@@ -33,4 +33,7 @@ type ArticleService interface {
 
 	// BatchDeleteArticles 批量删除文章
 	BatchDeleteArticles(ids []uint) error
+
+	// Search 搜索文章（标题、内容、摘要模糊搜索）
+	Search(keyword string, page, pageSize int) (*response.PageResponse, error)
 }

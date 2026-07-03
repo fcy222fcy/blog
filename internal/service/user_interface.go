@@ -13,6 +13,9 @@ type UserService interface {
 	// GetUserProfile 获取用户信息
 	GetUserProfile(userID uint) (*entity.User, error)
 
+	// GetFirstAdmin 获取第一个管理员用户（博客主人）
+	GetFirstAdmin() (*entity.User, error)
+
 	// UpdateUser 更新用户信息
 	UpdateUser(id uint, req *request.UpdateUserRequest) error
 }

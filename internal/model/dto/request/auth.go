@@ -17,8 +17,8 @@ type RegisterRequest struct {
 // UpdateUserRequest 更新用户请求
 type UpdateUserRequest struct {
 	Nickname string `json:"nickname" binding:"max=50"`
-	Email    string `json:"email" binding:"email"`
-	Avatar   string `json:"avatar" binding:"url"`
+	Email    string `json:"email" binding:"omitempty,email"`
+	Avatar   string `json:"avatar" binding:"max=500"`
 	Bio      string `json:"bio" binding:"max=500"`
 }
 

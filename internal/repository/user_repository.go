@@ -42,6 +42,20 @@ func (r *userRepository) FindByUsername(username string) (*entity.User, error) {
 	return &user, nil
 }
 
+// FindFirstAdmin 查找第一个管理员用户（博客主人）
+func (r *userRepository) FindFirstAdmin() (*entity.User, error) {
+	var user entity.User
+	// 获取第一个启用的用户作为博客主人
+	err := r.db.Where("status = ?", 1).Order("id ASC").First(&user).Error
+	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return nil, nil
+		}
+		return nil, err
+	}
+	return &user, nil
+}
+
 // Create 创建用户
 func (r *userRepository) Create(user *entity.User) error {
 	return r.db.Create(user).Error

@@ -1,0 +1,625 @@
+- generic [ref=f1e4]:
+  - complementary [ref=f1e5]:
+    - generic [ref=f1e6]:
+      - figure [ref=f1e7]:
+        - link "Avatar" [ref=f1e8] [cursor=pointer]:
+          - /url: "#/"
+          - img "Avatar" [ref=f1e9]
+        - generic [ref=f1e10]: 🤖
+      - generic [ref=f1e11]:
+        - heading "Liu Houliang" [level=1] [ref=f1e12]:
+          - link "Liu Houliang" [ref=f1e13] [cursor=pointer]:
+            - /url: "#/"
+        - heading "日常落灰的个人博客，分享 Golang、AI 和 NAS 折腾经验" [level=2] [ref=f1e14]
+    - list [ref=f1e15]:
+      - listitem [ref=f1e16]:
+        - link "Email" [ref=f1e17] [cursor=pointer]:
+          - /url: mailto:admin@liuhouliang.com
+          - img [ref=f1e18]
+      - listitem [ref=f1e21]:
+        - link "GitHub" [ref=f1e22] [cursor=pointer]:
+          - /url: https://github.com/liu-houliang
+          - img [ref=f1e23]
+      - listitem [ref=f1e26]:
+        - link "Bilibili" [ref=f1e27] [cursor=pointer]:
+          - /url: https://space.bilibili.com/
+          - img [ref=f1e28]
+      - listitem [ref=f1e30]:
+        - link "WeChat" [ref=f1e31] [cursor=pointer]:
+          - /url: "#"
+          - img [ref=f1e32]
+    - generic [ref=f1e34] [cursor=pointer]:
+      - textbox "输入关键词..." [ref=f1e35]
+      - img [ref=f1e36]
+    - navigation [ref=f1e39]:
+      - listitem [ref=f1e40]:
+        - link "主页" [active] [ref=f1e41] [cursor=pointer]:
+          - /url: "#/"
+          - img [ref=f1e42]
+          - generic [ref=f1e45]: 主页
+      - listitem [ref=f1e46]:
+        - link "文章" [ref=f1e47] [cursor=pointer]:
+          - /url: "#/archives"
+          - img [ref=f1e48]
+          - generic [ref=f1e50]: 文章
+      - listitem [ref=f1e51]:
+        - link "友链" [ref=f1e52] [cursor=pointer]:
+          - /url: "#/links"
+          - img [ref=f1e53]
+          - generic [ref=f1e56]: 友链
+      - listitem [ref=f1e57]:
+        - link "娱乐" [ref=f1e58] [cursor=pointer]:
+          - /url: "#/media"
+          - img [ref=f1e59]
+          - generic [ref=f1e62]: 娱乐
+      - listitem [ref=f1e63]:
+        - link "关于我" [ref=f1e64] [cursor=pointer]:
+          - /url: "#/about"
+          - img [ref=f1e65]
+          - generic [ref=f1e68]: 关于我
+    - button "暗色模式" [ref=f1e70] [cursor=pointer]:
+      - img [ref=f1e71]
+      - text: 暗色模式
+  - main [ref=f1e73]:
+    - generic [ref=f1e2573]:
+      - article [ref=f1e2574]:
+        - generic [ref=f1e2575]:
+          - generic [ref=f1e2576]:
+            - generic [ref=f1e2577]: 每日一问
+            - generic [ref=f1e2578]:
+              - button "◀ 前一天" [ref=f1e2579] [cursor=pointer]
+              - button "2026-07-01" [ref=f1e2581] [cursor=pointer]:
+                - img [ref=f1e2582]
+                - generic [ref=f1e2584]: 2026-07-01
+              - button "后一天 ▶" [disabled] [ref=f1e2585]
+          - heading "测试问题_1782890471835577000" [level=2] [ref=f1e2586]
+          - generic [ref=f1e2587]:
+            - paragraph [ref=f1e2588]: 测试答案
+            - generic [ref=f1e2590] [cursor=pointer]: 👉 点击查看答案
+          - generic [ref=f1e2591]:
+            - button "12" [ref=f1e2592] [cursor=pointer]:
+              - img [ref=f1e2593]
+              - generic [ref=f1e2595]: "12"
+            - button "0" [ref=f1e2596] [cursor=pointer]:
+              - img [ref=f1e2597]
+              - generic [ref=f1e2599]: "0"
+      - article [ref=f1e2600]:
+        - link "搭建网站 我的博客主题已开源，欢迎使用 基于 Hugo Theme Stack 打造的开箱即用博客模板，包含多项美化和功能增强。 日期 2026-06-20 时长 3 分钟 浏览量 293 语言 中文" [ref=f1e2601] [cursor=pointer]:
+          - /url: "#/post/my-blog-theme-open-source"
+          - generic [ref=f1e2602]: 搭建网站
+          - heading "我的博客主题已开源，欢迎使用" [level=2] [ref=f1e2603]
+          - paragraph [ref=f1e2604]: 基于 Hugo Theme Stack 打造的开箱即用博客模板，包含多项美化和功能增强。
+          - generic [ref=f1e2605]:
+            - generic [ref=f1e2606]:
+              - term [ref=f1e2607]: 日期
+              - definition [ref=f1e2608]:
+                - img [ref=f1e2609]
+                - text: 2026-06-20
+            - generic [ref=f1e2611]:
+              - term [ref=f1e2612]: 时长
+              - definition [ref=f1e2613]:
+                - img [ref=f1e2614]
+                - text: 3 分钟
+            - generic [ref=f1e2617]:
+              - term [ref=f1e2618]: 浏览量
+              - definition [ref=f1e2619]:
+                - img [ref=f1e2620]
+                - text: "293"
+            - generic [ref=f1e2623]:
+              - term [ref=f1e2624]: 语言
+              - definition [ref=f1e2625]:
+                - img [ref=f1e2626]
+                - text: 中文
+      - article [ref=f1e2629]:
+        - link "搭建网站 新手如何搭建个人博客 从零开始搭建个人博客的完整指南。 日期 2024-03-15 时长 14 分钟 浏览量 624 语言 中文" [ref=f1e2630] [cursor=pointer]:
+          - /url: "#/post/build-personal-blog-guide"
+          - generic [ref=f1e2631]: 搭建网站
+          - heading "新手如何搭建个人博客" [level=2] [ref=f1e2632]
+          - paragraph [ref=f1e2633]: 从零开始搭建个人博客的完整指南。
+          - generic [ref=f1e2634]:
+            - generic [ref=f1e2635]:
+              - term [ref=f1e2636]: 日期
+              - definition [ref=f1e2637]:
+                - img [ref=f1e2638]
+                - text: 2024-03-15
+            - generic [ref=f1e2640]:
+              - term [ref=f1e2641]: 时长
+              - definition [ref=f1e2642]:
+                - img [ref=f1e2643]
+                - text: 14 分钟
+            - generic [ref=f1e2646]:
+              - term [ref=f1e2647]: 浏览量
+              - definition [ref=f1e2648]:
+                - img [ref=f1e2649]
+                - text: "624"
+            - generic [ref=f1e2652]:
+              - term [ref=f1e2653]: 语言
+              - definition [ref=f1e2654]:
+                - img [ref=f1e2655]
+                - text: 中文
+      - article [ref=f1e2658]:
+        - link "搭建网站 Vue 3 组合式 API 入门指南 本文介绍了 Vue 3 组合式 API 的基本概念和使用方法，帮助开发者快速上手新特性。 日期 2026-06-26 时长 8 分钟 浏览量 178 语言 中文" [ref=f1e2659] [cursor=pointer]:
+          - /url: "#/post/vue3-composition-api-guide"
+          - generic [ref=f1e2660]: 搭建网站
+          - heading "Vue 3 组合式 API 入门指南" [level=2] [ref=f1e2661]
+          - paragraph [ref=f1e2662]: 本文介绍了 Vue 3 组合式 API 的基本概念和使用方法，帮助开发者快速上手新特性。
+          - generic [ref=f1e2663]:
+            - generic [ref=f1e2664]:
+              - term [ref=f1e2665]: 日期
+              - definition [ref=f1e2666]:
+                - img [ref=f1e2667]
+                - text: 2026-06-26
+            - generic [ref=f1e2669]:
+              - term [ref=f1e2670]: 时长
+              - definition [ref=f1e2671]:
+                - img [ref=f1e2672]
+                - text: 8 分钟
+            - generic [ref=f1e2675]:
+              - term [ref=f1e2676]: 浏览量
+              - definition [ref=f1e2677]:
+                - img [ref=f1e2678]
+                - text: "178"
+            - generic [ref=f1e2681]:
+              - term [ref=f1e2682]: 语言
+              - definition [ref=f1e2683]:
+                - img [ref=f1e2684]
+                - text: 中文
+      - article [ref=f1e2687]:
+        - link "搭建网站 Gin 框架快速上手 Gin 是 Go 语言中最流行的 Web 框架之一，本文将带你快速入门 Gin 框架的使用。 日期 2026-06-26 时长 10 分钟 浏览量 270 语言 中文" [ref=f1e2688] [cursor=pointer]:
+          - /url: "#/post/gin-framework-quickstart"
+          - generic [ref=f1e2689]: 搭建网站
+          - heading "Gin 框架快速上手" [level=2] [ref=f1e2690]
+          - paragraph [ref=f1e2691]: Gin 是 Go 语言中最流行的 Web 框架之一，本文将带你快速入门 Gin 框架的使用。
+          - generic [ref=f1e2692]:
+            - generic [ref=f1e2693]:
+              - term [ref=f1e2694]: 日期
+              - definition [ref=f1e2695]:
+                - img [ref=f1e2696]
+                - text: 2026-06-26
+            - generic [ref=f1e2698]:
+              - term [ref=f1e2699]: 时长
+              - definition [ref=f1e2700]:
+                - img [ref=f1e2701]
+                - text: 10 分钟
+            - generic [ref=f1e2704]:
+              - term [ref=f1e2705]: 浏览量
+              - definition [ref=f1e2706]:
+                - img [ref=f1e2707]
+                - text: "270"
+            - generic [ref=f1e2710]:
+              - term [ref=f1e2711]: 语言
+              - definition [ref=f1e2712]:
+                - img [ref=f1e2713]
+                - text: 中文
+      - article [ref=f1e2716]:
+        - link "软件开发 MySQL 索引优化实战 本文通过实际案例介绍了 MySQL 索引的使用方法和优化技巧，帮助提升数据库查询性能。 日期 2026-06-26 时长 12 分钟 浏览量 192 语言 中文" [ref=f1e2717] [cursor=pointer]:
+          - /url: "#/post/mysql-index-optimization"
+          - generic [ref=f1e2718]: 软件开发
+          - heading "MySQL 索引优化实战" [level=2] [ref=f1e2719]
+          - paragraph [ref=f1e2720]: 本文通过实际案例介绍了 MySQL 索引的使用方法和优化技巧，帮助提升数据库查询性能。
+          - generic [ref=f1e2721]:
+            - generic [ref=f1e2722]:
+              - term [ref=f1e2723]: 日期
+              - definition [ref=f1e2724]:
+                - img [ref=f1e2725]
+                - text: 2026-06-26
+            - generic [ref=f1e2727]:
+              - term [ref=f1e2728]: 时长
+              - definition [ref=f1e2729]:
+                - img [ref=f1e2730]
+                - text: 12 分钟
+            - generic [ref=f1e2733]:
+              - term [ref=f1e2734]: 浏览量
+              - definition [ref=f1e2735]:
+                - img [ref=f1e2736]
+                - text: "192"
+            - generic [ref=f1e2739]:
+              - term [ref=f1e2740]: 语言
+              - definition [ref=f1e2741]:
+                - img [ref=f1e2742]
+                - text: 中文
+      - article [ref=f1e2745]:
+        - link "生活记录 周末随笔：程序员的成长之路 一个程序员对于技术成长的思考和感悟，分享一些个人经验和建议。 日期 2026-06-26 时长 5 分钟 浏览量 342 语言 中文" [ref=f1e2746] [cursor=pointer]:
+          - /url: "#/post/weekend-thoughts-programmer-growth"
+          - generic [ref=f1e2747]: 生活记录
+          - heading "周末随笔：程序员的成长之路" [level=2] [ref=f1e2748]
+          - paragraph [ref=f1e2749]: 一个程序员对于技术成长的思考和感悟，分享一些个人经验和建议。
+          - generic [ref=f1e2750]:
+            - generic [ref=f1e2751]:
+              - term [ref=f1e2752]: 日期
+              - definition [ref=f1e2753]:
+                - img [ref=f1e2754]
+                - text: 2026-06-26
+            - generic [ref=f1e2756]:
+              - term [ref=f1e2757]: 时长
+              - definition [ref=f1e2758]:
+                - img [ref=f1e2759]
+                - text: 5 分钟
+            - generic [ref=f1e2762]:
+              - term [ref=f1e2763]: 浏览量
+              - definition [ref=f1e2764]:
+                - img [ref=f1e2765]
+                - text: "342"
+            - generic [ref=f1e2768]:
+              - term [ref=f1e2769]: 语言
+              - definition [ref=f1e2770]:
+                - img [ref=f1e2771]
+                - text: 中文
+      - article [ref=f1e2774]:
+        - link "软件开发 Docker 容器化部署实践 本文介绍了 Docker 容器化的基本概念和实际部署技巧，适合初学者入门。 日期 2026-06-26 时长 15 分钟 浏览量 424 语言 中文" [ref=f1e2775] [cursor=pointer]:
+          - /url: "#/post/docker-deployment-practice"
+          - generic [ref=f1e2776]: 软件开发
+          - heading "Docker 容器化部署实践" [level=2] [ref=f1e2777]
+          - paragraph [ref=f1e2778]: 本文介绍了 Docker 容器化的基本概念和实际部署技巧，适合初学者入门。
+          - generic [ref=f1e2779]:
+            - generic [ref=f1e2780]:
+              - term [ref=f1e2781]: 日期
+              - definition [ref=f1e2782]:
+                - img [ref=f1e2783]
+                - text: 2026-06-26
+            - generic [ref=f1e2785]:
+              - term [ref=f1e2786]: 时长
+              - definition [ref=f1e2787]:
+                - img [ref=f1e2788]
+                - text: 15 分钟
+            - generic [ref=f1e2791]:
+              - term [ref=f1e2792]: 浏览量
+              - definition [ref=f1e2793]:
+                - img [ref=f1e2794]
+                - text: "424"
+            - generic [ref=f1e2797]:
+              - term [ref=f1e2798]: 语言
+              - definition [ref=f1e2799]:
+                - img [ref=f1e2800]
+                - text: 中文
+      - article [ref=f1e2803]:
+        - link "软件开发 使用 Redis 实现缓存和会话管理 本文介绍了如何使用 Redis 实现应用缓存和会话管理，提升系统性能。 日期 2026-06-26 时长 11 分钟 浏览量 208 语言 中文" [ref=f1e2804] [cursor=pointer]:
+          - /url: "#/post/redis-cache-session-management"
+          - generic [ref=f1e2805]: 软件开发
+          - heading "使用 Redis 实现缓存和会话管理" [level=2] [ref=f1e2806]
+          - paragraph [ref=f1e2807]: 本文介绍了如何使用 Redis 实现应用缓存和会话管理，提升系统性能。
+          - generic [ref=f1e2808]:
+            - generic [ref=f1e2809]:
+              - term [ref=f1e2810]: 日期
+              - definition [ref=f1e2811]:
+                - img [ref=f1e2812]
+                - text: 2026-06-26
+            - generic [ref=f1e2814]:
+              - term [ref=f1e2815]: 时长
+              - definition [ref=f1e2816]:
+                - img [ref=f1e2817]
+                - text: 11 分钟
+            - generic [ref=f1e2820]:
+              - term [ref=f1e2821]: 浏览量
+              - definition [ref=f1e2822]:
+                - img [ref=f1e2823]
+                - text: "208"
+            - generic [ref=f1e2826]:
+              - term [ref=f1e2827]: 语言
+              - definition [ref=f1e2828]:
+                - img [ref=f1e2829]
+                - text: 中文
+      - article [ref=f1e2832]:
+        - link "软件开发 DesktopSnap：开源轻量桌面图标恢复工具 基于 WinUI3 开发的轻量级桌面工具。支持多显示器布局一键备份与恢复，已上架微软商店。 日期 2026-06-20 时长 3 分钟 浏览量 330 语言 中文" [ref=f1e2833] [cursor=pointer]:
+          - /url: "#/post/desktopsnap"
+          - generic [ref=f1e2834]: 软件开发
+          - heading "DesktopSnap：开源轻量桌面图标恢复工具" [level=2] [ref=f1e2835]
+          - paragraph [ref=f1e2836]: 基于 WinUI3 开发的轻量级桌面工具。支持多显示器布局一键备份与恢复，已上架微软商店。
+          - generic [ref=f1e2837]:
+            - generic [ref=f1e2838]:
+              - term [ref=f1e2839]: 日期
+              - definition [ref=f1e2840]:
+                - img [ref=f1e2841]
+                - text: 2026-06-20
+            - generic [ref=f1e2843]:
+              - term [ref=f1e2844]: 时长
+              - definition [ref=f1e2845]:
+                - img [ref=f1e2846]
+                - text: 3 分钟
+            - generic [ref=f1e2849]:
+              - term [ref=f1e2850]: 浏览量
+              - definition [ref=f1e2851]:
+                - img [ref=f1e2852]
+                - text: "330"
+            - generic [ref=f1e2855]:
+              - term [ref=f1e2856]: 语言
+              - definition [ref=f1e2857]:
+                - img [ref=f1e2858]
+                - text: 中文
+      - article [ref=f1e2861]:
+        - link "搭建网站 用 Cloudflare Workers 免费给博客增加 AI 助手 利用 Cloudflare Workers 和 AI 能力，为博客添加智能问答功能。 日期 2026-06-20 时长 6 分钟 浏览量 161 语言 中文" [ref=f1e2862] [cursor=pointer]:
+          - /url: "#/post/cloudflare-ai-assistant"
+          - generic [ref=f1e2863]: 搭建网站
+          - heading "用 Cloudflare Workers 免费给博客增加 AI 助手" [level=2] [ref=f1e2864]
+          - paragraph [ref=f1e2865]: 利用 Cloudflare Workers 和 AI 能力，为博客添加智能问答功能。
+          - generic [ref=f1e2866]:
+            - generic [ref=f1e2867]:
+              - term [ref=f1e2868]: 日期
+              - definition [ref=f1e2869]:
+                - img [ref=f1e2870]
+                - text: 2026-06-20
+            - generic [ref=f1e2872]:
+              - term [ref=f1e2873]: 时长
+              - definition [ref=f1e2874]:
+                - img [ref=f1e2875]
+                - text: 6 分钟
+            - generic [ref=f1e2878]:
+              - term [ref=f1e2879]: 浏览量
+              - definition [ref=f1e2880]:
+                - img [ref=f1e2881]
+                - text: "161"
+            - generic [ref=f1e2884]:
+              - term [ref=f1e2885]: 语言
+              - definition [ref=f1e2886]:
+                - img [ref=f1e2887]
+                - text: 中文
+      - article [ref=f1e2890]:
+        - link "生活记录 清明假期：收拾家务、整理心情 清明假期的日常记录，整理家务，调整心态。 日期 2026-06-20 时长 9 分钟 浏览量 101 语言 中文" [ref=f1e2891] [cursor=pointer]:
+          - /url: "#/post/qingming-holiday"
+          - generic [ref=f1e2892]: 生活记录
+          - heading "清明假期：收拾家务、整理心情" [level=2] [ref=f1e2893]
+          - paragraph [ref=f1e2894]: 清明假期的日常记录，整理家务，调整心态。
+          - generic [ref=f1e2895]:
+            - generic [ref=f1e2896]:
+              - term [ref=f1e2897]: 日期
+              - definition [ref=f1e2898]:
+                - img [ref=f1e2899]
+                - text: 2026-06-20
+            - generic [ref=f1e2901]:
+              - term [ref=f1e2902]: 时长
+              - definition [ref=f1e2903]:
+                - img [ref=f1e2904]
+                - text: 9 分钟
+            - generic [ref=f1e2907]:
+              - term [ref=f1e2908]: 浏览量
+              - definition [ref=f1e2909]:
+                - img [ref=f1e2910]
+                - text: "101"
+            - generic [ref=f1e2913]:
+              - term [ref=f1e2914]: 语言
+              - definition [ref=f1e2915]:
+                - img [ref=f1e2916]
+                - text: 中文
+      - article [ref=f1e2919]:
+        - link "生活记录 逐渐难以逃离对于 AI 的焦虑 养龙虾热潮让人们看到了 AI 的威力，也让人们更加因为没有用上 AI 技术而感到焦虑。 日期 2026-06-20 时长 10 分钟 浏览量 116 语言 中文" [ref=f1e2920] [cursor=pointer]:
+          - /url: "#/post/ai-anxiety"
+          - generic [ref=f1e2921]: 生活记录
+          - heading "逐渐难以逃离对于 AI 的焦虑" [level=2] [ref=f1e2922]
+          - paragraph [ref=f1e2923]: 养龙虾热潮让人们看到了 AI 的威力，也让人们更加因为没有用上 AI 技术而感到焦虑。
+          - generic [ref=f1e2924]:
+            - generic [ref=f1e2925]:
+              - term [ref=f1e2926]: 日期
+              - definition [ref=f1e2927]:
+                - img [ref=f1e2928]
+                - text: 2026-06-20
+            - generic [ref=f1e2930]:
+              - term [ref=f1e2931]: 时长
+              - definition [ref=f1e2932]:
+                - img [ref=f1e2933]
+                - text: 10 分钟
+            - generic [ref=f1e2936]:
+              - term [ref=f1e2937]: 浏览量
+              - definition [ref=f1e2938]:
+                - img [ref=f1e2939]
+                - text: "116"
+            - generic [ref=f1e2942]:
+              - term [ref=f1e2943]: 语言
+              - definition [ref=f1e2944]:
+                - img [ref=f1e2945]
+                - text: 中文
+      - article [ref=f1e2948]:
+        - link "软件开发 2025年个人技术年度总结 2025年个人技术成长总结，包括技术学习、项目成果和未来规划。 日期 2025-12-28 时长 15 分钟 浏览量 523 语言 中文" [ref=f1e2949] [cursor=pointer]:
+          - /url: "#/post/2025-tech-annual-summary"
+          - generic [ref=f1e2950]: 软件开发
+          - heading "2025年个人技术年度总结" [level=2] [ref=f1e2951]
+          - paragraph [ref=f1e2952]: 2025年个人技术成长总结，包括技术学习、项目成果和未来规划。
+          - generic [ref=f1e2953]:
+            - generic [ref=f1e2954]:
+              - term [ref=f1e2955]: 日期
+              - definition [ref=f1e2956]:
+                - img [ref=f1e2957]
+                - text: 2025-12-28
+            - generic [ref=f1e2959]:
+              - term [ref=f1e2960]: 时长
+              - definition [ref=f1e2961]:
+                - img [ref=f1e2962]
+                - text: 15 分钟
+            - generic [ref=f1e2965]:
+              - term [ref=f1e2966]: 浏览量
+              - definition [ref=f1e2967]:
+                - img [ref=f1e2968]
+                - text: "523"
+            - generic [ref=f1e2971]:
+              - term [ref=f1e2972]: 语言
+              - definition [ref=f1e2973]:
+                - img [ref=f1e2974]
+                - text: 中文
+      - article [ref=f1e2977]:
+        - link "搭建网站 使用 Docker Compose 部署个人博客 使用 Docker Compose 一键部署个人博客的完整指南。 日期 2025-11-15 时长 8 分钟 浏览量 389 语言 中文" [ref=f1e2978] [cursor=pointer]:
+          - /url: "#/post/docker-compose-blog-deployment"
+          - generic [ref=f1e2979]: 搭建网站
+          - heading "使用 Docker Compose 部署个人博客" [level=2] [ref=f1e2980]
+          - paragraph [ref=f1e2981]: 使用 Docker Compose 一键部署个人博客的完整指南。
+          - generic [ref=f1e2982]:
+            - generic [ref=f1e2983]:
+              - term [ref=f1e2984]: 日期
+              - definition [ref=f1e2985]:
+                - img [ref=f1e2986]
+                - text: 2025-11-15
+            - generic [ref=f1e2988]:
+              - term [ref=f1e2989]: 时长
+              - definition [ref=f1e2990]:
+                - img [ref=f1e2991]
+                - text: 8 分钟
+            - generic [ref=f1e2994]:
+              - term [ref=f1e2995]: 浏览量
+              - definition [ref=f1e2996]:
+                - img [ref=f1e2997]
+                - text: "389"
+            - generic [ref=f1e3000]:
+              - term [ref=f1e3001]: 语言
+              - definition [ref=f1e3002]:
+                - img [ref=f1e3003]
+                - text: 中文
+      - article [ref=f1e3006]:
+        - link "软件开发 Go 语言高性能 Web 服务实践 Go 语言构建高性能 Web 服务的实践经验和优化策略。 日期 2025-10-20 时长 12 分钟 浏览量 267 语言 中文" [ref=f1e3007] [cursor=pointer]:
+          - /url: "#/post/go-high-performance-web"
+          - generic [ref=f1e3008]: 软件开发
+          - heading "Go 语言高性能 Web 服务实践" [level=2] [ref=f1e3009]
+          - paragraph [ref=f1e3010]: Go 语言构建高性能 Web 服务的实践经验和优化策略。
+          - generic [ref=f1e3011]:
+            - generic [ref=f1e3012]:
+              - term [ref=f1e3013]: 日期
+              - definition [ref=f1e3014]:
+                - img [ref=f1e3015]
+                - text: 2025-10-20
+            - generic [ref=f1e3017]:
+              - term [ref=f1e3018]: 时长
+              - definition [ref=f1e3019]:
+                - img [ref=f1e3020]
+                - text: 12 分钟
+            - generic [ref=f1e3023]:
+              - term [ref=f1e3024]: 浏览量
+              - definition [ref=f1e3025]:
+                - img [ref=f1e3026]
+                - text: "267"
+            - generic [ref=f1e3029]:
+              - term [ref=f1e3030]: 语言
+              - definition [ref=f1e3031]:
+                - img [ref=f1e3032]
+                - text: 中文
+      - article [ref=f1e3035]:
+        - link "生活记录 周末徒步：秦岭深处的宁静 周末徒步秦岭的旅行记录和感悟。 日期 2025-09-08 时长 7 分钟 浏览量 156 语言 中文" [ref=f1e3036] [cursor=pointer]:
+          - /url: "#/post/weekend-hiking-qinling"
+          - generic [ref=f1e3037]: 生活记录
+          - heading "周末徒步：秦岭深处的宁静" [level=2] [ref=f1e3038]
+          - paragraph [ref=f1e3039]: 周末徒步秦岭的旅行记录和感悟。
+          - generic [ref=f1e3040]:
+            - generic [ref=f1e3041]:
+              - term [ref=f1e3042]: 日期
+              - definition [ref=f1e3043]:
+                - img [ref=f1e3044]
+                - text: 2025-09-08
+            - generic [ref=f1e3046]:
+              - term [ref=f1e3047]: 时长
+              - definition [ref=f1e3048]:
+                - img [ref=f1e3049]
+                - text: 7 分钟
+            - generic [ref=f1e3052]:
+              - term [ref=f1e3053]: 浏览量
+              - definition [ref=f1e3054]:
+                - img [ref=f1e3055]
+                - text: "156"
+            - generic [ref=f1e3058]:
+              - term [ref=f1e3059]: 语言
+              - definition [ref=f1e3060]:
+                - img [ref=f1e3061]
+                - text: 中文
+      - article [ref=f1e3064]:
+        - link "软件开发 AI 编程助手使用心得 AI 编程助手的使用心得和效率提升经验。 日期 2025-08-12 时长 9 分钟 浏览量 412 语言 中文" [ref=f1e3065] [cursor=pointer]:
+          - /url: "#/post/ai-programming-assistant-tips"
+          - generic [ref=f1e3066]: 软件开发
+          - heading "AI 编程助手使用心得" [level=2] [ref=f1e3067]
+          - paragraph [ref=f1e3068]: AI 编程助手的使用心得和效率提升经验。
+          - generic [ref=f1e3069]:
+            - generic [ref=f1e3070]:
+              - term [ref=f1e3071]: 日期
+              - definition [ref=f1e3072]:
+                - img [ref=f1e3073]
+                - text: 2025-08-12
+            - generic [ref=f1e3075]:
+              - term [ref=f1e3076]: 时长
+              - definition [ref=f1e3077]:
+                - img [ref=f1e3078]
+                - text: 9 分钟
+            - generic [ref=f1e3081]:
+              - term [ref=f1e3082]: 浏览量
+              - definition [ref=f1e3083]:
+                - img [ref=f1e3084]
+                - text: "412"
+            - generic [ref=f1e3087]:
+              - term [ref=f1e3088]: 语言
+              - definition [ref=f1e3089]:
+                - img [ref=f1e3090]
+                - text: 中文
+      - article [ref=f1e3093]:
+        - link "软件开发 从零开始学习 Kubernetes Kubernetes 从入门到实践的学习指南。 日期 2025-07-05 时长 18 分钟 浏览量 298 语言 中文" [ref=f1e3094] [cursor=pointer]:
+          - /url: "#/post/learning-kubernetes-from-scratch"
+          - generic [ref=f1e3095]: 软件开发
+          - heading "从零开始学习 Kubernetes" [level=2] [ref=f1e3096]
+          - paragraph [ref=f1e3097]: Kubernetes 从入门到实践的学习指南。
+          - generic [ref=f1e3098]:
+            - generic [ref=f1e3099]:
+              - term [ref=f1e3100]: 日期
+              - definition [ref=f1e3101]:
+                - img [ref=f1e3102]
+                - text: 2025-07-05
+            - generic [ref=f1e3104]:
+              - term [ref=f1e3105]: 时长
+              - definition [ref=f1e3106]:
+                - img [ref=f1e3107]
+                - text: 18 分钟
+            - generic [ref=f1e3110]:
+              - term [ref=f1e3111]: 浏览量
+              - definition [ref=f1e3112]:
+                - img [ref=f1e3113]
+                - text: "298"
+            - generic [ref=f1e3116]:
+              - term [ref=f1e3117]: 语言
+              - definition [ref=f1e3118]:
+                - img [ref=f1e3119]
+                - text: 中文
+      - article [ref=f1e3122]:
+        - link "软件开发 读书笔记：《深入理解计算机系统》 《深入理解计算机系统》读书笔记和感悟。 日期 2025-06-18 时长 20 分钟 浏览量 189 语言 中文" [ref=f1e3123] [cursor=pointer]:
+          - /url: "#/post/book-review-CSAPP"
+          - generic [ref=f1e3124]: 软件开发
+          - heading "读书笔记：《深入理解计算机系统》" [level=2] [ref=f1e3125]
+          - paragraph [ref=f1e3126]: 《深入理解计算机系统》读书笔记和感悟。
+          - generic [ref=f1e3127]:
+            - generic [ref=f1e3128]:
+              - term [ref=f1e3129]: 日期
+              - definition [ref=f1e3130]:
+                - img [ref=f1e3131]
+                - text: 2025-06-18
+            - generic [ref=f1e3133]:
+              - term [ref=f1e3134]: 时长
+              - definition [ref=f1e3135]:
+                - img [ref=f1e3136]
+                - text: 20 分钟
+            - generic [ref=f1e3139]:
+              - term [ref=f1e3140]: 浏览量
+              - definition [ref=f1e3141]:
+                - img [ref=f1e3142]
+                - text: "189"
+            - generic [ref=f1e3145]:
+              - term [ref=f1e3146]: 语言
+              - definition [ref=f1e3147]:
+                - img [ref=f1e3148]
+                - text: 中文
+      - article [ref=f1e3151]:
+        - link "搭建网站 我的 NAS 搭建历程 个人 NAS 搭建过程和使用经验分享。 日期 2025-05-22 时长 11 分钟 浏览量 345 语言 中文" [ref=f1e3152] [cursor=pointer]:
+          - /url: "#/post/my-nas-setup-journey"
+          - generic [ref=f1e3153]: 搭建网站
+          - heading "我的 NAS 搭建历程" [level=2] [ref=f1e3154]
+          - paragraph [ref=f1e3155]: 个人 NAS 搭建过程和使用经验分享。
+          - generic [ref=f1e3156]:
+            - generic [ref=f1e3157]:
+              - term [ref=f1e3158]: 日期
+              - definition [ref=f1e3159]:
+                - img [ref=f1e3160]
+                - text: 2025-05-22
+            - generic [ref=f1e3162]:
+              - term [ref=f1e3163]: 时长
+              - definition [ref=f1e3164]:
+                - img [ref=f1e3165]
+                - text: 11 分钟
+            - generic [ref=f1e3168]:
+              - term [ref=f1e3169]: 浏览量
+              - definition [ref=f1e3170]:
+                - img [ref=f1e3171]
+                - text: "345"
+            - generic [ref=f1e3174]:
+              - term [ref=f1e3175]: 语言
+              - definition [ref=f1e3176]:
+                - img [ref=f1e3177]
+                - text: 中文

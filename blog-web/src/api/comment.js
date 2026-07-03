@@ -7,3 +7,7 @@ export const getCommentsByArticle = (articleId, params) => {
 export const createComment = (data) => {
   return request.post('/comments', data)
 }
+
+export const likeComment = (commentId) => {
+  return request.post(`/comments/${commentId}/like`)
+}

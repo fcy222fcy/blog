@@ -11,3 +11,7 @@ export const getArticleDetail = (slug) => {
 export const getArchives = () => {
   return request.get('/articles/archives')
 }
+
+export const searchArticles = (params) => {
+  return request.get('/articles/search', { params })
+}

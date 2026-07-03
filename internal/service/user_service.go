@@ -43,6 +43,15 @@ func (s *userService) GetUserProfile(userID uint) (*entity.User, error) {
 	return user, nil
 }
 
+// GetFirstAdmin 获取第一个管理员用户（博客主人）
+func (s *userService) GetFirstAdmin() (*entity.User, error) {
+	user, err := s.userRepo.FindFirstAdmin()
+	if err != nil {
+		return nil, fmt.Errorf("查询管理员用户失败, %w", err)
+	}
+	return user, nil
+}
+
 // UpdateUser 更新用户信息
 func (s *userService) UpdateUser(id uint, req *request.UpdateUserRequest) error {
 	user, err := s.userRepo.FindByID(id)

@@ -23,17 +23,14 @@
           </div>
         </div>
         <div class="form-body">
-          <textarea
-            ref="textareaRef"
-            v-model="form.content"
-            placeholder="欢迎评论，填写邮箱可收到回复提醒~"
-            rows="4"
-            required
-          ></textarea>
-          <div v-if="form.content" class="form-preview">
-            <div class="preview-label">预览:</div>
-            <div class="preview-content" v-html="renderMarkdown(form.content)"></div>
-          </div>
+          <div
+            ref="editorRef"
+            class="editor-input"
+            contenteditable="true"
+            data-placeholder="欢迎评论，填写邮箱可收到回复提醒~"
+            @input="onEditorInput"
+            @keydown="onEditorKeydown"
+          ></div>
         </div>
         <div class="form-footer">
           <div class="form-tools">
@@ -112,10 +109,14 @@
                 <span class="nickname">{{ comment.nickname }}</span>
                 <span class="time">{{ formatTime(comment.created_at) }}</span>
               </div>
-              <div class="comment-content">{{ comment.content }}</div>
+              <div class="comment-content" v-html="renderCommentContent(comment.content)"></div>
               <div class="comment-actions">
-                <button class="action-btn like-btn" @click="likeComment(comment)">
-                  <span class="icon"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg></span>
+                <button class="action-btn like-btn" :class="{ 'liked': likedComments.has(comment.id) }" @click="handleLikeComment(comment)">
+                  <span class="icon">
+                    <svg v-if="likedComments.has(comment.id)" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="#e74c3c" stroke="#e74c3c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+                    <svg v-else xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+                  </span>
+                  <span v-if="comment.like_count > 0" class="like-count">{{ comment.like_count }}</span>
                 </button>
                 <button class="action-btn reply-btn" @click="startReply(comment)">
                   <span class="icon"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg></span>
@@ -155,11 +156,15 @@
                   </div>
                   <div class="comment-content">
                     <span v-if="reply.reply_to" class="reply-to">@{{ reply.reply_to }}: </span>
-                    {{ reply.content }}
+                    <span v-html="renderCommentContent(reply.content)"></span>
                   </div>
                   <div class="comment-actions">
-                    <button class="action-btn like-btn" @click="likeComment(reply)">
-                      <span class="icon"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg></span>
+                    <button class="action-btn like-btn" :class="{ 'liked': likedComments.has(reply.id) }" @click="handleLikeComment(reply)">
+                      <span class="icon">
+                        <svg v-if="likedComments.has(reply.id)" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="#e74c3c" stroke="#e74c3c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+                        <svg v-else xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+                      </span>
+                      <span v-if="reply.like_count > 0" class="like-count">{{ reply.like_count }}</span>
                     </button>
                     <button class="action-btn reply-btn" @click="startReply(comment, reply)">
                       <span class="icon"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg></span>
@@ -178,14 +183,14 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRoute } from 'vue-router'
-import { getCommentsByArticle, createComment } from '../../api/comment'
+import { getCommentsByArticle, createComment, likeComment } from '../../api/comment'
 import EmojiPicker from 'vue3-emoji-picker'
 import 'vue3-emoji-picker/css'
 import { getAvatarUrl } from '../../utils/avatar'
 import { marked } from 'marked'
 
 const route = useRoute()
-const textareaRef = ref(null)
+const editorRef = ref(null)
 
 const comments = ref([])
 const loading = ref(false)
@@ -202,6 +207,21 @@ const form = ref({
   content: ''
 })
 
+// 表情图片 CDN 地址
+const EMOJI_CDN = 'https://cdn.jsdelivr.net/npm/emoji-datasource-apple@6.0.1/img/apple/64'
+
+// unicode 字符转 emoji 图片文件名（如 😊 → 1f600）
+const unicodeToEmojiCode = (str) => {
+  const codes = []
+  for (const char of str) {
+    const code = char.codePointAt(0)
+    if (code > 0x1f000) {
+      codes.push(code.toString(16))
+    }
+  }
+  return codes.join('-')
+}
+
 // 排序后的评论
 const sortedComments = computed(() => {
   const list = [...comments.value]
@@ -210,7 +230,6 @@ const sortedComments = computed(() => {
   } else if (sortBy.value === 'desc') {
     return list.sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
   } else {
-    // 按热度（点赞数）
     return list.sort((a, b) => (b.like_count || 0) - (a.like_count || 0))
   }
 })
@@ -220,28 +239,71 @@ const toggleEmojiPanel = () => {
   showEmojiPanel.value = !showEmojiPanel.value
 }
 
-// 插入表情
-const insertEmoji = (emoji) => {
-  const textarea = textareaRef.value
-  if (textarea) {
-    const start = textarea.selectionStart
-    const end = textarea.selectionEnd
-    const content = form.value.content
-    form.value.content = content.substring(0, start) + emoji + content.substring(end)
-    // 光标移到插入位置后面
-    setTimeout(() => {
-      textarea.selectionStart = textarea.selectionEnd = start + emoji.length
-      textarea.focus()
-    }, 0)
-  } else {
-    form.value.content += emoji
+// 编辑器输入同步（用 innerHTML 保留 emoji 图片标签）
+const onEditorInput = () => {
+  if (editorRef.value) {
+    form.value.content = editorRef.value.innerHTML || ''
   }
+}
+
+// 编辑器键盘事件
+const onEditorKeydown = (e) => {
+  // Enter 提交（Shift+Enter 换行）
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault()
+    if (form.value.content.trim()) {
+      submitComment()
+    }
+  }
+}
+
+// 插入 emoji 图片到 contenteditable
+const insertEmoji = (emojiStr) => {
+  const editor = editorRef.value
+  if (!editor) return
+
+  const emojiCode = unicodeToEmojiCode(emojiStr)
+  if (!emojiCode) return
+
+  const img = document.createElement('img')
+  img.src = `${EMOJI_CDN}/${emojiCode}.png`
+  img.alt = emojiStr
+  img.className = 'inline-emoji'
+  img.style.cssText = 'width:1.2em;height:1.2em;vertical-align:middle;margin:0 2px;'
+
+  // 插入到光标位置
+  const selection = window.getSelection()
+  if (selection.rangeCount > 0) {
+    const range = selection.getRangeAt(0)
+    // 确保光标在编辑器内
+    if (editor.contains(range.commonAncestorContainer)) {
+      range.deleteContents()
+      range.insertNode(img)
+      range.collapse(false)
+      selection.removeAllRanges()
+      selection.addRange(range)
+    } else {
+      editor.appendChild(img)
+    }
+  } else {
+    editor.appendChild(img)
+  }
+
+  // 在图片后插入空格，方便继续输入
+  const space = document.createTextNode(' ')
+  img.parentNode.insertBefore(space, img.nextSibling)
+
+  // 同步内容
+  form.value.content = editor.innerHTML || ''
   showEmojiPanel.value = false
 }
 
 // EmojiPicker 选择回调
 const onEmojiSelect = (emoji) => {
-  insertEmoji(emoji)
+  const emojiStr = typeof emoji === 'string' ? emoji : (emoji.i || '')
+  if (emojiStr) {
+    insertEmoji(emojiStr)
+  }
 }
 
 // 根据邮箱获取头像
@@ -255,44 +317,56 @@ const renderMarkdown = (text) => {
   return marked.parse(text)
 }
 
+// 净化 HTML：移除危险属性和标签
+const sanitizeCommentHtml = (html) => {
+  let clean = html.replace(/\s+on\w+\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+)/gi, '')
+  clean = clean.replace(/href\s*=\s*(?:"javascript:[^"]*"|'javascript:[^']*')/gi, '')
+  clean = clean.replace(/src\s*=\s*(?:"javascript:[^"]*"|'javascript:[^']*')/gi, '')
+  clean = clean.replace(/<script[\s\S]*?<\/script>/gi, '')
+  clean = clean.replace(/<iframe[\s\S]*?<\/iframe>/gi, '')
+  return clean
+}
+
+// 渲染评论内容（将 emoji unicode 转为图片）
+const renderCommentContent = (text) => {
+  if (!text) return ''
+  // 如果内容已包含 <img> 标签，净化后返回
+  if (text.includes('<img')) {
+    return sanitizeCommentHtml(text)
+  }
+  // 纯文本内容：转义 HTML，然后将 emoji unicode 转为 <img> 标签
+  const escaped = text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+  return escaped.replace(/[\u{1F600}-\u{1F64F}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{1F1E0}-\u{1F1FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\u{FE00}-\u{FE0F}\u{1F900}-\u{1F9FF}\u{1FA00}-\u{1FA6F}\u{1FA70}-\u{1FAFF}]/gu, (char) => {
+    const code = unicodeToEmojiCode(char)
+    if (code) {
+      return `<img src="${EMOJI_CDN}/${code}.png" alt="${char}" class="inline-emoji" style="width:1.2em;height:1.2em;vertical-align:middle;margin:0 2px;">`
+    }
+    return char
+  })
+}
+
 // 插入 Markdown 格式
 const insertMarkdown = () => {
-  const textarea = textareaRef.value
-  if (textarea) {
-    const start = textarea.selectionStart
-    const end = textarea.selectionEnd
-    const selectedText = form.value.content.substring(start, end)
-    const markdownText = selectedText ? `**${selectedText}**` : '**粗体文本**'
-    form.value.content = form.value.content.substring(0, start) + markdownText + form.value.content.substring(end)
-    setTimeout(() => {
-      if (selectedText) {
-        textarea.selectionStart = start
-        textarea.selectionEnd = start + markdownText.length
-      } else {
-        textarea.selectionStart = start + 2
-        textarea.selectionEnd = start + 6
-      }
-      textarea.focus()
-    }, 0)
-  }
+  const editor = editorRef.value
+  if (!editor) return
+
+  const selection = window.getSelection()
+  const selectedText = selection.toString() || '粗体文本'
+  const markdownText = `**${selectedText}**`
+
+  document.execCommand('insertText', false, markdownText)
+  form.value.content = editor.innerHTML || ''
 }
 
 // 插入图片
 const insertImage = () => {
   const url = prompt('请输入图片URL:')
   if (url) {
-    const textarea = textareaRef.value
-    if (textarea) {
-      const start = textarea.selectionStart
-      const imageText = `![图片](${url})`
-      form.value.content = form.value.content.substring(0, start) + imageText + form.value.content.substring(start)
-      setTimeout(() => {
-        textarea.selectionStart = textarea.selectionEnd = start + imageText.length
-        textarea.focus()
-      }, 0)
-    } else {
-      form.value.content += `![图片](${url})`
-    }
+    const editor = editorRef.value
+    if (!editor) return
+    const imageText = `![图片](${url})`
+    document.execCommand('insertText', false, imageText)
+    form.value.content = editor.innerHTML || ''
   }
 }
 
@@ -300,21 +374,13 @@ const insertImage = () => {
 const insertLink = () => {
   const url = prompt('请输入链接URL:')
   if (url) {
-    const textarea = textareaRef.value
-    if (textarea) {
-      const start = textarea.selectionStart
-      const end = textarea.selectionEnd
-      const selectedText = form.value.content.substring(start, end) || '链接文本'
-      const linkText = `[${selectedText}](${url})`
-      form.value.content = form.value.content.substring(0, start) + linkText + form.value.content.substring(end)
-      setTimeout(() => {
-        textarea.selectionStart = start + 1
-        textarea.selectionEnd = start + 1 + selectedText.length
-        textarea.focus()
-      }, 0)
-    } else {
-      form.value.content += `[链接文本](${url})`
-    }
+    const editor = editorRef.value
+    if (!editor) return
+    const selection = window.getSelection()
+    const selectedText = selection.toString() || '链接文本'
+    const linkText = `[${selectedText}](${url})`
+    document.execCommand('insertText', false, linkText)
+    form.value.content = editor.innerHTML || ''
   }
 }
 
@@ -332,6 +398,19 @@ const fetchComments = async () => {
     const articleId = route.params.id || route.params.slug
     const res = await getCommentsByArticle(articleId, { page: 1, page_size: 100 })
     comments.value = res.data.list || []
+    // 从 localStorage 恢复已点赞状态
+    comments.value.forEach(comment => {
+      if (localStorage.getItem(`liked_comment_${comment.id}`) === 'true') {
+        likedComments.value.add(comment.id)
+      }
+      if (comment.replies) {
+        comment.replies.forEach(reply => {
+          if (localStorage.getItem(`liked_comment_${reply.id}`) === 'true') {
+            likedComments.value.add(reply.id)
+          }
+        })
+      }
+    })
   } catch (error) {
     console.error('获取评论失败:', error)
   } finally {
@@ -361,11 +440,11 @@ const submitComment = async () => {
 
     // 清空表单
     form.value.content = ''
+    if (editorRef.value) editorRef.value.innerHTML = ''
     // 重新获取评论
     await fetchComments()
   } catch (error) {
     console.error('提交评论失败:', error)
-    alert('评论提交失败，请稍后重试')
   } finally {
     submitting.value = false
   }
@@ -404,16 +483,35 @@ const submitReply = async () => {
     await fetchComments()
   } catch (error) {
     console.error('提交回复失败:', error)
-    alert('回复提交失败，请稍后重试')
   } finally {
     submitting.value = false
   }
 }
 
+// 检查是否已点赞
+const likedComments = ref(new Set())
+
 // 点赞评论
-const likeComment = (comment) => {
-  // TODO: 实现点赞功能
-  comment.like_count = (comment.like_count || 0) + 1
+const handleLikeComment = async (comment) => {
+  // 检查本地是否已点赞
+  if (likedComments.value.has(comment.id)) {
+    return
+  }
+
+  try {
+    await likeComment(comment.id)
+    comment.like_count = (comment.like_count || 0) + 1
+    likedComments.value.add(comment.id)
+    // 持久化到 localStorage
+    localStorage.setItem(`liked_comment_${comment.id}`, 'true')
+  } catch (error) {
+    console.error('点赞失败:', error)
+    // 如果是已点赞的业务错误，也标记为已点赞
+    if (error.response?.data?.code === 4006) {
+      likedComments.value.add(comment.id)
+      localStorage.setItem(`liked_comment_${comment.id}`, 'true')
+    }
+  }
 }
 
 // 格式化时间
@@ -460,8 +558,8 @@ onUnmounted(() => {
   background: #fff;
   border: 1px solid rgba(0, 0, 0, 0.08);
   border-radius: 8px;
-  overflow: hidden;
   margin-bottom: 24px;
+  position: relative;
 }
 
 .comment-form {
@@ -515,52 +613,42 @@ onUnmounted(() => {
   padding: 16px 20px;
 }
 
-.form-body textarea {
+.editor-input {
   width: 100%;
+  min-height: 100px;
+  max-height: 300px;
+  overflow-y: auto;
   border: none;
   background: transparent;
   color: #333;
   font-size: 0.95rem;
-  resize: none;
-  min-height: 100px;
   font-family: inherit;
-}
-
-.form-body textarea:focus {
+  line-height: 1.6;
+  word-wrap: break-word;
   outline: none;
 }
 
-.form-body textarea::placeholder {
+.editor-input:empty::before {
+  content: attr(data-placeholder);
   color: #999;
+  pointer-events: none;
 }
 
-/* 预览区 */
-.form-preview {
-  margin-top: 12px;
-  padding-top: 12px;
-  border-top: 1px dashed #e8e8e8;
+.editor-input .inline-emoji {
+  width: 1.2em;
+  height: 1.2em;
+  vertical-align: middle;
+  margin: 0 2px;
 }
 
-.preview-label {
-  font-size: 0.85rem;
-  color: #999;
-  margin-bottom: 8px;
-  font-weight: 500;
+/* 评论内容中的 emoji 图片 */
+.comment-content .inline-emoji {
+  width: 1.2em;
+  height: 1.2em;
+  vertical-align: middle;
+  margin: 0 2px;
 }
 
-.preview-content {
-  font-size: 0.9rem;
-  color: #333;
-  line-height: 1.6;
-}
-
-.preview-content p {
-  margin: 0 0 8px;
-}
-
-.preview-content p:last-child {
-  margin-bottom: 0;
-}
 
 .form-footer {
   display: flex;
@@ -610,8 +698,20 @@ onUnmounted(() => {
   background: #ffffff;
   border: 1px solid #e8e8e8;
   border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
   z-index: 100;
+  animation: emoji-fade-in 0.2s ease;
+}
+
+@keyframes emoji-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 :deep(.em-emoji-picker) {
@@ -853,6 +953,17 @@ onUnmounted(() => {
 
 .like-btn:hover {
   color: #e74c3c;
+}
+
+.like-btn.liked {
+  color: #e74c3c;
+}
+
+.like-count {
+  font-size: 0.8rem;
+  margin-left: 2px;
+  min-width: 12px;
+  display: inline-block;
 }
 
 /* 回复表单 */

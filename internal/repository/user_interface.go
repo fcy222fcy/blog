@@ -10,6 +10,9 @@ type UserRepository interface {
 	// FindByUsername 根据用户名查找用户
 	FindByUsername(username string) (*entity.User, error)
 
+	// FindFirstAdmin 查找第一个管理员用户（博客主人）
+	FindFirstAdmin() (*entity.User, error)
+
 	// Create 创建用户
 	Create(user *entity.User) error
 

@@ -5,6 +5,7 @@ import (
 	"blog/internal/model/dto/response"
 	"blog/internal/model/entity"
 	"blog/internal/repository"
+	bizcrypt "blog/pkg/bcrypt"
 	bizerrors "blog/pkg/errors"
 	"blog/pkg/jwt"
 	"blog/pkg/logger"
@@ -60,13 +61,13 @@ func (s *authService) Login(req *request.LoginRequest) (*response.LoginResponse,
 		return nil, bizerrors.New(bizerrors.CodeUserNotFound, bizerrors.GetMessage(bizerrors.CodeUserNotFound))
 	}
 
-	// TODO: 验证密码（需要 bcrypt）
-	// if !bcrypt.CheckPassword(req.Password, user.Password) {
-	//     return nil, bizerrors.New(bizerrors.CodePasswordIncorrect, bizerrors.GetMessage(bizerrors.CodePasswordIncorrect))
-	// }
+	// 验证密码
+	if !bizcrypt.CheckPassword(req.Password, user.Password) {
+		return nil, bizerrors.New(bizerrors.CodePasswordIncorrect, bizerrors.GetMessage(bizerrors.CodePasswordIncorrect))
+	}
 
 	// 生成 Token
-	token, err := s.jwt.GenerateToken(user.ID, user.Username)
+	token, expiresAt, err := s.jwt.GenerateToken(user.ID, user.Username)
 	if err != nil {
 		logger.Error("生成Token失败", zap.Error(err))
 		return nil, fmt.Errorf("生成Token失败, %w", err)
@@ -75,7 +76,14 @@ func (s *authService) Login(req *request.LoginRequest) (*response.LoginResponse,
 	logger.Infof("用户登录成功, username: %s", req.Username)
 	return &response.LoginResponse{
 		Token:     token,
-		ExpiresAt: 0, // TODO: 计算过期时间
+		ExpiresAt: expiresAt,
+		User: response.UserInfo{
+			ID:       user.ID,
+			Username: user.Username,
+			Nickname: user.Nickname,
+			Avatar:   user.Avatar,
+			Email:    user.Email,
+		},
 	}, nil
 }
 
@@ -117,14 +125,22 @@ func (s *authService) ChangePassword(userID uint, req *request.ChangePasswordReq
 		return bizerrors.New(bizerrors.CodeUserNotFound, bizerrors.GetMessage(bizerrors.CodeUserNotFound))
 	}
 
-	// TODO: 验证旧密码
-	// if !bcrypt.CheckPassword(req.OldPassword, user.Password) {
-	//     return bizerrors.New(bizerrors.CodePasswordIncorrect, bizerrors.GetMessage(bizerrors.CodePasswordIncorrect))
-	// }
+	// 验证旧密码
+	if !bizcrypt.CheckPassword(req.OldPassword, user.Password) {
+		return bizerrors.New(bizerrors.CodePasswordIncorrect, bizerrors.GetMessage(bizerrors.CodePasswordIncorrect))
+	}
 
-	// TODO: 加密新密码
-	// user.Password = bcrypt.HashPassword(req.NewPassword)
-	// return s.userRepo.Update(user)
+	// 加密新密码
+	hashedPassword, err := bizcrypt.HashPassword(req.NewPassword)
+	if err != nil {
+		return bizerrors.New(bizerrors.CodeInternalServer, "密码加密失败")
+	}
+
+	user.Password = hashedPassword
+	if err := s.userRepo.Update(user); err != nil {
+		logger.Error("更新密码失败", zap.Error(err))
+		return fmt.Errorf("更新密码失败, %w", err)
+	}
 
 	logger.Infof("修改密码成功, userID: %d", userID)
 	return nil
@@ -145,12 +161,15 @@ func (s *authService) Register(req *request.RegisterRequest) error {
 		return bizerrors.New(bizerrors.CodeUserAlreadyExists, bizerrors.GetMessage(bizerrors.CodeUserAlreadyExists))
 	}
 
-	// TODO: 加密密码
-	// password := bcrypt.HashPassword(req.Password)
+	// 加密密码
+	hashedPassword, err := bizcrypt.HashPassword(req.Password)
+	if err != nil {
+		return bizerrors.New(bizerrors.CodeInternalServer, "密码加密失败")
+	}
 
 	user := &entity.User{
 		Username: req.Username,
-		Password: req.Password, // TODO: 使用加密后的密码
+		Password: hashedPassword,
 		Nickname: req.Nickname,
 		Email:    req.Email,
 		Status:   1,

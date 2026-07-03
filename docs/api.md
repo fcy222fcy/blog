@@ -1462,7 +1462,7 @@ Authorization: Bearer <token>
 **请求**
 
 ```
-POST /admin/media/upload
+POST /media/upload
 ```
 
 **请求头**
@@ -1500,7 +1500,7 @@ Content-Type: multipart/form-data
 **请求**
 
 ```
-GET /admin/media
+GET /media
 ```
 
 **请求头**
@@ -1547,7 +1547,7 @@ Authorization: Bearer <token>
 **请求**
 
 ```
-DELETE /admin/media/:id
+DELETE /media/:id
 ```
 
 **请求头**

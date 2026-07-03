@@ -220,3 +220,40 @@ func (s *commentService) BatchDeleteComments(ids []uint) error {
 	}
 	return nil
 }
+
+// LikeComment 点赞评论（防重复）
+func (s *commentService) LikeComment(commentID uint, visitorIP string) error {
+	// 检查评论是否存在
+	comment, err := s.commentRepo.FindByID(commentID)
+	if err != nil {
+		return fmt.Errorf("查询评论失败, %w", err)
+	}
+	if comment == nil {
+		return bizerrors.New(bizerrors.CodeCommentNotFound, bizerrors.GetMessage(bizerrors.CodeCommentNotFound))
+	}
+
+	// 检查是否已点赞（防重复）
+	hasLiked, err := s.commentRepo.HasLiked(commentID, visitorIP)
+	if err != nil {
+		return fmt.Errorf("查询点赞记录失败, %w", err)
+	}
+	if hasLiked {
+		return bizerrors.New(bizerrors.CodeCommentAlreadyLiked, bizerrors.GetMessage(bizerrors.CodeCommentAlreadyLiked))
+	}
+
+	// 增加点赞数
+	if err := s.commentRepo.IncrementLikeCount(commentID); err != nil {
+		return fmt.Errorf("增加点赞数失败, %w", err)
+	}
+
+	// 记录点赞日志
+	likeLog := &entity.CommentLikeLog{
+		CommentID: commentID,
+		VisitorIP: visitorIP,
+	}
+	if err := s.commentRepo.CreateLikeLog(likeLog); err != nil {
+		return fmt.Errorf("记录点赞日志失败, %w", err)
+	}
+
+	return nil
+}

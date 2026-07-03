@@ -96,7 +96,14 @@ const loadTags = async () => {
 }
 
 const handleSave = async () => {
-  if (!form.value.name) { ElMessage.warning('请输入标签名称'); return }
+  if (!form.value.name || form.value.name.trim().length < 2) {
+    ElMessage.warning('标签名称至少需要 2 个字符')
+    return
+  }
+  if (form.value.name.length > 30) {
+    ElMessage.warning('标签名称不能超过 30 个字符')
+    return
+  }
   try {
     if (editingId.value) { await updateTag(editingId.value, form.value) }
     else { await createTag(form.value) }

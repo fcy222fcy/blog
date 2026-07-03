@@ -6,7 +6,7 @@
         <div style="display: flex; gap: 12px; flex-wrap: wrap; align-items: center;">
           <div class="search-box">
             <span class="search-box-icon">⌕</span>
-            <input type="text" v-model="keyword" placeholder="搜索文件...">
+            <input type="text" v-model="keyword" placeholder="搜索文件..." @keyup.enter="handleSearch">
           </div>
           <button class="btn btn-primary" @click="$refs.fileInput.click()">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
@@ -27,7 +27,7 @@
         </div>
 
         <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 16px; margin-top: 20px;">
-          <div v-for="item in filteredMedia" :key="item.id" class="media-grid-item">
+          <div v-for="item in filteredMedia" :key="item.name" class="media-grid-item">
             <div class="media-grid-preview">
               <img v-if="isImage(item.type)" :src="item.url" :alt="item.name" />
               <div v-else class="media-file-icon">📄</div>
@@ -38,7 +38,7 @@
             </div>
             <div class="media-grid-actions">
               <button class="action-btn btn-edit btn-sm" @click="copyUrl(item.url)">复制链接</button>
-              <button class="action-btn btn-delete btn-sm" @click="handleDelete(item.id)">删除</button>
+              <button class="action-btn btn-delete btn-sm" @click="handleDelete(item)">删除</button>
             </div>
           </div>
         </div>
@@ -59,18 +59,35 @@ const mediaList = ref([])
 const keyword = ref('')
 const isDragging = ref(false)
 const fileInput = ref(null)
+const uploading = ref(false)
+const loading = ref(false)
 
-const mockMedia = [
-  { id: 1, name: 'avatar.jpg', url: 'https://via.placeholder.com/150', type: 'image/jpeg', size: 102400 },
-  { id: 2, name: 'banner.png', url: 'https://via.placeholder.com/300x100', type: 'image/png', size: 204800 },
-  { id: 3, name: 'document.pdf', url: '#', type: 'application/pdf', size: 1024000 },
-]
+const fetchMediaList = async () => {
+  loading.value = true
+  try {
+    const token = localStorage.getItem('token')
+    const response = await fetch(`/api/v1/media?keyword=${encodeURIComponent(keyword.value)}`, {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    })
+    const result = await response.json()
+    if (response.ok && result.code === 0) {
+      mediaList.value = result.data.list || []
+    }
+  } catch (error) {
+    console.error('获取媒体列表失败:', error)
+  } finally {
+    loading.value = false
+  }
+}
 
-onMounted(() => { mediaList.value = mockMedia })
+onMounted(() => {
+  fetchMediaList()
+})
 
 const filteredMedia = computed(() => {
-  if (!keyword.value) return mediaList.value
-  return mediaList.value.filter(m => m.name.includes(keyword.value))
+  return mediaList.value
 })
 
 const isImage = (type) => type && type.startsWith('image/')
@@ -85,29 +102,89 @@ const formatSize = (bytes) => {
 
 const copyUrl = (url) => { navigator.clipboard.writeText(url); ElMessage.success('链接已复制') }
 
-const handleDelete = async (id) => {
+const handleDelete = async (item) => {
   try {
     await ElMessageBox.confirm('确定要删除这个文件吗？', '确认删除', { confirmButtonText: '删除', cancelButtonText: '取消', type: 'warning' })
-    mediaList.value = mediaList.value.filter(item => item.id !== id)
-    ElMessage.success('删除成功')
-  } catch (e) { if (e !== 'cancel') console.error(e) }
+
+    const token = localStorage.getItem('token')
+    const filename = item.name
+    const response = await fetch(`/api/v1/media/${encodeURIComponent(filename)}`, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    })
+
+    const result = await response.json()
+    if (response.ok && result.code === 0) {
+      mediaList.value = mediaList.value.filter(m => m.name !== filename)
+      ElMessage.success('删除成功')
+    } else {
+      ElMessage.error(result.message || '删除失败')
+    }
+  } catch (e) {
+    if (e !== 'cancel') {
+      console.error(e)
+      ElMessage.error('删除失败')
+    }
+  }
 }
 
-const handleFileSelect = (event) => {
+const handleSearch = () => {
+  fetchMediaList()
+}
+
+const handleFileSelect = async (event) => {
   const files = Array.from(event.target.files)
-  files.forEach(file => {
-    mediaList.value.unshift({ id: Date.now(), name: file.name, url: URL.createObjectURL(file), type: file.type, size: file.size })
-  })
-  ElMessage.success('上传成功')
+  await uploadFiles(files)
 }
 
-const handleDrop = (event) => {
+const handleDrop = async (event) => {
   isDragging.value = false
   const files = Array.from(event.dataTransfer.files)
-  files.forEach(file => {
-    mediaList.value.unshift({ id: Date.now(), name: file.name, url: URL.createObjectURL(file), type: file.type, size: file.size })
-  })
-  ElMessage.success('上传成功')
+  await uploadFiles(files)
+}
+
+const uploadFiles = async (files) => {
+  if (files.length === 0) return
+
+  uploading.value = true
+  const token = localStorage.getItem('token')
+
+  try {
+    for (const file of files) {
+      const formData = new FormData()
+      formData.append('file', file)
+
+      const response = await fetch('/api/v1/media/upload', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        },
+        body: formData
+      })
+
+      const result = await response.json()
+
+      if (response.ok && result.code === 0) {
+        ElMessage.success(`上传成功: ${file.name}`)
+      } else {
+        ElMessage.error(result.message || '上传失败')
+      }
+    }
+
+    // 刷新列表
+    await fetchMediaList()
+  } catch (error) {
+    console.error('上传失败:', error)
+    ElMessage.error('上传失败，请重试')
+  } finally {
+    uploading.value = false
+    // 清空 input 的值，允许重复选择同一文件
+    if (fileInput.value) {
+      fileInput.value.value = ''
+    }
+  }
 }
 </script>
 

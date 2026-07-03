@@ -53,7 +53,7 @@ func (c *Controller) GetArticleDetail(ctx *gin.Context) {
 		return
 	}
 
-	result, err := c.articleSvc.GetArticleDetail(slug)
+	result, err := c.articleSvc.GetArticleDetail(slug, ctx.ClientIP())
 	if err != nil {
 		if bizerrors.IsBizError(err) {
 			logger.Warn("获取文章详情业务错误", zap.String("slug", slug), zap.Error(err))
@@ -229,4 +229,29 @@ func (c *Controller) BatchDeleteArticles(ctx *gin.Context) {
 	}
 
 	response.Success(ctx, nil)
+}
+
+// Search 搜索文章（前台，标题、内容、摘要模糊搜索）
+func (c *Controller) Search(ctx *gin.Context) {
+	keyword := ctx.Query("keyword")
+	if keyword == "" {
+		response.BadRequest(ctx, "搜索关键词不能为空")
+		return
+	}
+
+	var req request.PageRequest
+	if err := ctx.ShouldBindQuery(&req); err != nil {
+		// 使用默认分页参数
+		req.Page = 1
+		req.PageSize = 10
+	}
+
+	result, err := c.articleSvc.Search(keyword, req.Page, req.GetPageSize())
+	if err != nil {
+		logger.Error("搜索文章失败", zap.String("keyword", keyword), zap.Error(err))
+		response.ServerError(ctx, "服务器内部错误")
+		return
+	}
+
+	response.Success(ctx, result)
 }

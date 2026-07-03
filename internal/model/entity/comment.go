@@ -4,10 +4,21 @@ package entity
 type Comment struct {
 	BaseEntity
 	Content      string    `gorm:"type:text;not null" json:"content"`
+
+	// 注册用户评论
+	UserID       *uint     `gorm:"index" json:"user_id"`
+	User         *User     `gorm:"foreignKey:UserID" json:"user,omitempty"`
+
+	// 访客评论信息
+	VisitorID    *uint     `gorm:"index" json:"visitor_id"`
+	Visitor      *Visitor  `gorm:"foreignKey:VisitorID" json:"visitor,omitempty"`
+
+	// 兼容字段（可以考虑后续迁移时移除）
 	Nickname     string    `gorm:"type:varchar(50)" json:"nickname"`
 	Email        string    `gorm:"type:varchar(100)" json:"email"`
 	Website      string    `gorm:"type:varchar(200)" json:"website"`
 	Avatar       string    `gorm:"type:varchar(500)" json:"avatar"`
+
 	ArticleID    uint      `gorm:"index" json:"article_id"`
 	Article      Article   `gorm:"foreignKey:ArticleID" json:"-"`
 	ParentID     *uint     `gorm:"index" json:"parent_id"`
@@ -15,7 +26,8 @@ type Comment struct {
 	ReplyToID    *uint     `gorm:"-" json:"-"`
 	ReplyToNickname string `gorm:"-" json:"reply_to_nickname"`
 	Replies      []Comment `gorm:"-" json:"replies,omitempty"`
-	Status       string    `gorm:"type:varchar(20);default:pending" json:"status"` // pending: 待审核 approved: 已通过 rejected: 已拒绝
+	LikeCount    int       `gorm:"default:0" json:"like_count"`
+	Status       string    `gorm:"type:varchar(20);default:pending;index" json:"status"` // pending: 待审核 approved: 已通过 rejected: 已拒绝
 	IP           string    `gorm:"type:varchar(50)" json:"ip"`
 	UserAgent    string    `gorm:"type:varchar(500)" json:"user_agent"`
 }

@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>登录页面 Demo 预览</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #f5f7fa;
+            min-height: 100vh;
+            padding: 60px 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        .header h1 {
+            font-size: 36px;
+            font-weight: 700;
+            color: #1a1a2e;
+            margin-bottom: 16px;
+        }
+
+        .header p {
+            font-size: 16px;
+            color: #64748b;
+        }
+
+        .demo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 32px;
+        }
+
+        .demo-card {
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            transition: all 0.3s ease;
+        }
+
+        .demo-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 40px rgba(0,0,0,0.12);
+        }
+
+        .demo-preview {
+            height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .demo-preview-1 {
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e8ec 100%);
+        }
+
+        .demo-preview-2 {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .demo-preview-3 {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+        }
+
+        .demo-preview-4 {
+            background: #ffffff;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .preview-card {
+            width: 160px;
+            height: 120px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .preview-card-dark {
+            background: rgba(255,255,255,0.15);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .preview-icon {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .preview-icon svg {
+            width: 16px;
+            height: 16px;
+            color: white;
+        }
+
+        .preview-lines {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            width: 80%;
+        }
+
+        .preview-line {
+            height: 6px;
+            background: #e5e7eb;
+            border-radius: 3px;
+        }
+
+        .preview-line:first-child {
+            width: 100%;
+        }
+
+        .preview-line:last-child {
+            width: 60%;
+        }
+
+        .preview-btn {
+            width: 80%;
+            height: 16px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 4px;
+            margin-top: 4px;
+        }
+
+        .demo-info {
+            padding: 24px;
+        }
+
+        .demo-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1a1a2e;
+            margin-bottom: 8px;
+        }
+
+        .demo-desc {
+            font-size: 14px;
+            color: #64748b;
+            line-height: 1.6;
+            margin-bottom: 16px;
+        }
+
+        .demo-tags {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        .demo-tag {
+            padding: 4px 12px;
+            background: #f1f5f9;
+            color: #64748b;
+            border-radius: 20px;
+            font-size: 12px;
+        }
+
+        .demo-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            background: #1a1a2e;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .demo-link:hover {
+            background: #374151;
+            transform: translateX(4px);
+        }
+
+        .demo-link svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 60px;
+            padding-top: 40px;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .footer p {
+            font-size: 14px;
+            color: #64748b;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 28px;
+            }
+
+            .demo-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>后台登录页面 Demo</h1>
+            <p>四种不同风格的登录页面设计方案，点击预览查看效果</p>
+        </div>
+
+        <div class="demo-grid">
+            <!-- Demo 1: 经典居中卡片式 -->
+            <div class="demo-card">
+                <div class="demo-preview demo-preview-1">
+                    <div class="preview-card">
+                        <div class="preview-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
+                                <path d="M2 17l10 5 10-5"></path>
+                                <path d="M2 12l10 5 10-5"></path>
+                            </svg>
+                        </div>
+                        <div class="preview-lines">
+                            <div class="preview-line"></div>
+                            <div class="preview-line"></div>
+                        </div>
+                        <div class="preview-btn"></div>
+                    </div>
+                </div>
+                <div class="demo-info">
+                    <h3 class="demo-title">经典居中卡片式</h3>
+                    <p class="demo-desc">简洁大方的设计，登录表单居中显示，带有渐变色顶部装饰条，适合大多数博客系统</p>
+                    <div class="demo-tags">
+                        <span class="demo-tag">居中布局</span>
+                        <span class="demo-tag">卡片设计</span>
+                        <span class="demo-tag">渐变装饰</span>
+                    </div>
+                    <a href="demo1-classic-center.html" class="demo-link" target="_blank">
+                        <span>预览效果</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                            <polyline points="12 5 19 12 12 19"></polyline>
+                        </svg>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Demo 2: 左右分栏式 -->
+            <div class="demo-card">
+                <div class="demo-preview demo-preview-2">
+                    <div class="preview-card preview-card-dark">
+                        <div class="preview-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
+                                <path d="M2 17l10 5 10-5"></path>
+                                <path d="M2 12l10 5 10-5"></path>
+                            </svg>
+                        </div>
+                        <div class="preview-lines">
+                            <div class="preview-line" style="background: rgba(255,255,255,0.3);"></div>
+                            <div class="preview-line" style="background: rgba(255,255,255,0.3);"></div>
+                        </div>
+                        <div class="preview-btn"></div>
+                    </div>
+                </div>
+                <div class="demo-info">
+                    <h3 class="demo-title">左右分栏式</h3>
+                    <p class="demo-desc">左侧品牌展示区+右侧登录表单，适合需要品牌宣传的博客系统，移动端自动隐藏左侧</p>
+                    <div class="demo-tags">
+                        <span class="demo-tag">分栏布局</span>
+                        <span class="demo-tag">品牌展示</span>
+                        <span class="demo-tag">响应式</span>
+                    </div>
+                    <a href="demo2-split-layout.html" class="demo-link" target="_blank">
+                        <span>预览效果</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                            <polyline points="12 5 19 12 12 19"></polyline>
+                        </svg>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Demo 3: 全屏背景式 -->
+            <div class="demo-card">
+                <div class="demo-preview demo-preview-3">
+                    <div class="preview-card preview-card-dark">
+                        <div class="preview-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
+                                <path d="M2 17l10 5 10-5"></path>
+                                <path d="M2 12l10 5 10-5"></path>
+                            </svg>
+                        </div>
+                        <div class="preview-lines">
+                            <div class="preview-line" style="background: rgba(255,255,255,0.3);"></div>
+                            <div class="preview-line" style="background: rgba(255,255,255,0.3);"></div>
+                        </div>
+                        <div class="preview-btn"></div>
+                    </div>
+                </div>
+                <div class="demo-info">
+                    <h3 class="demo-title">全屏背景式</h3>
+                    <p class="demo-desc">全屏渐变背景+动态浮动圆圈动画，登录卡片毛玻璃效果，视觉冲击力强</p>
+                    <div class="demo-tags">
+                        <span class="demo-tag">全屏背景</span>
+                        <span class="demo-tag">毛玻璃</span>
+                        <span class="demo-tag">动画效果</span>
+                    </div>
+                    <a href="demo3-fullscreen-bg.html" class="demo-link" target="_blank">
+                        <span>预览效果</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                            <polyline points="12 5 19 12 12 19"></polyline>
+                        </svg>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Demo 4: 极简风格 -->
+            <div class="demo-card">
+                <div class="demo-preview demo-preview-4">
+                    <div class="preview-card">
+                        <div class="preview-lines" style="width: 60%;">
+                            <div class="preview-line" style="height: 10px; background: #1a1a2e;"></div>
+                        </div>
+                        <div class="preview-lines">
+                            <div class="preview-line"></div>
+                            <div class="preview-line"></div>
+                        </div>
+                        <div class="preview-btn" style="background: #1a1a2e;"></div>
+                    </div>
+                </div>
+                <div class="demo-info">
+                    <h3 class="demo-title">极简风格</h3>
+                    <p class="demo-desc">黑白配色，无多余装饰，注重内容本身，支持第三方登录，适合追求简约的博客</p>
+                    <div class="demo-tags">
+                        <span class="demo-tag">极简设计</span>
+                        <span class="demo-tag">黑白配色</span>
+                        <span class="demo-tag">第三方登录</span>
+                    </div>
+                    <a href="demo4-minimalist.html" class="demo-link" target="_blank">
+                        <span>预览效果</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                            <polyline points="12 5 19 12 12 19"></polyline>
+                        </svg>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>© 2024 博客后台管理系统 - 登录页面设计方案</p>
+        </div>
+    </div>
+</body>
+</html>

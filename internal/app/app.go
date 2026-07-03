@@ -91,12 +91,13 @@ func (a *App) initDependencies() {
 	linkRepo := repository.NewLinkRepository(a.db.DB)
 	dailyQuestionRepo := repository.NewDailyQuestionRepository(a.db.DB)
 	aboutPageRepo := repository.NewAboutPageRepository(a.db.DB)
+	visitRepo := repository.NewVisitRepository(a.db.DB)
 
 	// Service
 	jwtInstance := jwt.NewJWT(a.config.JWT)
 	userSvc := service.NewUserService(userRepo)
 	authSvc := service.NewAuthService(userRepo, jwtInstance)
-	articleSvc := service.NewArticleService(articleRepo, categoryRepo, tagRepo)
+	articleSvc := service.NewArticleService(articleRepo, categoryRepo, tagRepo, visitRepo)
 	categorySvc := service.NewCategoryService(categoryRepo)
 	tagSvc := service.NewTagService(tagRepo)
 	emailSvc := email.NewEmailService(a.config.Email)
@@ -119,6 +120,7 @@ func (a *App) initDependencies() {
 		articleRepo,
 		linkRepo,
 		commentRepo,
+		visitRepo,
 		a.config,
 	)
 }

@@ -1,0 +1,229 @@
+- generic [ref=f1e4]:
+  - complementary [ref=f1e5]:
+    - generic [ref=f1e6]:
+      - figure [ref=f1e7]:
+        - link "Avatar" [ref=f1e8] [cursor=pointer]:
+          - /url: "#/"
+          - img "Avatar" [ref=f1e9]
+        - generic [ref=f1e10]: 🤖
+      - generic [ref=f1e11]:
+        - heading "Liu Houliang" [level=1] [ref=f1e12]:
+          - link "Liu Houliang" [ref=f1e13] [cursor=pointer]:
+            - /url: "#/"
+        - heading "日常落灰的个人博客，分享 Golang、AI 和 NAS 折腾经验" [level=2] [ref=f1e14]
+    - list [ref=f1e15]:
+      - listitem [ref=f1e16]:
+        - link "Email" [ref=f1e17] [cursor=pointer]:
+          - /url: mailto:admin@liuhouliang.com
+          - img [ref=f1e18]
+      - listitem [ref=f1e21]:
+        - link "GitHub" [ref=f1e22] [cursor=pointer]:
+          - /url: https://github.com/liu-houliang
+          - img [ref=f1e23]
+      - listitem [ref=f1e26]:
+        - link "Bilibili" [ref=f1e27] [cursor=pointer]:
+          - /url: https://space.bilibili.com/
+          - img [ref=f1e28]
+      - listitem [ref=f1e30]:
+        - link "WeChat" [ref=f1e31] [cursor=pointer]:
+          - /url: "#"
+          - img [ref=f1e32]
+    - generic [ref=f1e34] [cursor=pointer]:
+      - textbox "输入关键词..." [ref=f1e35]
+      - img [ref=f1e36]
+    - navigation [ref=f1e39]:
+      - listitem [ref=f1e40]:
+        - link "主页" [ref=f1e41] [cursor=pointer]:
+          - /url: "#/"
+          - img [ref=f1e42]
+          - generic [ref=f1e45]: 主页
+      - listitem [ref=f1e46]:
+        - link "文章" [active] [ref=f1e47] [cursor=pointer]:
+          - /url: "#/archives"
+          - img [ref=f1e48]
+          - generic [ref=f1e50]: 文章
+      - listitem [ref=f1e51]:
+        - link "友链" [ref=f1e52] [cursor=pointer]:
+          - /url: "#/links"
+          - img [ref=f1e53]
+          - generic [ref=f1e56]: 友链
+      - listitem [ref=f1e57]:
+        - link "娱乐" [ref=f1e58] [cursor=pointer]:
+          - /url: "#/media"
+          - img [ref=f1e59]
+          - generic [ref=f1e62]: 娱乐
+      - listitem [ref=f1e63]:
+        - link "关于我" [ref=f1e64] [cursor=pointer]:
+          - /url: "#/about"
+          - img [ref=f1e65]
+          - generic [ref=f1e68]: 关于我
+    - button "暗色模式" [ref=f1e70] [cursor=pointer]:
+      - img [ref=f1e71]
+      - text: 暗色模式
+  - main [ref=f1e73]:
+    - generic [ref=f1e3203]:
+      - heading "文章归档" [level=1] [ref=f1e3204]
+      - generic [ref=f1e3205]:
+        - heading "2026" [level=2] [ref=f1e3206]
+        - list [ref=f1e3207]:
+          - listitem [ref=f1e3208]:
+            - link "Vue 3 组合式 API 入门指南 2026-06-26" [ref=f1e3209] [cursor=pointer]:
+              - /url: "#/post/vue3-composition-api-guide"
+              - generic [ref=f1e3210]: Vue 3 组合式 API 入门指南
+              - generic [ref=f1e3211]: 2026-06-26
+          - listitem [ref=f1e3212]:
+            - link "Gin 框架快速上手 2026-06-26" [ref=f1e3213] [cursor=pointer]:
+              - /url: "#/post/gin-framework-quickstart"
+              - generic [ref=f1e3214]: Gin 框架快速上手
+              - generic [ref=f1e3215]: 2026-06-26
+          - listitem [ref=f1e3216]:
+            - link "MySQL 索引优化实战 2026-06-26" [ref=f1e3217] [cursor=pointer]:
+              - /url: "#/post/mysql-index-optimization"
+              - generic [ref=f1e3218]: MySQL 索引优化实战
+              - generic [ref=f1e3219]: 2026-06-26
+          - listitem [ref=f1e3220]:
+            - link "周末随笔：程序员的成长之路 2026-06-26" [ref=f1e3221] [cursor=pointer]:
+              - /url: "#/post/weekend-thoughts-programmer-growth"
+              - generic [ref=f1e3222]: 周末随笔：程序员的成长之路
+              - generic [ref=f1e3223]: 2026-06-26
+          - listitem [ref=f1e3224]:
+            - link "Docker 容器化部署实践 2026-06-26" [ref=f1e3225] [cursor=pointer]:
+              - /url: "#/post/docker-deployment-practice"
+              - generic [ref=f1e3226]: Docker 容器化部署实践
+              - generic [ref=f1e3227]: 2026-06-26
+          - listitem [ref=f1e3228]:
+            - link "使用 Redis 实现缓存和会话管理 2026-06-26" [ref=f1e3229] [cursor=pointer]:
+              - /url: "#/post/redis-cache-session-management"
+              - generic [ref=f1e3230]: 使用 Redis 实现缓存和会话管理
+              - generic [ref=f1e3231]: 2026-06-26
+          - listitem [ref=f1e3232]:
+            - link "我的博客主题已开源，欢迎使用 2026-06-20" [ref=f1e3233] [cursor=pointer]:
+              - /url: "#/post/my-blog-theme-open-source"
+              - generic [ref=f1e3234]: 我的博客主题已开源，欢迎使用
+              - generic [ref=f1e3235]: 2026-06-20
+          - listitem [ref=f1e3236]:
+            - link "DesktopSnap：开源轻量桌面图标恢复工具 2026-06-20" [ref=f1e3237] [cursor=pointer]:
+              - /url: "#/post/desktopsnap"
+              - generic [ref=f1e3238]: DesktopSnap：开源轻量桌面图标恢复工具
+              - generic [ref=f1e3239]: 2026-06-20
+          - listitem [ref=f1e3240]:
+            - link "用 Cloudflare Workers 免费给博客增加 AI 助手 2026-06-20" [ref=f1e3241] [cursor=pointer]:
+              - /url: "#/post/cloudflare-ai-assistant"
+              - generic [ref=f1e3242]: 用 Cloudflare Workers 免费给博客增加 AI 助手
+              - generic [ref=f1e3243]: 2026-06-20
+          - listitem [ref=f1e3244]:
+            - link "清明假期：收拾家务、整理心情 2026-06-20" [ref=f1e3245] [cursor=pointer]:
+              - /url: "#/post/qingming-holiday"
+              - generic [ref=f1e3246]: 清明假期：收拾家务、整理心情
+              - generic [ref=f1e3247]: 2026-06-20
+          - listitem [ref=f1e3248]:
+            - link "逐渐难以逃离对于 AI 的焦虑 2026-06-20" [ref=f1e3249] [cursor=pointer]:
+              - /url: "#/post/ai-anxiety"
+              - generic [ref=f1e3250]: 逐渐难以逃离对于 AI 的焦虑
+              - generic [ref=f1e3251]: 2026-06-20
+      - generic [ref=f1e3252]:
+        - heading "2025" [level=2] [ref=f1e3253]
+        - list [ref=f1e3254]:
+          - listitem [ref=f1e3255]:
+            - link "2025年个人技术年度总结 2025-12-28" [ref=f1e3256] [cursor=pointer]:
+              - /url: "#/post/2025-tech-annual-summary"
+              - generic [ref=f1e3257]: 2025年个人技术年度总结
+              - generic [ref=f1e3258]: 2025-12-28
+          - listitem [ref=f1e3259]:
+            - link "使用 Docker Compose 部署个人博客 2025-11-15" [ref=f1e3260] [cursor=pointer]:
+              - /url: "#/post/docker-compose-blog-deployment"
+              - generic [ref=f1e3261]: 使用 Docker Compose 部署个人博客
+              - generic [ref=f1e3262]: 2025-11-15
+          - listitem [ref=f1e3263]:
+            - link "Go 语言高性能 Web 服务实践 2025-10-20" [ref=f1e3264] [cursor=pointer]:
+              - /url: "#/post/go-high-performance-web"
+              - generic [ref=f1e3265]: Go 语言高性能 Web 服务实践
+              - generic [ref=f1e3266]: 2025-10-20
+          - listitem [ref=f1e3267]:
+            - link "周末徒步：秦岭深处的宁静 2025-09-08" [ref=f1e3268] [cursor=pointer]:
+              - /url: "#/post/weekend-hiking-qinling"
+              - generic [ref=f1e3269]: 周末徒步：秦岭深处的宁静
+              - generic [ref=f1e3270]: 2025-09-08
+          - listitem [ref=f1e3271]:
+            - link "AI 编程助手使用心得 2025-08-12" [ref=f1e3272] [cursor=pointer]:
+              - /url: "#/post/ai-programming-assistant-tips"
+              - generic [ref=f1e3273]: AI 编程助手使用心得
+              - generic [ref=f1e3274]: 2025-08-12
+          - listitem [ref=f1e3275]:
+            - link "从零开始学习 Kubernetes 2025-07-05" [ref=f1e3276] [cursor=pointer]:
+              - /url: "#/post/learning-kubernetes-from-scratch"
+              - generic [ref=f1e3277]: 从零开始学习 Kubernetes
+              - generic [ref=f1e3278]: 2025-07-05
+          - listitem [ref=f1e3279]:
+            - link "读书笔记：《深入理解计算机系统》 2025-06-18" [ref=f1e3280] [cursor=pointer]:
+              - /url: "#/post/book-review-CSAPP"
+              - generic [ref=f1e3281]: 读书笔记：《深入理解计算机系统》
+              - generic [ref=f1e3282]: 2025-06-18
+          - listitem [ref=f1e3283]:
+            - link "我的 NAS 搭建历程 2025-05-22" [ref=f1e3284] [cursor=pointer]:
+              - /url: "#/post/my-nas-setup-journey"
+              - generic [ref=f1e3285]: 我的 NAS 搭建历程
+              - generic [ref=f1e3286]: 2025-05-22
+          - listitem [ref=f1e3287]:
+            - link "程序员的健康生活 2025-04-10" [ref=f1e3288] [cursor=pointer]:
+              - /url: "#/post/programmer-healthy-lifestyle"
+              - generic [ref=f1e3289]: 程序员的健康生活
+              - generic [ref=f1e3290]: 2025-04-10
+          - listitem [ref=f1e3291]:
+            - link "Redis 缓存实战：从入门到精通 2025-03-15" [ref=f1e3292] [cursor=pointer]:
+              - /url: "#/post/redis-cache-practice"
+              - generic [ref=f1e3293]: Redis 缓存实战：从入门到精通
+              - generic [ref=f1e3294]: 2025-03-15
+      - generic [ref=f1e3295]:
+        - heading "2024" [level=2] [ref=f1e3296]
+        - list [ref=f1e3297]:
+          - listitem [ref=f1e3298]:
+            - link "2024年年终总结：成长与收获 2024-12-30" [ref=f1e3299] [cursor=pointer]:
+              - /url: "#/post/2024-annual-summary-review"
+              - generic [ref=f1e3300]: 2024年年终总结：成长与收获
+              - generic [ref=f1e3301]: 2024-12-30
+          - listitem [ref=f1e3302]:
+            - link "Gin 框架实战：构建 RESTful API 2024-11-25" [ref=f1e3303] [cursor=pointer]:
+              - /url: "#/post/gin-restful-api-practice"
+              - generic [ref=f1e3304]: Gin 框架实战：构建 RESTful API
+              - generic [ref=f1e3305]: 2024-11-25
+          - listitem [ref=f1e3306]:
+            - link "Git 工作流：团队协作的最佳实践 2024-10-18" [ref=f1e3307] [cursor=pointer]:
+              - /url: "#/post/git-team-collaboration-workflow"
+              - generic [ref=f1e3308]: Git 工作流：团队协作的最佳实践
+              - generic [ref=f1e3309]: 2024-10-18
+          - listitem [ref=f1e3310]:
+            - link "周末烘焙：第一次做蛋糕 2024-09-12" [ref=f1e3311] [cursor=pointer]:
+              - /url: "#/post/first-time-baking-cake"
+              - generic [ref=f1e3312]: 周末烘焙：第一次做蛋糕
+              - generic [ref=f1e3313]: 2024-09-12
+          - listitem [ref=f1e3314]:
+            - link "MySQL 性能优化实战 2024-08-20" [ref=f1e3315] [cursor=pointer]:
+              - /url: "#/post/mysql-performance-optimization-guide"
+              - generic [ref=f1e3316]: MySQL 性能优化实战
+              - generic [ref=f1e3317]: 2024-08-20
+          - listitem [ref=f1e3318]:
+            - link "我的 2024 阅读清单 2024-07-15" [ref=f1e3319] [cursor=pointer]:
+              - /url: "#/post/my-2024-reading-list-summary"
+              - generic [ref=f1e3320]: 我的 2024 阅读清单
+              - generic [ref=f1e3321]: 2024-07-15
+          - listitem [ref=f1e3322]:
+            - link "Docker 入门到实践 2024-06-08" [ref=f1e3323] [cursor=pointer]:
+              - /url: "#/post/docker-practice-guide"
+              - generic [ref=f1e3324]: Docker 入门到实践
+              - generic [ref=f1e3325]: 2024-06-08
+          - listitem [ref=f1e3326]:
+            - link "旅行：厦门三日游 2024-05-02" [ref=f1e3327] [cursor=pointer]:
+              - /url: "#/post/xiamen-trip-three-days"
+              - generic [ref=f1e3328]: 旅行：厦门三日游
+              - generic [ref=f1e3329]: 2024-05-02
+          - listitem [ref=f1e3330]:
+            - link "Go 语言错误处理最佳实践 2024-04-10" [ref=f1e3331] [cursor=pointer]:
+              - /url: "#/post/go-error-handling-practice"
+              - generic [ref=f1e3332]: Go 语言错误处理最佳实践
+              - generic [ref=f1e3333]: 2024-04-10
+          - listitem [ref=f1e3334]:
+            - link "新手如何搭建个人博客 2024-03-15" [ref=f1e3335] [cursor=pointer]:
+              - /url: "#/post/build-personal-blog-guide"
+              - generic [ref=f1e3336]: 新手如何搭建个人博客
+              - generic [ref=f1e3337]: 2024-03-15

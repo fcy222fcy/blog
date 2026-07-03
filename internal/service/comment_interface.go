@@ -24,4 +24,7 @@ type CommentService interface {
 
 	// BatchDeleteComments 批量删除评论
 	BatchDeleteComments(ids []uint) error
+
+	// LikeComment 点赞评论（防重复）
+	LikeComment(commentID uint, visitorIP string) error
 }
