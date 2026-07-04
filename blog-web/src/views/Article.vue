@@ -23,7 +23,7 @@
           </span>
           <span class="meta-item">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
-            时长 {{ readingTime }} 分钟
+            时长 {{ articleStore.currentArticle.reading_time || 1 }} 分钟
           </span>
           <span class="meta-item">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
@@ -76,14 +76,28 @@ const renderedContent = computed(() => {
   return sanitizeHtml(marked(articleStore.currentArticle.content))
 })
 
-// 计算阅读时长（中文约 400 字/分钟）
+// 计算阅读时长（中文约 400 字/分钟，英文约 200 词/分钟）
 const readingTime = computed(() => {
   if (!articleStore.currentArticle?.content) return 1
   const content = articleStore.currentArticle.content
-  // 去除 markdown 标记和空白字符后计算字数
-  const text = content.replace(/[#*`>\[\]()!\-\n\r]/g, '').trim()
-  const charCount = text.length || 0
-  return Math.max(1, Math.ceil(charCount / 400))
+  // 去除 markdown 标记
+  let cleaned = content
+  const replacements = ['#', '*', '`', '>', '[', ']', '(', ')', '!', '-']
+  for (const r of replacements) {
+    cleaned = cleaned.split(r).join('')
+  }
+  cleaned = cleaned.trim()
+
+  if (!cleaned) return 1
+
+  // 计算字符数（使用 spread 正确处理 UTF-16）
+  const runeCount = [...cleaned].length
+  // 计算单词数
+  const wordCount = cleaned.split(/\s+/).filter(w => w).length
+
+  // 混合计算：与后端保持一致
+  const minutes = Math.floor(runeCount / 400) + Math.floor(wordCount / 200)
+  return Math.max(1, minutes)
 })
 
 const formatDate = (dateStr) => {

@@ -20,69 +20,6 @@
         </el-form-item>
       </div>
 
-      <!-- 元信息栏 -->
-      <div class="article-meta-bar">
-        <div class="meta-item">
-          <label class="form-label">分类</label>
-          <el-form-item prop="category_id" class="meta-form-item">
-            <select class="form-select" v-model="form.category_id">
-              <option value="">选择分类</option>
-              <option v-for="cat in categories" :key="cat.id" :value="cat.id">{{ cat.name }}</option>
-            </select>
-          </el-form-item>
-        </div>
-        <div class="meta-item">
-          <label class="form-label">状态</label>
-          <div class="meta-item-content">
-            <select class="form-select" v-model="form.status">
-              <option value="draft">草稿</option>
-              <option value="published">发布</option>
-            </select>
-          </div>
-        </div>
-        <div class="meta-item meta-item-grow">
-          <label class="form-label">标签</label>
-          <div class="tags-container">
-            <span v-for="tagId in form.tag_ids" :key="tagId" class="tag-item">
-              {{ getTagName(tagId) }}
-              <button class="tag-remove" @click="removeTag(tagId)">×</button>
-            </span>
-            <select class="form-select tag-select" v-model="selectedTag" @change="addTag">
-              <option value="">选择标签...</option>
-              <option v-for="tag in availableTags" :key="tag.id" :value="tag.id">{{ tag.name }}</option>
-            </select>
-          </div>
-        </div>
-      </div>
-
-      <!-- 封面图 -->
-      <div class="article-cover-bar">
-        <div class="cover-header">
-          <label class="form-label">封面图</label>
-        </div>
-        <ImageUpload v-model="form.cover" />
-      </div>
-
-      <!-- 摘要栏 -->
-      <div class="article-summary-bar">
-        <div class="summary-header">
-          <label class="form-label">摘要</label>
-          <span class="char-count" :class="{ 'exceeded': form.summary.length > 200 }">
-            {{ form.summary.length }} / 200
-          </span>
-        </div>
-        <el-form-item prop="summary" class="summary-form-item">
-          <el-input
-            v-model="form.summary"
-            type="textarea"
-            :rows="3"
-            placeholder="请输入文章摘要（选填，最多200字）"
-            maxlength="200"
-            show-word-limit
-          />
-        </el-form-item>
-      </div>
-
       <!-- 编辑器主体 -->
       <div class="editor-main">
         <MdEditor
@@ -98,18 +35,22 @@
       <!-- 底部操作栏 -->
       <div class="article-actions">
         <div class="action-left">
+          <span class="word-count">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+            {{ wordCount }} 字
+          </span>
           <span v-if="autoSaveStatus" class="auto-save-status" :class="autoSaveStatus">
             <svg v-if="autoSaveStatus === 'saving'" xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle></svg>
             <svg v-else-if="autoSaveStatus === 'saved'" xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
             <svg v-else xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>
             {{ autoSaveText }}
           </span>
-          <el-button @click="resetForm">
-            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"></polyline><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path></svg>
-            <span>重置表单</span>
-          </el-button>
         </div>
         <div class="action-right">
+          <el-button @click="resetForm">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"></polyline><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path></svg>
+            <span>重置</span>
+          </el-button>
           <el-button type="default" @click="handleSaveDraft">
             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
             <span>保存草稿</span>
@@ -121,6 +62,68 @@
         </div>
       </div>
     </el-form>
+
+    <!-- 发布设置弹窗 -->
+    <div class="publish-modal-overlay" :class="{ active: showPublishModal }" @click.self="showPublishModal = false">
+      <div class="publish-modal">
+        <div class="publish-modal-header">
+          <h3>发布设置</h3>
+          <button class="publish-modal-close" @click="showPublishModal = false">×</button>
+        </div>
+        <div class="publish-modal-body">
+          <!-- 分类 -->
+          <div class="publish-field">
+            <label class="publish-label">分类 <span class="required">*</span></label>
+            <select class="publish-select" v-model="form.category_id">
+              <option value="">请选择分类</option>
+              <option v-for="cat in categories" :key="cat.id" :value="cat.id">{{ cat.name }}</option>
+            </select>
+          </div>
+
+          <!-- 标签 -->
+          <div class="publish-field">
+            <label class="publish-label">标签</label>
+            <div class="publish-tags">
+              <span v-for="tagId in form.tag_ids" :key="tagId" class="publish-tag-item">
+                {{ getTagName(tagId) }}
+                <button class="publish-tag-remove" @click="removeTag(tagId)">×</button>
+              </span>
+              <select class="publish-select publish-tag-select" v-model="selectedTag" @change="addTag">
+                <option value="">添加标签...</option>
+                <option v-for="tag in availableTags" :key="tag.id" :value="tag.id">{{ tag.name }}</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- 封面图 -->
+          <div class="publish-field">
+            <label class="publish-label">封面图</label>
+            <ImageUpload v-model="form.cover" />
+          </div>
+
+          <!-- 摘要 -->
+          <div class="publish-field">
+            <div class="publish-label-row">
+              <label class="publish-label">摘要</label>
+              <span class="publish-char-count" :class="{ 'exceeded': form.summary.length > 200 }">
+                {{ form.summary.length }} / 200
+              </span>
+            </div>
+            <textarea
+              v-model="form.summary"
+              class="publish-textarea"
+              placeholder="请输入文章摘要（选填，最多200字）"
+              rows="3"
+              maxlength="200"
+            ></textarea>
+          </div>
+        </div>
+        <div class="publish-modal-footer">
+          <button class="publish-btn-secondary" @click="showPublishModal = false">取消</button>
+          <button class="publish-btn-primary" @click="confirmPublish">确认发布</button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -142,6 +145,7 @@ const isEdit = computed(() => !!route.params.id)
 const editorTheme = ref(localStorage.getItem('scheme') === 'dark' ? 'dark' : 'light')
 const selectedTag = ref('')
 const formRef = ref(null)
+const showPublishModal = ref(false)
 
 const form = ref({
   title: '',
@@ -172,6 +176,25 @@ const tags = ref([])
 
 const availableTags = computed(() => {
   return tags.value.filter(t => !form.value.tag_ids.includes(t.id))
+})
+
+const wordCount = computed(() => {
+  const content = form.value.content || ''
+  // 移除 Markdown 语法字符，统计实际内容字数
+  const plainText = content
+    .replace(/#{1,6}\s/g, '')
+    .replace(/\*{1,3}(.*?)\*{1,3}/g, '$1')
+    .replace(/`(.*?)`/g, '$1')
+    .replace(/```[\s\S]*?```/g, '')
+    .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
+    .replace(/!\[([^\]]*)\]\([^)]+\)/g, '')
+    .replace(/[-*+]\s/g, '')
+    .replace(/\d+\.\s/g, '')
+    .replace(/>\s/g, '')
+    .replace(/\|/g, '')
+    .replace(/---+/g, '')
+    .trim()
+  return plainText.length
 })
 
 const getTagName = (id) => {
@@ -355,29 +378,32 @@ const handleSaveDraft = async () => {
 }
 
 const handlePublish = async () => {
-  // 发布前进行完整验证
-  if (!formRef.value) return
-
-  try {
-    await formRef.value.validate(async (valid) => {
-      if (valid) {
-        // 验证内容长度
-        if (!form.value.content || form.value.content.trim().length < 10) {
-          ElMessage.warning('文章内容至少需要 10 个字符')
-          return
-        }
-
-        form.value.status = 'published'
-        await handleSave()
-      } else {
-        ElMessage.error('请检查表单填写是否正确')
-        return false
-      }
-    })
-  } catch (error) {
-    // 验证失败时的处理
-    ElMessage.error('请检查表单填写是否正确')
+  // 验证标题
+  if (!form.value.title || form.value.title.trim().length < 2) {
+    ElMessage.warning('请先输入文章标题（至少2个字符）')
+    return
   }
+
+  // 验证内容长度
+  if (!form.value.content || form.value.content.trim().length < 10) {
+    ElMessage.warning('文章内容至少需要 10 个字符')
+    return
+  }
+
+  // 打开发布设置弹窗
+  showPublishModal.value = true
+}
+
+const confirmPublish = async () => {
+  // 验证分类
+  if (!form.value.category_id) {
+    ElMessage.warning('请选择文章分类')
+    return
+  }
+
+  form.value.status = 'published'
+  showPublishModal.value = false
+  await handleSave()
 }
 
 const handleSave = async (isDraft = false) => {
@@ -470,15 +496,14 @@ onMounted(loadData)
 .article-edit-container {
   display: flex;
   flex-direction: column;
-  height: calc(100vh - 120px);
   gap: 16px;
+  padding-bottom: 80px;
 }
 
 /* 表单样式 */
 .article-form {
   display: flex;
   flex-direction: column;
-  height: 100%;
   gap: 0;
 }
 
@@ -547,137 +572,8 @@ onMounted(loadData)
   outline: none;
 }
 
-/* 元信息栏 */
-.article-meta-bar {
-  display: flex;
-  gap: 16px;
-  background: var(--card-background);
-  border-radius: var(--card-border-radius);
-  padding: 16px 20px;
-  box-shadow: var(--card-shadow);
-  flex-wrap: wrap;
-}
-
-.meta-item {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  min-width: 150px;
-}
-
-.meta-form-item {
-  width: 100%;
-}
-
-.meta-form-item :deep(.el-form-item__content) {
-  line-height: normal;
-}
-
-.meta-item-content {
-  display: flex;
-  align-items: center;
-}
-
-.meta-item-grow {
-  flex: 1;
-  min-width: 200px;
-}
-
-.form-label {
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--text-color-secondary);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.tags-container {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  align-items: center;
-}
-
-.tag-item {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 4px 10px;
-  background: rgba(var(--accent-color-rgb), 0.1);
-  color: var(--accent-color);
-  border-radius: var(--tag-border-radius);
-  font-size: 13px;
-}
-
-.tag-remove {
-  background: none;
-  color: var(--accent-color);
-  font-size: 16px;
-  padding: 0;
-  line-height: 1;
-}
-
-.tag-select {
-  width: auto;
-  min-width: 120px;
-}
-
-/* 封面图栏 */
-.article-cover-bar {
-  background: var(--card-background);
-  border-radius: var(--card-border-radius);
-  padding: 16px 20px;
-  box-shadow: var(--card-shadow);
-}
-
-.cover-header {
-  margin-bottom: 12px;
-}
-
-/* 摘要栏 */
-.article-summary-bar {
-  background: var(--card-background);
-  border-radius: var(--card-border-radius);
-  padding: 16px 20px;
-  box-shadow: var(--card-shadow);
-}
-
-.summary-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 8px;
-}
-
-.char-count {
-  font-size: 12px;
-  color: var(--text-color-tertiary);
-}
-
-.char-count.exceeded {
-  color: var(--error-color);
-  font-weight: 600;
-}
-
-.summary-form-item {
-  width: 100%;
-}
-
-.summary-form-item :deep(.el-textarea__inner) {
-  background: var(--input-background);
-  border-color: var(--border-color);
-  color: var(--text-color-main);
-  resize: none;
-}
-
-.summary-form-item :deep(.el-input__count) {
-  background: transparent;
-}
-
 /* 编辑器主体 */
 .editor-main {
-  flex: 1;
-  min-height: 0;
   background: var(--card-background);
   border-radius: var(--card-border-radius);
   box-shadow: var(--card-shadow);
@@ -685,7 +581,7 @@ onMounted(loadData)
 }
 
 .md-editor {
-  height: 100%;
+  height: auto;
 }
 
 /* 底部操作栏 */
@@ -693,7 +589,15 @@ onMounted(loadData)
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 16px 0;
+  padding: 16px 24px;
+  background: var(--card-background);
+  border-radius: var(--card-border-radius);
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+  position: fixed;
+  bottom: 0;
+  left: var(--sidebar-width);
+  right: 0;
+  z-index: 100;
 }
 
 .action-left,
@@ -701,6 +605,22 @@ onMounted(loadData)
   display: flex;
   gap: 12px;
   align-items: center;
+}
+
+/* 字数统计 */
+.word-count {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--text-color-secondary);
+  padding: 6px 12px;
+  background: var(--input-background);
+  border-radius: 6px;
+}
+
+.word-count svg {
+  opacity: 0.6;
 }
 
 /* 自动保存状态 */
@@ -734,14 +654,233 @@ onMounted(loadData)
   to { opacity: 1; transform: translateY(0); }
 }
 
+/* 发布设置弹窗 */
+.publish-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  backdrop-filter: blur(4px);
+}
+
+.publish-modal-overlay.active {
+  display: flex;
+}
+
+.publish-modal {
+  background: var(--card-background);
+  border-radius: 12px;
+  width: 90%;
+  max-width: 560px;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+}
+
+.publish-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--card-separator-color);
+}
+
+.publish-modal-header h3 {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--card-text-color-main);
+  margin: 0;
+}
+
+.publish-modal-close {
+  background: none;
+  font-size: 24px;
+  color: var(--card-text-color-tertiary);
+  padding: 4px 8px;
+  border-radius: 6px;
+  transition: all 0.2s;
+}
+
+.publish-modal-close:hover {
+  background: var(--body-background);
+  color: var(--card-text-color-main);
+}
+
+.publish-modal-body {
+  padding: 24px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.publish-field {
+  margin-bottom: 24px;
+}
+
+.publish-field:last-child {
+  margin-bottom: 0;
+}
+
+.publish-label {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--card-text-color-main);
+  margin-bottom: 10px;
+}
+
+.publish-label .required {
+  color: var(--danger-color);
+}
+
+.publish-label-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.publish-select {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1px solid var(--card-separator-color);
+  border-radius: 8px;
+  font-size: 14px;
+  background: var(--card-background);
+  color: var(--card-text-color-main);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.publish-select:focus {
+  outline: none;
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 3px rgba(var(--accent-color-rgb), 0.1);
+}
+
+.publish-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.publish-tag-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: rgba(var(--accent-color-rgb), 0.1);
+  color: var(--accent-color);
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.publish-tag-remove {
+  background: none;
+  color: var(--accent-color);
+  font-size: 16px;
+  padding: 0;
+  line-height: 1;
+  opacity: 0.7;
+  transition: opacity 0.2s;
+}
+
+.publish-tag-remove:hover {
+  opacity: 1;
+}
+
+.publish-tag-select {
+  width: auto;
+  min-width: 140px;
+}
+
+.publish-textarea {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1px solid var(--card-separator-color);
+  border-radius: 8px;
+  font-size: 14px;
+  background: var(--card-background);
+  color: var(--card-text-color-main);
+  resize: vertical;
+  min-height: 80px;
+  font-family: inherit;
+  transition: all 0.2s;
+}
+
+.publish-textarea:focus {
+  outline: none;
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 3px rgba(var(--accent-color-rgb), 0.1);
+}
+
+.publish-char-count {
+  font-size: 12px;
+  color: var(--card-text-color-tertiary);
+}
+
+.publish-char-count.exceeded {
+  color: var(--danger-color);
+  font-weight: 600;
+}
+
+.publish-modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: 16px 24px;
+  border-top: 1px solid var(--card-separator-color);
+}
+
+.publish-btn-secondary {
+  padding: 10px 20px;
+  border: 1px solid var(--card-separator-color);
+  border-radius: 8px;
+  background: var(--card-background);
+  color: var(--card-text-color-main);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.publish-btn-secondary:hover {
+  border-color: var(--card-text-color-tertiary);
+}
+
+.publish-btn-primary {
+  padding: 10px 24px;
+  border: none;
+  border-radius: 8px;
+  background: var(--accent-color);
+  color: var(--accent-color-text);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.publish-btn-primary:hover {
+  background: var(--accent-color-darker);
+}
+
 /* 响应式 */
-@media (max-width: 1024px) {
-  .article-meta-bar {
-    flex-direction: column;
+@media (max-width: 768px) {
+  .publish-modal {
+    width: 95%;
+    max-height: 90vh;
   }
 
-  .meta-item {
-    width: 100%;
+  .publish-modal-body {
+    padding: 20px;
   }
 }
 </style>

@@ -4,6 +4,10 @@ export const getLatestQuestion = () => {
   return request.get('/daily-questions/latest')
 }
 
+export const getAllPublishedQuestions = () => {
+  return request.get('/daily-questions/all')
+}
+
 export const getQuestionByDate = (date) => {
   return request.get(`/daily-questions/date/${date}`)
 }

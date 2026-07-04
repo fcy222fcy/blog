@@ -397,3 +397,70 @@ button { cursor: pointer; border: none; }
   color: var(--accent-color) !important;
   border-color: var(--accent-color) !important;
 }
+
+/* ===== 回到顶部按钮 ===== */
+.back-to-top {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--card-background);
+  border: 1px solid var(--card-separator-color);
+  box-shadow: var(--shadow-l2);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(20px);
+  transition: all 0.3s ease;
+  z-index: 1000;
+  padding: 0;
+}
+
+.back-to-top.visible {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.back-to-top:hover {
+  background: var(--accent-color);
+  border-color: var(--accent-color);
+}
+
+.back-to-top:hover .arrow {
+  color: var(--accent-color-text);
+}
+
+.back-to-top .progress-ring {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+
+.back-to-top .progress-bg {
+  fill: none;
+  stroke: var(--card-separator-color);
+  stroke-width: 2;
+}
+
+.back-to-top .progress-bar {
+  fill: none;
+  stroke: var(--accent-color);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-dasharray: 113;
+  transition: stroke-dashoffset 0.1s;
+}
+
+.back-to-top .arrow {
+  position: relative;
+  z-index: 1;
+  color: var(--card-text-color-secondary);
+  transition: color 0.3s;
+}

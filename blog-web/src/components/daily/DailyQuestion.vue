@@ -1,10 +1,10 @@
 <template>
   <article class="article-card dq-daily-card">
-    <a class="card-link dq-daily-link">
+    <div class="card-link">
       <div class="dq-daily-header">
         <span class="category-pill category-life">每日一问</span>
         <div class="dq-daily-nav">
-          <button class="dq-daily-nav-btn" @click="prevDay" :disabled="!hasPrev">◀ 前一天</button>
+          <button class="dq-daily-nav-btn" @click.stop="prevDay" :disabled="!hasPrev">◀ 前一天</button>
           <div class="dq-daily-date-wrapper">
             <button class="dq-daily-date-btn" @click.stop="toggleCalendar">
               <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"></rect><line x1="16" x2="16" y1="2" y2="6"></line><line x1="8" x2="8" y1="2" y2="6"></line><line x1="3" x2="21" y1="10" y2="10"></line></svg>
@@ -40,43 +40,36 @@
               <button class="dq-calendar-close" @click="showCalendar = false">关闭</button>
             </div>
           </div>
-          <button class="dq-daily-nav-btn" @click="nextDay" :disabled="!hasNext">后一天 ▶</button>
+          <button class="dq-daily-nav-btn" @click.stop="nextDay" :disabled="!hasNext">后一天 ▶</button>
         </div>
       </div>
 
       <h2 class="dq-daily-title">{{ question?.question || '暂无问题' }}</h2>
 
       <div class="dq-daily-answer-wrapper" v-if="question">
-        <p class="dq-daily-preview">{{ question.answer }}</p>
-        <div v-if="!answerVisible" class="dq-daily-mask" @click="answerVisible = true">
+        <p class="dq-daily-preview" :class="{ expanded: answerVisible }">{{ question.answer }}</p>
+        <div v-if="!answerVisible" class="dq-daily-mask" @click.stop="answerVisible = true">
           <span class="dq-daily-mask-text">👉 点击查看答案</span>
         </div>
-        <div v-if="answerVisible" class="dq-daily-hide-btn" @click="answerVisible = false">
+        <div v-if="answerVisible" class="dq-daily-hide-btn" @click.stop="answerVisible = false">
           <span class="dq-daily-hide-text">👈 点击收起答案</span>
         </div>
       </div>
 
-      <div class="dq-daily-footer">
-        <button class="dq-daily-like-btn" :class="{ liked: isLiked }" @click="handleLike">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
-          <span>{{ question?.like_count || 0 }}</span>
-        </button>
-        <button class="dq-daily-comment-btn">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
-          <span>{{ question?.comment_count || 0 }}</span>
-        </button>
-      </div>
-    </a>
+      <router-link :to="`/daily/${question?.date}`" class="dq-view-btn" v-if="question">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+        <span>查看所有每日一问</span>
+      </router-link>
+    </div>
   </article>
 </template>
 
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue'
-import { getLatestQuestion, getQuestionByDate, getPreviousQuestion, getNextQuestion, likeQuestion } from '../../api/daily'
+import { getLatestQuestion, getQuestionByDate, getPreviousQuestion, getNextQuestion } from '../../api/daily'
 
 const question = ref(null)
 const answerVisible = ref(false)
-const isLiked = ref(false)
 const hasPrev = ref(false)
 const hasNext = ref(false)
 const showCalendar = ref(false)
@@ -146,7 +139,6 @@ const loadQuestion = async (date) => {
     if (res.data) {
       question.value = res.data
       answerVisible.value = false
-      isLiked.value = localStorage.getItem('dq_liked_' + res.data?.id) === 'true'
       // 更新日历月份到问题所在月份
       if (res.data.date) {
         const [y, m] = res.data.date.split('-').map(Number)
@@ -203,7 +195,6 @@ const selectDate = async (date) => {
     if (res.data) {
       question.value = res.data
       answerVisible.value = false
-      isLiked.value = localStorage.getItem('dq_liked_' + res.data?.id) === 'true'
       await checkNavigation(res.data.date)
     }
     showCalendar.value = false
@@ -219,7 +210,6 @@ const prevDay = async () => {
       if (res.data) {
         question.value = res.data
         answerVisible.value = false
-        isLiked.value = localStorage.getItem('dq_liked_' + res.data?.id) === 'true'
         const [y, m] = res.data.date.split('-').map(Number)
         calendarYear.value = y
         calendarMonth.value = m - 1
@@ -238,7 +228,6 @@ const nextDay = async () => {
       if (res.data) {
         question.value = res.data
         answerVisible.value = false
-        isLiked.value = localStorage.getItem('dq_liked_' + res.data?.id) === 'true'
         const [y, m] = res.data.date.split('-').map(Number)
         calendarYear.value = y
         calendarMonth.value = m - 1
@@ -248,16 +237,6 @@ const nextDay = async () => {
       console.error('没有后一天的问题了')
     }
   }
-}
-
-const handleLike = async () => {
-  if (isLiked.value || !question.value) return
-  try {
-    const res = await likeQuestion(question.value.id)
-    question.value.like_count = res.data?.like_count || question.value.like_count + 1
-    localStorage.setItem('dq_liked_' + question.value.id, 'true')
-    isLiked.value = true
-  } catch (e) { console.error(e) }
 }
 
 // 点击外部关闭日历
@@ -276,3 +255,275 @@ onUnmounted(() => {
   document.removeEventListener('click', handleClickOutside)
 })
 </script>
+
+<style scoped>
+.dq-daily-card {
+  border-left: 4px solid var(--accent-color, #007bff);
+  display: flex;
+  flex-direction: column;
+}
+
+.dq-daily-card :deep(.card-link) {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 24px 24px 18px;
+}
+
+.dq-daily-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.dq-daily-nav {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.dq-daily-nav-btn {
+  padding: 6px 12px;
+  background: var(--card-background, #fff);
+  border: 1px solid var(--card-separator-color, rgba(0, 0, 0, 0.08));
+  border-radius: 6px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+  color: var(--card-text-color-secondary, #5d5d5d);
+}
+
+.dq-daily-nav-btn:hover:not(:disabled) {
+  background: var(--accent-color, #1B365D);
+  color: white;
+  border-color: var(--accent-color, #1B365D);
+}
+
+.dq-daily-nav-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.dq-daily-date-wrapper {
+  position: relative;
+}
+
+.dq-daily-date-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: var(--card-background, #fff);
+  border: 1px solid var(--card-separator-color, rgba(0, 0, 0, 0.08));
+  border-radius: 6px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+  color: var(--card-text-color-secondary, #5d5d5d);
+}
+
+.dq-daily-date-btn:hover {
+  background: var(--accent-color, #1B365D);
+  color: white;
+  border-color: var(--accent-color, #1B365D);
+}
+
+.dq-calendar-popup {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 8px;
+  background: var(--card-background, #fff);
+  border: 1px solid var(--card-separator-color, rgba(0, 0, 0, 0.08));
+  border-radius: 8px;
+  padding: 12px;
+  box-shadow: var(--shadow-l2);
+  z-index: 100;
+  min-width: 280px;
+}
+
+.dq-calendar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.dq-calendar-nav {
+  padding: 4px 8px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--card-text-color-secondary, #5d5d5d);
+  font-size: 12px;
+}
+
+.dq-calendar-nav:hover {
+  color: var(--accent-color, #1B365D);
+}
+
+.dq-calendar-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--card-text-color-main, #333);
+}
+
+.dq-calendar-weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+  margin-bottom: 8px;
+}
+
+.dq-calendar-weekdays span {
+  text-align: center;
+  font-size: 11px;
+  color: var(--card-text-color-tertiary, #8c8c8c);
+  padding: 4px 0;
+}
+
+.dq-calendar-days {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+}
+
+.dq-calendar-day {
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: none;
+  border-radius: 4px;
+  font-size: 12px;
+  cursor: pointer;
+  color: var(--card-text-color-main, #333);
+  transition: all 0.15s;
+}
+
+.dq-calendar-day:hover:not(:disabled) {
+  background: rgba(var(--accent-color-rgb, 27, 54, 93), 0.1);
+  color: var(--accent-color, #1B365D);
+}
+
+.dq-calendar-day.other-month {
+  color: var(--card-text-color-tertiary, #8c8c8c);
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.dq-calendar-day.is-today {
+  font-weight: 700;
+  color: var(--accent-color, #1B365D);
+}
+
+.dq-calendar-day.is-selected {
+  background: var(--accent-color, #1B365D);
+  color: white;
+}
+
+.dq-calendar-close {
+  width: 100%;
+  margin-top: 8px;
+  padding: 6px;
+  background: var(--card-separator-color, rgba(0, 0, 0, 0.08));
+  border: none;
+  border-radius: 4px;
+  font-size: 12px;
+  cursor: pointer;
+  color: var(--card-text-color-secondary, #5d5d5d);
+}
+
+.dq-calendar-close:hover {
+  background: var(--accent-color, #1B365D);
+  color: white;
+}
+
+.dq-daily-title {
+  font-size: 1.35rem;
+  font-weight: 700;
+  margin-bottom: 8px;
+  line-height: 1.4;
+  color: var(--card-text-color-main, #333);
+}
+
+.dq-daily-answer-wrapper {
+  position: relative;
+  margin-bottom: 12px;
+  height: 100px;
+  overflow: hidden;
+}
+
+.dq-daily-preview {
+  color: var(--card-text-color-secondary, #5d5d5d);
+  line-height: 1.6;
+  margin-bottom: 0;
+}
+
+.dq-daily-mask {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 100%;
+  background: linear-gradient(to bottom, transparent 20%, var(--card-background, #fff) 65%);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: 4px;
+  cursor: pointer;
+}
+
+.dq-daily-mask-text {
+  font-size: 13px;
+  color: var(--accent-color, #1B365D);
+  font-weight: 500;
+}
+
+.dq-daily-mask-text {
+  font-size: 13px;
+  color: var(--accent-color, #1B365D);
+  font-weight: 500;
+}
+
+.dq-daily-hide-btn {
+  text-align: center;
+  margin-top: 8px;
+}
+
+.dq-daily-hide-text {
+  font-size: 13px;
+  color: var(--accent-color, #1B365D);
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.dq-view-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  background: rgba(var(--accent-color-rgb, 27, 54, 93), 0.08);
+  color: var(--accent-color, #1B365D);
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  text-decoration: none;
+  transition: all 0.2s;
+  margin-top: auto;
+  align-self: flex-start;
+}
+
+.dq-view-btn:hover {
+  background: var(--accent-color, #1B365D);
+  color: white;
+}
+
+.category-life {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+</style>

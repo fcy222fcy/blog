@@ -6,7 +6,7 @@
         <div class="stat-value">{{ questions.length }}</div>
       </div>
       <div class="stat-card">
-        <div class="stat-label">启用问题</div>
+        <div class="stat-label">显示问题</div>
         <div class="stat-value">{{ questions.filter(q => q.status === 1).length }}</div>
       </div>
       <div class="stat-card">
@@ -29,8 +29,8 @@
           </div>
           <select class="form-select" style="width: auto; padding: 9px 32px 9px 12px;" v-model="statusFilter">
             <option value="">全部状态</option>
-            <option value="1">启用</option>
-            <option value="0">禁用</option>
+            <option value="1">显示</option>
+            <option value="0">隐藏</option>
           </select>
           <button class="btn btn-primary" @click="showModal = true; resetForm()">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
@@ -55,7 +55,7 @@
               <td>{{ q.date }}</td>
               <td>
                 <span class="status-badge" :class="q.status === 1 ? 'status-published' : 'status-draft'">
-                  {{ q.status === 1 ? '启用' : '禁用' }}
+                  {{ q.status === 1 ? '显示' : '隐藏' }}
                 </span>
               </td>
               <td>{{ q.view_count || 0 }} / {{ q.like_count || 0 }}</td>
@@ -63,7 +63,7 @@
                 <div style="display: flex; gap: 6px;">
                   <button class="action-btn btn-edit btn-sm" @click="editQuestion(q)">编辑</button>
                   <button class="action-btn btn-sm" :class="q.status === 1 ? 'btn-hide' : 'btn-edit'" @click="toggleStatus(q)">
-                    {{ q.status === 1 ? '禁用' : '启用' }}
+                    {{ q.status === 1 ? '隐藏' : '显示' }}
                   </button>
                   <button class="action-btn btn-delete btn-sm" @click="handleDelete(q.id)">删除</button>
                 </div>
@@ -78,7 +78,7 @@
     </div>
 
     <div class="modal-overlay" :class="{ active: showModal }" @click.self="showModal = false">
-      <div class="modal" style="max-width: 600px;">
+      <div class="modal" style="max-width: 900px;">
         <div class="modal-header">
           <h3 class="modal-title">{{ editingId ? '编辑问题' : '新建问题' }}</h3>
           <button class="modal-close" @click="showModal = false">×</button>
@@ -93,8 +93,16 @@
             <textarea class="form-textarea" v-model="form.question" placeholder="输入问题..." rows="3"></textarea>
           </div>
           <div class="form-group" style="margin-bottom: 0;">
-            <label class="form-label">答案</label>
-            <textarea class="form-textarea" v-model="form.answer" placeholder="输入答案..." rows="6"></textarea>
+            <label class="form-label">答案（支持 Markdown）</label>
+            <MdEditor
+              v-model="form.answer"
+              :theme="editorTheme"
+              class="md-editor"
+              :preview="true"
+              previewTheme="github"
+              @onUploadImg="onUploadImg"
+              style="height: 400px;"
+            />
           </div>
         </div>
         <div class="modal-footer">
@@ -109,7 +117,10 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
+import { MdEditor } from 'md-editor-v3'
+import 'md-editor-v3/lib/style.css'
 import { getDailyQuestionList, createDailyQuestion, updateDailyQuestion, deleteDailyQuestion, updateDailyQuestionStatus } from '../../api/daily'
+import { uploadFile } from '../../api/media'
 
 const questions = ref([])
 const keyword = ref('')
@@ -117,6 +128,7 @@ const statusFilter = ref('')
 const showModal = ref(false)
 const editingId = ref(null)
 const form = ref({ question: '', answer: '', date: '' })
+const editorTheme = ref(localStorage.getItem('scheme') === 'dark' ? 'dark' : 'light')
 
 const filteredQuestions = computed(() => {
   let list = questions.value
@@ -138,6 +150,25 @@ const loadQuestions = async () => {
     const res = await getDailyQuestionList({ page: 1, page_size: 100 })
     questions.value = res.data?.list || []
   } catch (e) { console.error(e) }
+}
+
+// 图片上传处理
+const onUploadImg = async (files, callback) => {
+  const res = []
+  for (const file of files) {
+    try {
+      const uploadRes = await uploadFile(file)
+      if (uploadRes.code === 0) {
+        res.push(uploadRes.data.url)
+      } else {
+        ElMessage.error('图片上传失败')
+      }
+    } catch (e) {
+      console.error('上传失败:', e)
+      ElMessage.error('图片上传失败')
+    }
+  }
+  callback(res)
 }
 
 const handleSave = async () => {
@@ -174,4 +205,5 @@ onMounted(loadQuestions)
 <style scoped>
 .btn-hide { background: rgba(245, 158, 11, 0.08); color: var(--warning-color); }
 .btn-hide:hover { background: var(--warning-color); color: white; }
+.md-editor { border-radius: 8px; overflow: hidden; }
 </style>

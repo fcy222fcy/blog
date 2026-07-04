@@ -20,6 +20,7 @@ func registerPublicRoutes(rg *gin.RouterGroup, controller *Controller) {
 	dailyQ := rg.Group("/daily-questions")
 	{
 		dailyQ.GET("/latest", controller.GetLatestQuestion)
+		dailyQ.GET("/all", controller.GetAllPublishedQuestions)
 		dailyQ.GET("/date/:date", controller.GetQuestionByDate)
 		dailyQ.GET("/previous/:date", controller.GetPreviousQuestion)
 		dailyQ.GET("/next/:date", controller.GetNextQuestion)

@@ -39,6 +39,23 @@ func (c *Controller) GetLatestQuestion(ctx *gin.Context) {
 	response.Success(ctx, result)
 }
 
+// GetAllPublishedQuestions 获取所有已发布问题列表
+func (c *Controller) GetAllPublishedQuestions(ctx *gin.Context) {
+	result, err := c.dailyQSvc.GetAllPublishedQuestions()
+	if err != nil {
+		if bizerrors.IsBizError(err) {
+			logger.Warn("获取已发布问题列表业务错误", zap.Error(err))
+			response.BizError(ctx, err)
+		} else {
+			logger.Error("获取已发布问题列表失败", zap.Error(err))
+			response.ServerError(ctx, "服务器内部错误")
+		}
+		return
+	}
+
+	response.Success(ctx, result)
+}
+
 // GetQuestionByDate 根据日期获取问题
 func (c *Controller) GetQuestionByDate(ctx *gin.Context) {
 	date := ctx.Param("date")

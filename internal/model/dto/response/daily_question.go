@@ -14,3 +14,10 @@ type DailyQuestionResponse struct {
 	Status       int       `json:"status"`
 	CreatedAt    time.Time `json:"created_at"`
 }
+
+// DailyQuestionBriefResponse 每日一问简要响应（用于列表）
+type DailyQuestionBriefResponse struct {
+	ID       uint   `json:"id"`
+	Question string `json:"question"`
+	Date     string `json:"date"`
+}

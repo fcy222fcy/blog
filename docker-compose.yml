@@ -10,8 +10,9 @@ services:
       MYSQL_PASSWORD: ${DB_PASSWORD:-your_password}
     volumes:
       - mysql_data:/var/lib/mysql
-    ports:
-      - "3306:3306"
+    # ports:
+    #   - "3306:3306"
+    # 后续通过ssh进行连接
     networks:
       - blog_network
     healthcheck:

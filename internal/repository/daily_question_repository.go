@@ -29,6 +29,13 @@ func (r *dailyQuestionRepository) FindByID(id uint) (*entity.DailyQuestion, erro
 	return &question, nil
 }
 
+// GetAllPublished 获取所有已发布问题
+func (r *dailyQuestionRepository) GetAllPublished() ([]*entity.DailyQuestion, error) {
+	var questions []*entity.DailyQuestion
+	err := r.db.Where("status = 1").Order("date DESC").Find(&questions).Error
+	return questions, err
+}
+
 // FindByDate 根据日期查找问题
 func (r *dailyQuestionRepository) FindByDate(date string) (*entity.DailyQuestion, error) {
 	var question entity.DailyQuestion

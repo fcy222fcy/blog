@@ -21,6 +21,24 @@ func NewDailyQuestionService(dailyQuestionRepo repository.DailyQuestionRepositor
 	return &dailyQuestionService{dailyQuestionRepo: dailyQuestionRepo}
 }
 
+// GetAllPublishedQuestions 获取所有已发布问题列表
+func (s *dailyQuestionService) GetAllPublishedQuestions() ([]*response.DailyQuestionBriefResponse, error) {
+	list, err := s.dailyQuestionRepo.GetAllPublished()
+	if err != nil {
+		return nil, fmt.Errorf("获取已发布问题列表失败, %w", err)
+	}
+
+	var result []*response.DailyQuestionBriefResponse
+	for _, q := range list {
+		result = append(result, &response.DailyQuestionBriefResponse{
+			ID:       q.ID,
+			Question: q.Question,
+			Date:     q.Date,
+		})
+	}
+	return result, nil
+}
+
 // GetLatestQuestion 获取最新问题
 func (s *dailyQuestionService) GetLatestQuestion() (*response.DailyQuestionResponse, error) {
 	question, err := s.dailyQuestionRepo.GetLatest()

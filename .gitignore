@@ -29,6 +29,7 @@ configs/*.yaml
 logs/
 *.log
 log/
+debug.log
 
 # IDE
 .idea/
@@ -80,3 +81,19 @@ _test/
 node_modules/
 blog-admin/node_modules/
 blog-web/node_modules/
+
+# Playwright MCP
+.playwright-mcp/
+
+# Docker
+docker-compose.override.yml
+
+# Database
+*.db
+*.sqlite
+
+# Upload files
+uploads/
+
+# Claude
+.claude/

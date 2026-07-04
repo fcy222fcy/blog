@@ -3,7 +3,7 @@
     <div class="stats-grid">
       <div class="stat-card">
         <div class="stat-label">文章总数</div>
-        <div class="stat-value">{{ total }}</div>
+        <div class="stat-value">{{ allTotal }}</div>
       </div>
       <div class="stat-card">
         <div class="stat-label">已发布</div>
@@ -107,6 +107,7 @@ const categories = ref([])
 const loading = ref(false)
 const page = ref(1)
 const total = ref(0)
+const allTotal = ref(0) // 所有文章的总数，不受状态过滤影响
 const keyword = ref('')
 const categoryFilter = ref('')
 const statusFilter = ref('')
@@ -128,10 +129,12 @@ const switchTab = (status) => {
 
 const loadStats = async () => {
   try {
-    const [publishedRes, draftRes] = await Promise.all([
+    const [allRes, publishedRes, draftRes] = await Promise.all([
+      getArticleList({ page: 1, page_size: 1 }),
       getArticleList({ page: 1, page_size: 1, status: 'published' }),
       getArticleList({ page: 1, page_size: 1, status: 'draft' })
     ])
+    allTotal.value = allRes.data?.total || 0
     stats.value.published = publishedRes.data?.total || 0
     stats.value.draft = draftRes.data?.total || 0
   } catch (e) { console.error(e) }

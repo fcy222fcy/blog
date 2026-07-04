@@ -35,6 +35,11 @@ const routes = [
     path: '/post/:slug',
     name: 'Article',
     component: () => import('../views/Article.vue')
+  },
+  {
+    path: '/daily/:date?',
+    name: 'DailyQuestion',
+    component: () => import('../views/DailyQuestion.vue')
   }
 ]
 

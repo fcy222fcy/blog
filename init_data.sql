@@ -45,6 +45,6 @@ INSERT INTO daily_questions (question, answer, date, like_count, comment_count, 
 ('远程办公的优缺点是什么？', '优点：灵活的工作时间、节省通勤时间。缺点：缺乏面对面交流、容易分心。', '2026-06-18', 89, 12, 189, 1, NOW(), NOW()),
 ('如何看待人工智能的发展？', '人工智能正在快速发展，我们应该拥抱技术变革，学习相关知识，思考如何利用 AI 提高效率。', '2026-06-17', 234, 28, 456, 1, NOW(), NOW());
 
--- 用户
+-- 用户 (密码: 123456)
 INSERT INTO users (username, password, nickname, email, avatar, bio, status, created_at, updated_at) VALUES
-('admin', '123456', 'Liu Houliang', 'admin@liuhouliang.com', '/avatar.jpg', '日常落灰的个人博客，分享 Golang、AI 和 NAS 折腾经验', 1, NOW(), NOW());
+('admin', '$2a$10$rr5uvsYJFrmZkGsSwDrG9.Q0aFQvu0uikcHU/0vefGiucCWtZGXYC', 'Liu Houliang', 'admin@liuhouliang.com', '/avatar.jpg', '日常落灰的个人博客，分享 Golang、AI 和 NAS 折腾经验', 1, NOW(), NOW());

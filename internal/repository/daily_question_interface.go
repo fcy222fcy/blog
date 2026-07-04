@@ -7,6 +7,9 @@ type DailyQuestionRepository interface {
 	// FindByID 根据 ID 查找问题
 	FindByID(id uint) (*entity.DailyQuestion, error)
 
+	// GetAllPublished 获取所有已发布问题
+	GetAllPublished() ([]*entity.DailyQuestion, error)
+
 	// FindByDate 根据日期查找问题
 	FindByDate(date string) (*entity.DailyQuestion, error)
 
