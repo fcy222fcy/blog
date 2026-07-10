@@ -21,14 +21,16 @@
       </div>
 
       <!-- 编辑器主体 -->
-      <div class="editor-main">
+      <div class="editor-main" ref="editorContainerRef">
         <MdEditor
+          ref="mdEditorRef"
           v-model="form.content"
           :theme="editorTheme"
           class="md-editor"
           :preview="true"
           previewTheme="github"
           @onUploadImg="onUploadImg"
+          @onDrop="onEditorDrop"
         />
       </div>
 
@@ -101,6 +103,34 @@
             <ImageUpload v-model="form.cover" />
           </div>
 
+          <!-- URL Slug -->
+          <div class="publish-field">
+            <label class="publish-label">URL Slug</label>
+            <input
+              type="text"
+              class="publish-select"
+              v-model="form.slug"
+              placeholder="留空则自动根据标题生成"
+            >
+            <div v-if="form.slug" class="slug-preview">
+              文章链接：<code>{{ blogUrl }}/posts/{{ form.slug }}</code>
+            </div>
+            <div v-else-if="form.title" class="slug-preview slug-auto">
+              将自动生成：<code>{{ blogUrl }}/posts/{{ previewSlug }}</code>
+            </div>
+          </div>
+
+          <!-- 定时发布 -->
+          <div class="publish-field">
+            <label class="publish-label">定时发布</label>
+            <input
+              type="datetime-local"
+              class="publish-select"
+              v-model="form.scheduled_at"
+            >
+            <div class="publish-hint">选择未来时间，文章将在指定时间自动发布；留空则立即发布</div>
+          </div>
+
           <!-- 摘要 -->
           <div class="publish-field">
             <div class="publish-label-row">
@@ -116,6 +146,31 @@
               rows="3"
               maxlength="200"
             ></textarea>
+          </div>
+
+          <!-- SEO 设置 -->
+          <div class="publish-field">
+            <button type="button" class="seo-toggle" @click="showSeoSettings = !showSeoSettings">
+              <span>SEO 设置</span>
+              <svg :class="{ rotated: showSeoSettings }" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+            </button>
+            <div v-show="showSeoSettings" class="seo-settings">
+              <div class="seo-field">
+                <label class="seo-label">SEO 标题</label>
+                <input type="text" class="publish-select" v-model="form.seo_title" placeholder="留空则使用文章标题" maxlength="200">
+                <span class="seo-char-count">{{ form.seo_title.length }} / 200</span>
+              </div>
+              <div class="seo-field">
+                <label class="seo-label">SEO 描述</label>
+                <textarea class="publish-textarea" v-model="form.seo_description" placeholder="留空则使用文章摘要" rows="2" maxlength="500"></textarea>
+                <span class="seo-char-count">{{ form.seo_description.length }} / 500</span>
+              </div>
+              <div class="seo-field">
+                <label class="seo-label">SEO 关键词</label>
+                <input type="text" class="publish-select" v-model="form.seo_keywords" placeholder="多个关键词用英文逗号分隔，如：Go,Vue,博客" maxlength="300">
+                <span class="seo-char-count">{{ form.seo_keywords.length }} / 300</span>
+              </div>
+            </div>
           </div>
         </div>
         <div class="publish-modal-footer">
@@ -146,6 +201,26 @@ const editorTheme = ref(localStorage.getItem('scheme') === 'dark' ? 'dark' : 'li
 const selectedTag = ref('')
 const formRef = ref(null)
 const showPublishModal = ref(false)
+const showSeoSettings = ref(false)
+const mdEditorRef = ref(null)
+const editorContainerRef = ref(null)
+
+// 博客首页 URL（用于 Slug 预览）
+const blogUrl = computed(() => {
+  return window.location.origin
+})
+
+// 预览自动生成的 slug
+const previewSlug = computed(() => {
+  if (!form.value.title) return ''
+  let slug = form.value.title.toLowerCase()
+  // 保留字母、数字、空格、连字符
+  slug = slug.replace(/[^a-z0-9\s-]/g, '')
+  slug = slug.trim().replace(/\s+/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '')
+  if (!slug) slug = 'post-' + Date.now().toString(36)
+  if (slug.length > 200) slug = slug.slice(0, 200)
+  return slug
+})
 
 const form = ref({
   title: '',
@@ -154,7 +229,12 @@ const form = ref({
   cover: '',
   category_id: '',
   tag_ids: [],
-  status: 'draft'
+  status: 'draft',
+  slug: '',
+  scheduled_at: null,
+  seo_title: '',
+  seo_description: '',
+  seo_keywords: ''
 })
 
 // 表单验证规则
@@ -202,6 +282,14 @@ const getTagName = (id) => {
   return tag?.name || id
 }
 
+// 将 ISO 时间格式转换为 datetime-local input 所需格式
+const formatForDateTimeInput = (isoStr) => {
+  if (!isoStr) return null
+  const d = new Date(isoStr)
+  if (isNaN(d.getTime())) return null
+  return d.toISOString().slice(0, 16)
+}
+
 const addTag = () => {
   if (selectedTag.value && !form.value.tag_ids.includes(selectedTag.value)) {
     form.value.tag_ids.push(selectedTag.value)
@@ -213,23 +301,114 @@ const removeTag = (id) => {
   form.value.tag_ids = form.value.tag_ids.filter(t => t !== id)
 }
 
-// 图片上传处理
-const onUploadImg = async (files, callback) => {
-  const res = []
+// 批量上传图片并返回URL数组
+const uploadImages = async (files) => {
+  const urls = []
   for (const file of files) {
     try {
       const uploadRes = await uploadFile(file)
       if (uploadRes.code === 0) {
-        res.push(uploadRes.data.url)
+        urls.push(uploadRes.data.url)
       } else {
-        ElMessage.error('图片上传失败')
+        ElMessage.error(`图片 ${file.name || '文件'} 上传失败：${uploadRes.message || '未知错误'}`)
       }
     } catch (e) {
       console.error('上传失败:', e)
-      ElMessage.error('图片上传失败')
+      ElMessage.error(`图片 ${file.name || '文件'} 上传失败`)
     }
   }
+  return urls
+}
+
+// 在编辑器光标位置插入Markdown图片语法
+const insertImagesAtCursor = (urls) => {
+  if (!urls || urls.length === 0) return
+  const insertText = urls.map(url => `![image](${url})`).join('\n')
+
+  // 使用 md-editor-v3 暴露的 insert 方法在光标处插入
+  if (mdEditorRef.value && typeof mdEditorRef.value.insert === 'function') {
+    mdEditorRef.value.insert((selectedText) => {
+      return {
+        targetValue: selectedText
+          ? `${selectedText}\n${insertText}\n`
+          : insertText,
+        select: false,
+        deviation: insertText.length
+      }
+    })
+  } else {
+    // fallback：直接追加到末尾
+    form.value.content += (form.value.content ? '\n' : '') + insertText
+  }
+}
+
+// 图片上传处理（工具栏按钮触发）
+const onUploadImg = async (files, callback) => {
+  const res = await uploadImages(files)
   callback(res)
+}
+
+// 拖拽图片到编辑器
+const onEditorDrop = (e) => {
+  // 检查是否有文件
+  const files = e.dataTransfer?.files
+  if (!files || files.length === 0) return
+
+  const imageFiles = Array.from(files).filter(file => /^image\/.*/.test(file.type))
+  if (imageFiles.length === 0) return
+
+  e.preventDefault()
+  e.stopPropagation()
+
+  // 上传并在光标处插入
+  uploadImages(imageFiles).then(urls => {
+    if (urls.length > 0) {
+      insertImagesAtCursor(urls)
+    }
+  })
+}
+
+// 处理粘贴事件（支持从剪贴板粘贴图片）
+const handleEditorPaste = async (e) => {
+  // 检查焦点是否在编辑器内或编辑器容器中
+  const activeEl = document.activeElement
+  const isFocusInEditor =
+    editorContainerRef.value?.contains(activeEl) ||
+    (e.target && (
+      e.target === editorContainerRef.value ||
+      editorContainerRef.value?.contains(e.target)
+    ))
+
+  // 如果焦点不在编辑器内，跳过处理
+  if (!isFocusInEditor) return
+
+  const clipboardData = e.clipboardData || window.clipboardData
+  if (!clipboardData) return
+
+  // 检查剪贴板中是否有文件（图片）
+  const items = clipboardData.items
+  if (!items) return
+
+  const imageFiles = []
+  for (let i = 0; i < items.length; i++) {
+    const item = items[i]
+    if (item.type && item.type.startsWith('image/')) {
+      const file = item.getAsFile()
+      if (file) {
+        imageFiles.push(file)
+      }
+    }
+  }
+
+  // 如果有图片文件，处理上传
+  if (imageFiles.length > 0) {
+    e.preventDefault()
+    e.stopPropagation()
+    const urls = await uploadImages(imageFiles)
+    if (urls.length > 0) {
+      insertImagesAtCursor(urls)
+    }
+  }
 }
 
 const loadData = async () => {
@@ -254,7 +433,12 @@ const loadData = async () => {
           ...res.data,
           category_id: res.data.category_id || '',
           tag_ids: res.data.tag_ids || [],
-          status: res.data.status || 'draft'
+          status: res.data.status || 'draft',
+          slug: res.data.slug || '',
+          scheduled_at: res.data.scheduled_at ? formatForDateTimeInput(res.data.scheduled_at) : null,
+          seo_title: res.data.seo_title || '',
+          seo_description: res.data.seo_description || '',
+          seo_keywords: res.data.seo_keywords || ''
         }
       }
     } catch (e) { console.error(e) }
@@ -321,7 +505,12 @@ const restoreLocalDraft = async () => {
       cover: draft.cover || '',
       category_id: draft.category_id || '',
       tag_ids: draft.tag_ids || [],
-      status: draft.status || 'draft'
+      status: draft.status || 'draft',
+      slug: draft.slug || '',
+      scheduled_at: draft.scheduled_at || null,
+      seo_title: draft.seo_title || '',
+      seo_description: draft.seo_description || '',
+      seo_keywords: draft.seo_keywords || ''
     }
     ElMessage.success('草稿已恢复')
   } catch {
@@ -370,6 +559,11 @@ watch(
 
 onBeforeUnmount(() => {
   if (autoSaveTimer) clearTimeout(autoSaveTimer)
+  // 移除粘贴事件监听器
+  if (editorContainerRef.value) {
+    editorContainerRef.value.removeEventListener('paste', handleEditorPaste, true)
+  }
+  document.removeEventListener('paste', handleEditorPaste, true)
 })
 
 const handleSaveDraft = async () => {
@@ -401,7 +595,8 @@ const confirmPublish = async () => {
     return
   }
 
-  form.value.status = 'published'
+  // 如果设置了定时发布时间，状态设为 scheduled，否则为 published
+  form.value.status = form.value.scheduled_at ? 'scheduled' : 'published'
   showPublishModal.value = false
   await handleSave()
 }
@@ -414,10 +609,18 @@ const handleSave = async (isDraft = false) => {
   }
 
   try {
+    // 转换 scheduled_at 为 RFC3339 格式（Go time.Time 要求）
+    const payload = { ...form.value }
+    if (payload.scheduled_at && typeof payload.scheduled_at === 'string') {
+      const dt = new Date(payload.scheduled_at)
+      if (!isNaN(dt.getTime())) {
+        payload.scheduled_at = dt.toISOString()
+      }
+    }
     if (isEdit.value) {
-      await updateArticle(route.params.id, form.value)
+      await updateArticle(route.params.id, payload)
     } else {
-      await createArticle(form.value)
+      await createArticle(payload)
     }
     // 清除 localStorage 草稿
     clearLocalDraft()
@@ -464,7 +667,12 @@ const resetForm = async () => {
       cover: '',
       category_id: '',
       tag_ids: [],
-      status: 'draft'
+      status: 'draft',
+      slug: '',
+      scheduled_at: null,
+      seo_title: '',
+      seo_description: '',
+      seo_keywords: ''
     }
 
     // 清除 localStorage 草稿
@@ -489,15 +697,34 @@ const resetForm = async () => {
   }
 }
 
-onMounted(loadData)
+// 初始化编辑器事件监听
+const initEditorEventListeners = () => {
+  // 使用 nextTick 确保 DOM 已渲染
+  setTimeout(() => {
+    // 优先绑定到编辑器容器
+    if (editorContainerRef.value) {
+      editorContainerRef.value.addEventListener('paste', handleEditorPaste, true)
+    }
+    // 同时在 document 级别也绑定一个（捕获阶段），防止事件被编辑器内部拦截
+    document.addEventListener('paste', handleEditorPaste, true)
+  }, 100)
+}
+
+onMounted(() => {
+  loadData()
+  initEditorEventListeners()
+})
 </script>
 
 <style scoped>
 .article-edit-container {
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  padding-bottom: 80px;
+  gap: 20px;
+  padding-bottom: 100px;
+  /* 突破外层 content-area 的 32px padding，让编辑器更宽敞 */
+  margin: -32px;
+  padding: 24px 32px 100px;
 }
 
 /* 表单样式 */
@@ -523,9 +750,9 @@ onMounted(loadData)
   gap: 6px;
   padding: 8px 16px;
   background: transparent;
-  border: 1px solid var(--border-color);
-  border-radius: var(--card-border-radius);
-  color: var(--text-color-secondary);
+  border: 1px solid var(--card-separator-color);
+  border-radius: 8px;
+  color: var(--card-text-color-secondary);
   font-size: 14px;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -534,16 +761,16 @@ onMounted(loadData)
 
 .back-btn:hover {
   background: var(--card-background);
-  color: var(--text-color-main);
-  border-color: var(--text-color-secondary);
+  color: var(--card-text-color-main);
+  border-color: var(--card-text-color-secondary);
 }
 
-/* 标题栏 */
+/* 标题栏 - 参考CSDN扁平化设计，去掉卡片阴影包裹 */
 .article-title-bar {
   background: var(--card-background);
-  border-radius: var(--card-border-radius);
-  padding: 16px 20px;
-  box-shadow: var(--card-shadow);
+  border-radius: 12px;
+  padding: 24px 32px;
+  border: 1px solid var(--card-separator-color);
 }
 
 .title-form-item {
@@ -556,32 +783,63 @@ onMounted(loadData)
 
 .title-input {
   width: 100%;
-  padding: 8px 0;
+  padding: 10px 0;
   border: none;
-  font-size: 24px;
+  font-size: 28px;
   font-weight: 700;
   background: transparent;
   color: var(--card-text-color-main);
+  line-height: 1.4;
 }
 
 .title-input::placeholder {
-  color: var(--text-color-tertiary);
+  color: var(--card-text-color-tertiary);
+  font-weight: 500;
 }
 
 .title-input:focus {
   outline: none;
 }
 
-/* 编辑器主体 */
+/* 编辑器主体 - CSDN风格，扁平简洁 */
 .editor-main {
   background: var(--card-background);
-  border-radius: var(--card-border-radius);
-  box-shadow: var(--card-shadow);
+  border-radius: 12px;
+  border: 1px solid var(--card-separator-color);
   overflow: hidden;
 }
 
 .md-editor {
-  height: auto;
+  min-height: 650px;
+}
+
+/* 让编辑器内部区域自适应宽度，移除硬编码的固定尺寸 */
+.md-editor :deep(.cm-scroller) {
+  width: 100% !important;
+  min-height: 550px;
+  max-height: calc(100vh - 300px);
+  overflow: auto;
+}
+
+/* 让 md-editor 工具栏和编辑器内部更宽敞 */
+.md-editor :deep(.md-editor-toolbar) {
+  padding: 10px 16px;
+}
+
+.md-editor :deep(.md-editor-content) {
+  /* 编辑区和预览区的padding */
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.md-editor :deep(.md-editor-preview) {
+  /* 预览区左右留白 */
+  padding: 24px 32px !important;
+}
+
+.md-editor :deep(.md-editor-textarea-wrapper) {
+  /* 编辑输入区左右留白 - 参考CSDN */
+  padding: 16px 24px !important;
 }
 
 /* 底部操作栏 */
@@ -589,10 +847,10 @@ onMounted(loadData)
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 16px 24px;
+  padding: 14px 32px;
   background: var(--card-background);
-  border-radius: var(--card-border-radius);
-  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+  border-top: 1px solid var(--card-separator-color);
+  box-shadow: 0 -2px 12px rgba(0, 0, 0, 0.06);
   position: fixed;
   bottom: 0;
   left: var(--sidebar-width);
@@ -603,7 +861,7 @@ onMounted(loadData)
 .action-left,
 .action-right {
   display: flex;
-  gap: 12px;
+  gap: 14px;
   align-items: center;
 }
 
@@ -613,9 +871,9 @@ onMounted(loadData)
   align-items: center;
   gap: 6px;
   font-size: 13px;
-  color: var(--text-color-secondary);
-  padding: 6px 12px;
-  background: var(--input-background);
+  color: var(--card-text-color-secondary);
+  padding: 6px 14px;
+  background: var(--body-background);
   border-radius: 6px;
 }
 
@@ -629,24 +887,24 @@ onMounted(loadData)
   align-items: center;
   gap: 5px;
   font-size: 12px;
-  padding: 4px 10px;
+  padding: 4px 12px;
   border-radius: 12px;
   animation: fadeIn 0.3s ease;
 }
 
 .auto-save-status.saving {
-  color: var(--text-color-secondary);
-  background: var(--input-background);
+  color: var(--card-text-color-secondary);
+  background: var(--body-background);
 }
 
 .auto-save-status.saved {
   color: var(--success-color);
-  background: rgba(40, 167, 69, 0.08);
+  background: rgba(16, 185, 129, 0.08);
 }
 
 .auto-save-status.error {
-  color: var(--error-color);
-  background: rgba(220, 53, 69, 0.08);
+  color: var(--danger-color);
+  background: rgba(239, 68, 68, 0.08);
 }
 
 @keyframes fadeIn {
@@ -678,6 +936,7 @@ onMounted(loadData)
   border-radius: 12px;
   width: 90%;
   max-width: 560px;
+  min-height: 60vh;
   max-height: 85vh;
   display: flex;
   flex-direction: column;
@@ -870,6 +1129,75 @@ onMounted(loadData)
 
 .publish-btn-primary:hover {
   background: var(--accent-color-darker);
+}
+
+/* Slug 预览 */
+.slug-preview {
+  margin-top: 8px;
+  font-size: 12px;
+  color: var(--card-text-color-secondary);
+}
+.slug-preview code {
+  background: var(--body-background);
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  color: var(--accent-color);
+}
+.slug-preview.slug-auto code {
+  color: var(--card-text-color-tertiary);
+}
+
+/* 定时发布提示 */
+.publish-hint {
+  margin-top: 6px;
+  font-size: 12px;
+  color: var(--card-text-color-tertiary);
+}
+
+/* SEO 折叠按钮 */
+.seo-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 10px 0;
+  background: none;
+  border: none;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--card-text-color-main);
+  cursor: pointer;
+}
+.seo-toggle svg {
+  transition: transform 0.2s ease;
+}
+.seo-toggle svg.rotated {
+  transform: rotate(180deg);
+}
+
+/* SEO 设置区域 */
+.seo-settings {
+  padding: 12px 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.seo-field {
+  position: relative;
+}
+.seo-label {
+  display: block;
+  font-size: 13px;
+  color: var(--card-text-color-secondary);
+  margin-bottom: 6px;
+}
+.seo-char-count {
+  position: absolute;
+  right: 8px;
+  bottom: 8px;
+  font-size: 11px;
+  color: var(--card-text-color-tertiary);
 }
 
 /* 响应式 */

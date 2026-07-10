@@ -7,11 +7,11 @@ import (
 
 // CommentService 评论服务接口
 type CommentService interface {
-	// GetCommentsByArticle 获取文章评论列表（支持 slug 或数字 ID）
+	// GetCommentsByArticle 获取文章评论列表（支持 slug 或数字 ID，req.SortBy: asc/desc/hot）
 	GetCommentsByArticle(articleParam string, req *request.CommentListRequest) (*response.PageResponse, error)
 
-	// CreateComment 创建评论
-	CreateComment(req *request.CreateCommentRequest) (uint, error)
+	// CreateComment 创建评论，userID 为可选（0 表示访客）
+	CreateComment(req *request.CreateCommentRequest, userID uint, ip, userAgent string) (uint, error)
 
 	// GetAdminCommentList 获取评论列表（后台）
 	GetAdminCommentList(req *request.CommentListRequest) (*response.PageResponse, error)

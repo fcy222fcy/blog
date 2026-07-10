@@ -6,6 +6,7 @@ import (
 	"blog/internal/model/entity"
 	"blog/internal/repository"
 	bizcrypt "blog/pkg/bcrypt"
+	"blog/pkg/config"
 	bizerrors "blog/pkg/errors"
 	"blog/pkg/jwt"
 	"blog/pkg/logger"
@@ -31,14 +32,34 @@ func validateInput(input string) bool {
 type authService struct {
 	userRepo repository.UserRepository
 	jwt      *jwt.JWT
+	config   *config.Config
 }
 
 // NewAuthService 创建认证服务
-func NewAuthService(userRepo repository.UserRepository, jwt *jwt.JWT) AuthService {
+func NewAuthService(userRepo repository.UserRepository, jwt *jwt.JWT, cfg *config.Config) AuthService {
 	return &authService{
 		userRepo: userRepo,
 		jwt:      jwt,
+		config:   cfg,
 	}
+}
+
+// isBlogger 判断 userID 是否为博主虚拟账号
+func (s *authService) isBlogger(userID uint) bool {
+	if s.config == nil {
+		return false
+	}
+	return userID == s.config.Blogger.UserID
+}
+
+// isBloggerLogin 判断用户名密码是否匹配博主账号
+func (s *authService) isBloggerLogin(username, password string) bool {
+	if s.config == nil {
+		return false
+	}
+	b := s.config.Blogger
+	return strings.EqualFold(strings.TrimSpace(username), strings.TrimSpace(b.Username)) &&
+		strings.TrimSpace(password) == strings.TrimSpace(b.Password)
 }
 
 // Login 用户登录
@@ -50,7 +71,29 @@ func (s *authService) Login(req *request.LoginRequest) (*response.LoginResponse,
 		return nil, bizerrors.New(bizerrors.CodeInvalidParams, "输入包含非法字符")
 	}
 
-	// 查找用户
+	// 1. 优先匹配博主硬编码账号（不查用户表）
+	if s.isBloggerLogin(req.Username, req.Password) {
+		b := s.config.Blogger
+		token, expiresAt, err := s.jwt.GenerateToken(b.UserID, b.Username)
+		if err != nil {
+			logger.Error("生成博主Token失败", zap.Error(err))
+			return nil, fmt.Errorf("生成Token失败, %w", err)
+		}
+		logger.Infof("博主登录成功, username: %s", req.Username)
+		return &response.LoginResponse{
+			Token:     token,
+			ExpiresAt: expiresAt,
+			User: response.UserInfo{
+				ID:       b.UserID,
+				Username: b.Username,
+				Nickname: b.Nickname,
+				Avatar:   b.Avatar,
+				Email:    b.Email,
+			},
+		}, nil
+	}
+
+	// 2. 非博主账号，走用户表查询
 	user, err := s.userRepo.FindByUsername(req.Username)
 	if err != nil {
 		logger.Error("查询用户失败", zap.Error(err))
@@ -91,6 +134,19 @@ func (s *authService) Login(req *request.LoginRequest) (*response.LoginResponse,
 func (s *authService) GetProfile(userID uint) (*response.UserProfileResponse, error) {
 	logger.Infof("获取用户信息, userID: %d", userID)
 
+	// 博主虚拟账号直接从配置返回
+	if s.isBlogger(userID) {
+		b := s.config.Blogger
+		return &response.UserProfileResponse{
+			ID:       b.UserID,
+			Username: b.Username,
+			Nickname: b.Nickname,
+			Email:    b.Email,
+			Avatar:   b.Avatar,
+			Bio:      "",
+		}, nil
+	}
+
 	user, err := s.userRepo.FindByID(userID)
 	if err != nil {
 		logger.Error("查询用户失败", zap.Error(err))
@@ -114,6 +170,17 @@ func (s *authService) GetProfile(userID uint) (*response.UserProfileResponse, er
 // ChangePassword 修改密码
 func (s *authService) ChangePassword(userID uint, req *request.ChangePasswordRequest) error {
 	logger.Infof("修改密码, userID: %d", userID)
+
+	// 博主账号：校验旧密码（明文），然后更新配置中的博主密码
+	if s.isBlogger(userID) {
+		b := &s.config.Blogger
+		if strings.TrimSpace(req.OldPassword) != strings.TrimSpace(b.Password) {
+			return bizerrors.New(bizerrors.CodePasswordIncorrect, bizerrors.GetMessage(bizerrors.CodePasswordIncorrect))
+		}
+		b.Password = strings.TrimSpace(req.NewPassword)
+		logger.Infof("博主密码修改成功, userID: %d", userID)
+		return nil
+	}
 
 	user, err := s.userRepo.FindByID(userID)
 	if err != nil {

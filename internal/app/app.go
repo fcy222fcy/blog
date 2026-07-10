@@ -92,11 +92,12 @@ func (a *App) initDependencies() {
 	dailyQuestionRepo := repository.NewDailyQuestionRepository(a.db.DB)
 	aboutPageRepo := repository.NewAboutPageRepository(a.db.DB)
 	visitRepo := repository.NewVisitRepository(a.db.DB)
+	auditLogRepo := repository.NewAuditLogRepository(a.db.DB)
 
 	// Service
 	jwtInstance := jwt.NewJWT(a.config.JWT)
 	userSvc := service.NewUserService(userRepo)
-	authSvc := service.NewAuthService(userRepo, jwtInstance)
+	authSvc := service.NewAuthService(userRepo, jwtInstance, a.config)
 	articleSvc := service.NewArticleService(articleRepo, categoryRepo, tagRepo, visitRepo)
 	categorySvc := service.NewCategoryService(categoryRepo)
 	tagSvc := service.NewTagService(tagRepo)
@@ -105,6 +106,7 @@ func (a *App) initDependencies() {
 	linkSvc := service.NewLinkService(linkRepo)
 	dailyQuestionSvc := service.NewDailyQuestionService(dailyQuestionRepo)
 	aboutPageSvc := service.NewAboutPageService(aboutPageRepo)
+	auditLogSvc := service.NewAuditLogService(auditLogRepo)
 
 	// Router
 	a.router = api.NewRouter(
@@ -117,6 +119,7 @@ func (a *App) initDependencies() {
 		linkSvc,
 		dailyQuestionSvc,
 		aboutPageSvc,
+		auditLogSvc,
 		articleRepo,
 		linkRepo,
 		commentRepo,

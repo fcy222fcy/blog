@@ -16,8 +16,8 @@ type CommentRepository interface {
 	// Delete 删除评论（软删除）
 	Delete(id uint) error
 
-	// ListByArticleID 根据文章ID获取评论列表
-	ListByArticleID(articleID uint, offset, limit int) ([]*entity.Comment, int64, error)
+	// ListByArticleID 根据文章ID获取评论列表，sortBy: asc/desc/hot
+	ListByArticleID(articleID uint, offset, limit int, sortBy string) ([]*entity.Comment, int64, error)
 
 	// AdminList 评论列表（后台）
 	AdminList(offset, limit int, status string) ([]*entity.Comment, int64, error)

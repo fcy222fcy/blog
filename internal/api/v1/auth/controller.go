@@ -66,3 +66,32 @@ func (c *Controller) Register(ctx *gin.Context) {
 
 	response.Success(ctx, nil)
 }
+
+// ChangePassword 修改密码
+func (c *Controller) ChangePassword(ctx *gin.Context) {
+	userID, exists := ctx.Get("user_id")
+	if !exists {
+		response.Unauthorized(ctx, "未登录")
+		return
+	}
+
+	var req request.ChangePasswordRequest
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		response.BadRequest(ctx, "参数错误: "+err.Error())
+		return
+	}
+
+	err := c.authSvc.ChangePassword(userID.(uint), &req)
+	if err != nil {
+		if bizerrors.IsBizError(err) {
+			logger.Warn("修改密码业务错误", zap.Error(err))
+			response.BizError(ctx, err)
+		} else {
+			logger.Error("修改密码失败", zap.Error(err))
+			response.ServerError(ctx, "服务器内部错误")
+		}
+		return
+	}
+
+	response.Success(ctx, nil)
+}

@@ -40,16 +40,20 @@ type ArticleDetailResponse struct {
 
 // AdminArticleDetailResponse 后台文章详情响应
 type AdminArticleDetailResponse struct {
-	ID        uint   `json:"id"`
-	Title     string `json:"title"`
-	Slug      string `json:"slug"`
-	Content   string `json:"content"`
-	Summary   string `json:"summary"`
-	Cover     string `json:"cover"`
-	Status    string `json:"status"`
-	IsTop     bool   `json:"is_top"`
-	CategoryID uint  `json:"category_id"`
-	TagIDs    []uint `json:"tag_ids"`
+	ID             uint       `json:"id"`
+	Title          string     `json:"title"`
+	Slug           string     `json:"slug"`
+	Content        string     `json:"content"`
+	Summary        string     `json:"summary"`
+	Cover          string     `json:"cover"`
+	Status         string     `json:"status"`
+	IsTop          bool       `json:"is_top"`
+	CategoryID     uint       `json:"category_id"`
+	TagIDs         []uint     `json:"tag_ids"`
+	ScheduledAt    *time.Time `json:"scheduled_at"`
+	SEOTitle       string     `json:"seo_title"`
+	SEODescription string     `json:"seo_description"`
+	SEOKeywords    string     `json:"seo_keywords"`
 }
 
 // ArticleListResponse 文章列表响应（简化版）

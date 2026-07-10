@@ -1,6 +1,7 @@
 package comment
 
 import (
+	"blog/internal/middleware"
 	"blog/internal/model/dto/request"
 	"blog/internal/service"
 	bizerrors "blog/pkg/errors"
@@ -59,7 +60,11 @@ func (c *Controller) CreateComment(ctx *gin.Context) {
 	}
 	logger.Infof("[评论] 创建评论, nickname=%s, articleID=%d", req.Nickname, req.ArticleID)
 
-	id, err := c.commentSvc.CreateComment(&req)
+	userID := middleware.GetUserID(ctx)
+	ip := ctx.ClientIP()
+	ua := ctx.Request.UserAgent()
+
+	id, err := c.commentSvc.CreateComment(&req, userID, ip, ua)
 	if err != nil {
 		if bizerrors.IsBizError(err) {
 			logger.Warn("创建评论业务错误", zap.String("nickname", req.Nickname), zap.Error(err))
@@ -72,6 +77,7 @@ func (c *Controller) CreateComment(ctx *gin.Context) {
 	}
 
 	response.Success(ctx, gin.H{"id": id})
+	ctx.Set("audit_created_id", uint(id))
 }
 
 // GetAdminCommentList 获取评论列表（后台）

@@ -54,6 +54,7 @@ func (d *Database) AutoMigrate() error {
 		&entity.Media{},
 		&entity.AboutPage{},
 		&entity.VisitLog{},
+		&entity.AuditLog{},
 	)
 }
 

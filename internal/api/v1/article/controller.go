@@ -152,6 +152,7 @@ func (c *Controller) CreateArticle(ctx *gin.Context) {
 	}
 
 	response.Success(ctx, gin.H{"id": id})
+	ctx.Set("audit_created_id", uint(id))
 }
 
 // UpdateArticle 更新文章

@@ -60,6 +60,7 @@ func (c *Controller) CreateTag(ctx *gin.Context) {
 	}
 
 	response.Success(ctx, gin.H{"id": id})
+	ctx.Set("audit_created_id", uint(id))
 }
 
 // UpdateTag 更新标签

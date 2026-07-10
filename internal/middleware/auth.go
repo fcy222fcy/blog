@@ -74,6 +74,43 @@ func GetUsername(c *gin.Context) string {
 	return ""
 }
 
+// OptionalAuth 可选认证中间件：有 Token 则解析，无 Token 也放行
+func OptionalAuth() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		authHeader := c.GetHeader("Authorization")
+		if authHeader == "" {
+			c.Next()
+			return
+		}
+
+		parts := strings.SplitN(authHeader, " ", 2)
+		if len(parts) != 2 || parts[0] != "Bearer" {
+			c.Next()
+			return
+		}
+
+		tokenString := parts[1]
+
+		jwtConfig, exists := c.Get("jwt_config")
+		if !exists {
+			c.Next()
+			return
+		}
+
+		jwtInstance := jwt.NewJWT(jwtConfig.(config.JWTConfig))
+
+		claims, err := jwtInstance.ParseToken(tokenString)
+		if err != nil {
+			c.Next()
+			return
+		}
+
+		c.Set("user_id", claims.UserID)
+		c.Set("username", claims.Username)
+		c.Next()
+	}
+}
+
 // CORS 跨域中间件
 func CORS(allowedOrigins ...string) gin.HandlerFunc {
 	return func(c *gin.Context) {

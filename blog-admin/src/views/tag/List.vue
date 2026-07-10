@@ -1,6 +1,8 @@
 <template>
   <div>
-    <div class="stats-grid">
+    <!-- 统计卡片（加载态 + 真实态） -->
+    <SkeletonLoader v-if="loading" type="stats" :count="2" />
+    <div v-else class="stats-grid">
       <div class="stat-card">
         <div class="stat-label">标签总数</div>
         <div class="stat-value">{{ tags.length }}</div>
@@ -23,6 +25,10 @@
     </div>
 
     <div class="tags-grid">
+      <!-- 骨架屏加载态 -->
+      <SkeletonLoader v-if="loading" type="card-grid" :count="8" />
+      <!-- 真实列表 -->
+      <template v-else>
       <div v-for="tag in filteredTags" :key="tag.id" class="tag-card">
         <div class="tag-card-name">{{ tag.name }}</div>
         <div class="tag-card-count">{{ tag.article_count || 0 }} 篇文章</div>
@@ -31,9 +37,10 @@
           <button class="action-btn btn-delete btn-sm" @click="handleDelete(tag.id)">删除</button>
         </div>
       </div>
+      </template>
     </div>
 
-    <div v-if="filteredTags.length === 0" class="card">
+    <div v-if="filteredTags.length === 0 && !loading" class="card">
       <div class="card-body" style="text-align: center; color: var(--card-text-color-tertiary);">暂无标签</div>
     </div>
 
@@ -66,12 +73,14 @@
 import { ref, computed, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { getTagList, createTag, updateTag, deleteTag } from '../../api/tag'
+import SkeletonLoader from '../../components/common/SkeletonLoader.vue'
 
 const tags = ref([])
 const keyword = ref('')
 const showModal = ref(false)
 const editingId = ref(null)
 const totalArticles = ref(0)
+const loading = ref(true)
 const form = ref({ name: '', slug: '' })
 
 const filteredTags = computed(() => {
@@ -93,6 +102,7 @@ const loadTags = async () => {
     tags.value = res.data || []
     totalArticles.value = tags.value.reduce((sum, t) => sum + (t.article_count || 0), 0)
   } catch (e) { console.error(e) }
+  loading.value = false
 }
 
 const handleSave = async () => {

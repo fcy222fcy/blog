@@ -100,9 +100,23 @@ const readingTime = computed(() => {
   return Math.max(1, minutes)
 })
 
+const pad = (n) => String(n).padStart(2, '0')
+
 const formatDate = (dateStr) => {
   if (!dateStr) return ''
-  return dateStr.split('T')[0]
+  const date = new Date(dateStr)
+  if (isNaN(date.getTime())) return dateStr.split('T')[0]
+  const now = new Date()
+  const diff = now - date
+  const THREE_DAYS = 3 * 24 * 60 * 60 * 1000
+
+  if (diff >= THREE_DAYS) {
+    return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}`
+  }
+  if (diff < 60 * 1000) return '刚刚'
+  if (diff < 60 * 60 * 1000) return Math.floor(diff / (60 * 1000)) + ' 分钟前'
+  if (diff < 24 * 60 * 60 * 1000) return Math.floor(diff / (60 * 60 * 1000)) + ' 小时前'
+  return Math.floor(diff / (24 * 60 * 60 * 1000)) + ' 天前'
 }
 
 const loadArticle = () => {

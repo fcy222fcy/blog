@@ -1,6 +1,8 @@
 <template>
   <div>
-    <div class="stats-grid">
+    <!-- 统计卡片（加载态 + 真实态） -->
+    <SkeletonLoader v-if="loading" type="stats" :count="4" />
+    <div v-else class="stats-grid">
       <div class="stat-card">
         <div class="stat-label">文章总数</div>
         <div class="stat-value">{{ stats.article_count || 0 }}</div>
@@ -106,13 +108,16 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import request from '../../api/request'
+import SkeletonLoader from '../../components/common/SkeletonLoader.vue'
 
 const stats = ref({})
+const loading = ref(true)
 
 onMounted(async () => {
   try {
     const res = await request.get('/admin/dashboard/stats')
     stats.value = res.data || {}
   } catch (e) { console.error(e) }
+  loading.value = false
 })
 </script>

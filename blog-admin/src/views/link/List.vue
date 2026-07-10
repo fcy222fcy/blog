@@ -1,6 +1,8 @@
 <template>
   <div>
-    <div class="stats-grid">
+    <!-- 统计卡片（加载态 + 真实态） -->
+    <SkeletonLoader v-if="loading" type="stats" :count="1" />
+    <div v-else class="stats-grid">
       <div class="stat-card">
         <div class="stat-label">友链总数</div>
         <div class="stat-value">{{ links.length }}</div>
@@ -19,6 +21,10 @@
     </div>
 
     <div class="link-cards">
+      <!-- 骨架屏加载态 -->
+      <SkeletonLoader v-if="loading" type="media" :count="4" />
+      <!-- 真实列表 -->
+      <template v-else>
       <div v-for="link in filteredLinks" :key="link.id" class="link-card">
         <div class="link-card-header">
           <div class="link-card-avatar" :style="{ background: getGradient(link.id) }">
@@ -38,9 +44,10 @@
           <button class="action-btn btn-delete btn-sm" @click="handleDelete(link.id)">删除</button>
         </div>
       </div>
+      </template>
     </div>
 
-    <div v-if="filteredLinks.length === 0" class="card">
+    <div v-if="filteredLinks.length === 0 && !loading" class="card">
       <div class="card-body" style="text-align: center; color: var(--card-text-color-tertiary);">暂无友链</div>
     </div>
 
@@ -81,11 +88,13 @@
 import { ref, computed, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { getLinkList, createLink, updateLink, deleteLink } from '../../api/link'
+import SkeletonLoader from '../../components/common/SkeletonLoader.vue'
 
 const links = ref([])
 const keyword = ref('')
 const showModal = ref(false)
 const editingId = ref(null)
+const loading = ref(true)
 const form = ref({ name: '', url: '', description: '', avatar: '' })
 
 const gradients = [
@@ -114,6 +123,7 @@ const loadLinks = async () => {
     const res = await getLinkList({ page: 1, page_size: 100 })
     links.value = res.data?.list || []
   } catch (e) { console.error(e) }
+  loading.value = false
 }
 
 const isValidUrl = (url) => {

@@ -8,10 +8,43 @@ import (
 	bizerrors "blog/pkg/errors"
 	"blog/pkg/logger"
 	"fmt"
+	"regexp"
 	"sort"
 	"strings"
 	"time"
+	"unicode"
 )
+
+// generateSlug 根据标题生成 URL slug
+func generateSlug(title string) string {
+	// 转换为小写
+	slug := strings.ToLower(title)
+	// 移除非字母数字的字符，保留空格和连字符
+	slug = strings.Map(func(r rune) rune {
+		if unicode.IsLetter(r) || unicode.IsDigit(r) || r == ' ' || r == '-' {
+			return r
+		}
+		return -1
+	}, slug)
+	// 替换空格为连字符
+	slug = strings.TrimSpace(slug)
+	re := regexp.MustCompile(`\s+`)
+	slug = re.ReplaceAllString(slug, "-")
+	// 去除连续连字符
+	re2 := regexp.MustCompile(`-+`)
+	slug = re2.ReplaceAllString(slug, "-")
+	// 去除首尾连字符
+	slug = strings.Trim(slug, "-")
+	// 如果 slug 为空（纯中文标题），使用时间戳生成
+	if slug == "" {
+		slug = fmt.Sprintf("post-%d", time.Now().Unix())
+	}
+	// 限制长度
+	if len(slug) > 200 {
+		slug = slug[:200]
+	}
+	return slug
+}
 
 // calculateReadingTime 计算阅读时间（分钟）
 // 中文约 400 字/分钟，英文约 200 词/分钟
@@ -194,16 +227,20 @@ func (s *articleService) GetAdminArticleDetail(id uint) (*response.AdminArticleD
 	}
 
 	return &response.AdminArticleDetailResponse{
-		ID:         article.ID,
-		Title:      article.Title,
-		Slug:       article.Slug,
-		Content:    article.Content,
-		Summary:    article.Summary,
-		Cover:      article.Cover,
-		Status:     article.Status,
-		IsTop:      article.IsTop,
-		CategoryID: article.CategoryID,
-		TagIDs:     tagIDs,
+		ID:             article.ID,
+		Title:          article.Title,
+		Slug:           article.Slug,
+		Content:        article.Content,
+		Summary:        article.Summary,
+		Cover:          article.Cover,
+		Status:         article.Status,
+		IsTop:          article.IsTop,
+		CategoryID:     article.CategoryID,
+		TagIDs:         tagIDs,
+		ScheduledAt:    article.ScheduledAt,
+		SEOTitle:       article.SEOTitle,
+		SEODescription: article.SEODescription,
+		SEOKeywords:    article.SEOKeywords,
 	}, nil
 }
 
@@ -221,16 +258,27 @@ func (s *articleService) CreateArticle(req *request.CreateArticleRequest) (uint,
 		}
 	}
 
+	// 生成或使用 Slug
+	slug := req.Slug
+	if slug == "" {
+		slug = generateSlug(req.Title)
+	}
+
 	article := &entity.Article{
-		Title:       req.Title,
-		Content:     req.Content,
-		Summary:     req.Summary,
-		Cover:       req.Cover,
-		CategoryID:  req.CategoryID,
-		Status:      req.Status,
-		IsTop:       req.IsTop,
-		Tags:        tags,
-		ReadingTime: calculateReadingTime(req.Content),
+		Title:          req.Title,
+		Slug:           slug,
+		Content:        req.Content,
+		Summary:        req.Summary,
+		Cover:          req.Cover,
+		CategoryID:     req.CategoryID,
+		Status:         req.Status,
+		IsTop:          req.IsTop,
+		Tags:           tags,
+		ReadingTime:    calculateReadingTime(req.Content),
+		ScheduledAt:    req.ScheduledAt,
+		SEOTitle:       req.SEOTitle,
+		SEODescription: req.SEODescription,
+		SEOKeywords:    req.SEOKeywords,
 	}
 
 	if article.Status == "" {
@@ -242,7 +290,7 @@ func (s *articleService) CreateArticle(req *request.CreateArticleRequest) (uint,
 		return 0, fmt.Errorf("创建文章失败, %w", err)
 	}
 
-	logger.Infof("文章创建成功, id: %d, title: %s, tags: %d", article.ID, article.Title, len(tags))
+	logger.Infof("文章创建成功, id: %d, title: %s, tags: %d, slug: %s", article.ID, article.Title, len(tags), article.Slug)
 
 	return article.ID, nil
 }
@@ -277,6 +325,21 @@ func (s *articleService) UpdateArticle(id uint, req *request.UpdateArticleReques
 		article.Status = req.Status
 	}
 	article.IsTop = req.IsTop
+
+	// Slug：支持自定义，为空时自动根据标题生成
+	if req.Slug != "" {
+		article.Slug = req.Slug
+	} else if req.Title != "" {
+		article.Slug = generateSlug(req.Title)
+	}
+
+	// 定时发布
+	article.ScheduledAt = req.ScheduledAt
+
+	// SEO 字段
+	article.SEOTitle = req.SEOTitle
+	article.SEODescription = req.SEODescription
+	article.SEOKeywords = req.SEOKeywords
 
 	// 更新标签关联
 	if req.TagIDs != nil {

@@ -206,6 +206,7 @@ button { cursor: pointer; border: none; }
 .status-badge { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: var(--tag-border-radius); font-size: 12px; font-weight: 500; }
 .status-published { background: rgba(16, 185, 129, 0.1); color: #059669; }
 .status-draft { background: rgba(245, 158, 11, 0.1); color: #d97706; }
+.status-scheduled { background: rgba(59, 130, 246, 0.1); color: #2563eb; }
 .status-pending { background: rgba(245, 158, 11, 0.1); color: #d97706; }
 .status-approved { background: rgba(16, 185, 129, 0.1); color: #059669; }
 .status-rejected { background: rgba(239, 68, 68, 0.1); color: #dc2626; }

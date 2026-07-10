@@ -38,6 +38,14 @@ var testConfig = &config.Config{
 	Server: config.ServerConfig{Port: 8080},
 	JWT:    testJWTConfig,
 	Email:  config.EmailConfig{},
+	Blogger: config.BloggerConfig{
+		UserID:   1,
+		Username: "admin",
+		Password: "123456",
+		Nickname: "测试博主",
+		Email:    "blogger@test.com",
+		Avatar:   "",
+	},
 }
 
 // NewTestServer 创建测试服务器
@@ -88,7 +96,7 @@ func NewTestServer(t *testing.T) *TestServer {
 
 	// 初始化 Service
 	userSvc := service.NewUserService(userRepo)
-	authSvc := service.NewAuthService(userRepo, jwtInstance)
+	authSvc := service.NewAuthService(userRepo, jwtInstance, testConfig)
 	articleSvc := service.NewArticleService(articleRepo, categoryRepo, tagRepo)
 	categorySvc := service.NewCategoryService(categoryRepo)
 	tagSvc := service.NewTagService(tagRepo)

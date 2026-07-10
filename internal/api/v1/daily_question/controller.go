@@ -192,6 +192,7 @@ func (c *Controller) CreateQuestion(ctx *gin.Context) {
 	}
 
 	response.Success(ctx, gin.H{"id": id})
+	ctx.Set("audit_created_id", uint(id))
 }
 
 // UpdateQuestion 更新问题

@@ -1,6 +1,8 @@
 <template>
   <div>
-    <div class="stats-grid">
+    <!-- 统计卡片（加载态 + 真实态） -->
+    <SkeletonLoader v-if="loading" type="stats" :count="4" />
+    <div v-else class="stats-grid">
       <div class="stat-card">
         <div class="stat-label">文章总数</div>
         <div class="stat-value">{{ allTotal }}</div>
@@ -22,15 +24,27 @@
     <div class="card">
       <div class="card-header">
         <div class="card-title">文章列表</div>
-        <div style="display: flex; gap: 12px; flex-wrap: wrap; align-items: center;">
+        <div class="filter-group">
           <div class="search-box">
             <span class="search-box-icon">⌕</span>
             <input type="text" v-model="keyword" placeholder="搜索文章..." @input="loadArticles">
           </div>
-          <select class="form-select" style="width: auto; padding: 9px 32px 9px 12px;" v-model="categoryFilter" @change="loadArticles">
-            <option value="">全部分类</option>
-            <option v-for="cat in categories" :key="cat.id" :value="cat.id">{{ cat.name }}</option>
-          </select>
+          <div class="custom-select-wrapper" v-click-outside="closeDropdown">
+            <div class="custom-select" @click="toggleDropdown">
+              <span class="select-value">{{ selectedLabel }}</span>
+              <span class="select-arrow">
+                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+              </span>
+            </div>
+            <div class="custom-dropdown" v-if="isOpen">
+              <div class="dropdown-item" :class="{ active: categoryFilter === '' }" @click="selectOption('')">
+                全部分类
+              </div>
+              <div v-for="cat in categories" :key="cat.id" class="dropdown-item" :class="{ active: categoryFilter === cat.id }" @click="selectOption(cat.id)">
+                {{ cat.name }}
+              </div>
+            </div>
+          </div>
           <button class="btn btn-primary" @click="$router.push('/articles/edit')">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
             <span>新建文章</span>
@@ -53,31 +67,46 @@
       </div>
 
       <div class="article-cards-container">
-        <div v-for="article in articles" :key="article.id" class="article-card-item">
-          <div class="article-card-header">
-            <h3 class="article-card-title" @click="$router.push('/articles/edit/' + article.id)">{{ article.title }}</h3>
-            <span class="status-badge" :class="article.status === 'published' ? 'status-published' : 'status-draft'">
-              {{ article.status === 'published' ? '已发布' : '草稿' }}
-            </span>
-          </div>
-          <p class="article-card-summary">{{ article.summary || '暂无摘要' }}</p>
-          <div class="article-card-footer">
-            <div class="article-card-meta">
-              <span>{{ article.category?.name || '未分类' }}</span>
-              <span>·</span>
-              <span>{{ formatDate(article.created_at) }}</span>
-              <span>·</span>
-              <span>{{ article.view_count || 0 }} 次浏览</span>
+        <!-- 骨架屏加载态 -->
+        <SkeletonLoader v-if="loading" type="article" :count="5" />
+        <!-- 真实列表 -->
+        <template v-else>
+        <div v-for="article in articles" :key="article.id" class="article-card-item" @click="$router.push('/articles/edit/' + article.id)">
+          <!-- 封面缩略图 -->
+          <div class="article-card-cover" :class="{ 'no-cover': !article.cover }">
+            <img v-if="article.cover" :src="article.cover" alt="封面" class="article-cover-img">
+            <div v-else class="article-cover-placeholder" aria-label="暂无封面">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" role="img"><title>暂无封面</title><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
             </div>
-            <div class="article-card-actions">
-              <button class="action-btn btn-edit btn-sm" @click="$router.push('/articles/edit/' + article.id)">编辑</button>
-              <button class="action-btn btn-delete btn-sm" @click="handleDelete(article.id)">删除</button>
+          </div>
+          <!-- 文章信息 -->
+          <div class="article-card-info">
+            <div class="article-card-header">
+              <h3 class="article-card-title">{{ article.title }}</h3>
+              <span class="status-badge" :class="'status-' + article.status">
+                {{ statusLabel(article.status) }}
+              </span>
+            </div>
+            <p class="article-card-summary">{{ article.summary || '暂无摘要' }}</p>
+            <div class="article-card-footer">
+              <div class="article-card-meta">
+                <span>{{ article.category?.name || '未分类' }}</span>
+                <span>·</span>
+                <span>{{ formatDate(article.created_at) }}</span>
+                <span>·</span>
+                <span>{{ article.view_count || 0 }} 次浏览</span>
+              </div>
+              <div class="article-card-actions" @click.stop>
+                <button class="action-btn btn-edit btn-sm" @click="$router.push('/articles/edit/' + article.id)">编辑</button>
+                <button class="action-btn btn-delete btn-sm" @click="handleDelete(article.id)">删除</button>
+              </div>
             </div>
           </div>
         </div>
-        <div v-if="articles.length === 0" style="text-align: center; padding: 40px; color: var(--card-text-color-tertiary);">
+        <div v-if="articles.length === 0 && !loading" style="text-align: center; padding: 40px; color: var(--card-text-color-tertiary);">
           暂无文章
         </div>
+        </template>
       </div>
 
       <div class="card-body">
@@ -101,6 +130,7 @@ import { ref, computed, onMounted } from 'vue'
 import { getArticleList, deleteArticle } from '../../api/article'
 import { getCategoryList } from '../../api/category'
 import { ElMessage, ElMessageBox } from 'element-plus'
+import SkeletonLoader from '../../components/common/SkeletonLoader.vue'
 
 const articles = ref([])
 const categories = ref([])
@@ -113,13 +143,38 @@ const categoryFilter = ref('')
 const statusFilter = ref('')
 const stats = ref({ published: 0, draft: 0, totalViews: 0 })
 
+// 自定义下拉菜单逻辑
+const isOpen = ref(false)
+
+const selectedLabel = computed(() => {
+  if (!categoryFilter.value) return '全部分类'
+  const cat = categories.value.find(c => c.id === categoryFilter.value)
+  return cat ? cat.name : '全部分类'
+})
+
+const toggleDropdown = () => {
+  isOpen.value = !isOpen.value
+}
+
+const closeDropdown = () => {
+  isOpen.value = false
+}
+
+const selectOption = (value) => {
+  categoryFilter.value = value
+  isOpen.value = false
+  loadArticles()
+}
+
 const statusTabs = computed(() => [
   { label: '全部', value: '', count: total.value },
   { label: '已发布', value: 'published', count: stats.value.published },
-  { label: '草稿', value: 'draft', count: stats.value.draft }
+  { label: '草稿', value: 'draft', count: stats.value.draft },
+  { label: '定时发布', value: 'scheduled', count: stats.value.scheduled || 0 }
 ])
 
 const formatDate = (d) => d ? d.split('T')[0] : ''
+const statusLabel = (s) => ({ published: '已发布', draft: '草稿', scheduled: '定时发布' }[s] || s)
 
 const switchTab = (status) => {
   statusFilter.value = status
@@ -129,19 +184,20 @@ const switchTab = (status) => {
 
 const loadStats = async () => {
   try {
-    const [allRes, publishedRes, draftRes] = await Promise.all([
+    const [allRes, publishedRes, draftRes, scheduledRes] = await Promise.all([
       getArticleList({ page: 1, page_size: 1 }),
       getArticleList({ page: 1, page_size: 1, status: 'published' }),
-      getArticleList({ page: 1, page_size: 1, status: 'draft' })
+      getArticleList({ page: 1, page_size: 1, status: 'draft' }),
+      getArticleList({ page: 1, page_size: 1, status: 'scheduled' })
     ])
     allTotal.value = allRes.data?.total || 0
     stats.value.published = publishedRes.data?.total || 0
     stats.value.draft = draftRes.data?.total || 0
+    stats.value.scheduled = scheduledRes.data?.total || 0
   } catch (e) { console.error(e) }
 }
 
 const loadArticles = async () => {
-  loading.value = true
   try {
     const params = { page: page.value, page_size: 10 }
     if (keyword.value) params.keyword = keyword.value
@@ -152,7 +208,6 @@ const loadArticles = async () => {
     total.value = res.data?.total || 0
     stats.value.totalViews = articles.value.reduce((sum, a) => sum + (a.view_count || 0), 0)
   } catch (e) { console.error(e) }
-  loading.value = false
 }
 
 const loadCategories = async () => {
@@ -177,14 +232,113 @@ const handleDelete = async (id) => {
   }
 }
 
-onMounted(() => {
-  loadArticles()
-  loadCategories()
+onMounted(async () => {
+  loading.value = true
   loadStats()
+  loadCategories()
+  await loadArticles()
+  loading.value = false
 })
+
+// 自定义指令：点击外部关闭下拉菜单
+const vClickOutside = {
+  mounted(el, binding) {
+    el._clickOutside = (event) => {
+      if (!el.contains(event.target)) {
+        binding.value()
+      }
+    }
+    document.addEventListener('click', el._clickOutside)
+  },
+  unmounted(el) {
+    document.removeEventListener('click', el._clickOutside)
+  }
+}
 </script>
 
 <style scoped>
+.filter-group {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.custom-select-wrapper {
+  position: relative;
+  display: inline-flex;
+}
+
+.custom-select {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 32px 8px 12px;
+  border: 1px solid var(--card-separator-color);
+  border-radius: var(--card-border-radius);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--card-text-color-main);
+  background: var(--card-background);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  min-width: 100px;
+}
+
+.custom-select:hover {
+  border-color: var(--accent-color);
+}
+
+.select-value {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.select-arrow {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  color: var(--card-text-color-tertiary);
+  display: flex;
+  align-items: center;
+}
+
+.custom-dropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  min-width: 200px;
+  background: var(--card-background);
+  border: 1px solid var(--card-separator-color);
+  border-radius: var(--card-border-radius);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  z-index: 100;
+}
+
+.dropdown-item {
+  padding: 10px 12px;
+  font-size: 13px;
+  color: var(--card-text-color-main);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.dropdown-item:hover {
+  background: rgba(var(--accent-color-rgb), 0.06);
+  color: var(--accent-color);
+}
+
+.dropdown-item.active {
+  background: rgba(var(--accent-color-rgb), 0.1);
+  color: var(--accent-color);
+  font-weight: 600;
+}
+
 .article-tabs {
   display: flex;
   gap: 0;
@@ -238,17 +392,55 @@ onMounted(() => {
 
 .article-cards-container {
   padding: 0;
+  width: 100%;
 }
 .article-card-item {
+  display: flex;
+  gap: 16px;
   padding: 20px 28px;
   border-bottom: 1px solid var(--card-separator-color);
   transition: background 0.15s ease;
+  cursor: pointer;
+  width: 100%;
 }
 .article-card-item:hover {
   background: rgba(var(--accent-color-rgb), 0.02);
 }
 .article-card-item:last-child {
   border-bottom: none;
+}
+
+/* 封面缩略图 */
+.article-card-cover {
+  width: 140px;
+  height: 90px;
+  border-radius: 8px;
+  overflow: hidden;
+  flex-shrink: 0;
+  background: linear-gradient(135deg, #667eea20, #764ba220);
+}
+.article-card-cover.no-cover {
+  background: var(--input-background, #f5f7fa);
+  border: 1px dashed var(--card-separator-color);
+}
+.article-cover-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.article-cover-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--card-text-color-tertiary);
+  opacity: 0.5;
+}
+
+.article-card-info {
+  flex: 1;
+  min-width: 0;
 }
 .article-card-header {
   display: flex;

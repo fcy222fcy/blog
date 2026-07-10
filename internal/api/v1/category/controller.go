@@ -83,6 +83,7 @@ func (c *Controller) CreateCategory(ctx *gin.Context) {
 	}
 
 	response.Success(ctx, gin.H{"id": id})
+	ctx.Set("audit_created_id", uint(id))
 }
 
 // UpdateCategory 更新分类

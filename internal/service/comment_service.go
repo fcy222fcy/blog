@@ -6,9 +6,11 @@ import (
 	"blog/internal/model/entity"
 	"blog/internal/repository"
 	"blog/pkg/config"
-	bizerrors "blog/pkg/errors"
 	"blog/pkg/email"
+	bizerrors "blog/pkg/errors"
+	"blog/pkg/gravatar"
 	"blog/pkg/logger"
+	"blog/pkg/ua"
 	"fmt"
 	"strconv"
 	"strings"
@@ -34,6 +36,85 @@ func NewCommentService(commentRepo repository.CommentRepository, articleRepo rep
 	}
 }
 
+// isBlogger 判断 userID 是否为博主（硬编码配置，不查用户表）
+func (s *commentService) isBlogger(userID *uint) bool {
+	if s.config == nil || userID == nil || *userID == 0 {
+		return false
+	}
+	return *userID == s.config.Blogger.UserID
+}
+
+// convertToCommentResponse 将 entity.Comment 转换为 response.CommentResponse
+// 博主身份判断：UserID 等于配置中博主虚拟 ID 即标记为博主
+func (s *commentService) convertToCommentResponse(comment *entity.Comment) response.CommentResponse {
+	resp := response.CommentResponse{
+		ID:        comment.ID,
+		Content:   comment.Content,
+		Nickname:  comment.Nickname,
+		Email:     comment.Email,
+		Website:   comment.Website,
+		Avatar:    comment.Avatar,
+		Status:    comment.Status,
+		LikeCount: comment.LikeCount,
+		ParentID:  comment.ParentID,
+		CreatedAt: comment.CreatedAt,
+		IsAdmin:   s.isBlogger(comment.UserID),
+	}
+
+	if resp.Avatar == "" && resp.Email != "" {
+		resp.Avatar = gravatar.GetAvatarURLByEmail(resp.Email, 80)
+	}
+
+	if comment.ReplyToNickname != "" {
+		resp.ReplyTo = comment.ReplyToNickname
+	}
+
+	// 客户端信息优先直接取已经存好的列（前端精确检测/后端兜底），
+	// 历史空值数据才回退到解析 User-Agent
+	hasStoredInfo := (comment.OS != "" && comment.OS != "未知") || (comment.Browser != "" && comment.Browser != "未知")
+	if hasStoredInfo {
+		if comment.OS != "未知" {
+			resp.OS = comment.OS
+			resp.OSVersion = comment.OSVersion
+		}
+		if comment.Browser != "未知" {
+			resp.Browser = comment.Browser
+			resp.BrowserVersion = comment.BrowserVersion
+		}
+	} else if strings.TrimSpace(comment.UserAgent) != "" {
+		uaInfo := ua.Parse(comment.UserAgent)
+		if uaInfo.OS != "未知" {
+			resp.OS = uaInfo.OS
+			resp.OSVersion = uaInfo.OSVersion
+		}
+		if uaInfo.Browser != "未知" {
+			resp.Browser = uaInfo.Browser
+			resp.BrowserVersion = uaInfo.BrowserVersion
+		}
+	}
+
+	return resp
+}
+
+// buildCommentTree 构建评论响应树并注入博主标识
+func (s *commentService) buildCommentResponseList(rootComments []*entity.Comment) []response.CommentResponse {
+	result := make([]response.CommentResponse, 0, len(rootComments))
+	for _, root := range rootComments {
+		rootResp := s.convertToCommentResponse(root)
+		if len(root.Replies) > 0 {
+			repliesResp := make([]response.CommentResponse, 0, len(root.Replies))
+			for i := range root.Replies {
+				reply := &root.Replies[i]
+				replyResp := s.convertToCommentResponse(reply)
+				repliesResp = append(repliesResp, replyResp)
+			}
+			rootResp.Replies = repliesResp
+		}
+		result = append(result, rootResp)
+	}
+	return result
+}
+
 // GetCommentsByArticle 获取文章评论列表（支持 slug 或数字 ID）
 func (s *commentService) GetCommentsByArticle(articleParam string, req *request.CommentListRequest) (*response.PageResponse, error) {
 	if req.Page <= 0 {
@@ -43,7 +124,6 @@ func (s *commentService) GetCommentsByArticle(articleParam string, req *request.
 		req.PageSize = 10
 	}
 
-	// 解析文章参数：先尝试数字 ID，再尝试 slug
 	var articleID uint
 	if id, err := strconv.ParseUint(articleParam, 10, 32); err == nil {
 		articleID = uint(id)
@@ -58,27 +138,33 @@ func (s *commentService) GetCommentsByArticle(articleParam string, req *request.
 		articleID = article.ID
 	}
 
-	list, total, err := s.commentRepo.ListByArticleID(articleID, (req.Page-1)*req.PageSize, req.PageSize)
+	sortBy := strings.ToLower(strings.TrimSpace(req.SortBy))
+	if sortBy != "asc" && sortBy != "desc" && sortBy != "hot" {
+		sortBy = "desc"
+	}
+
+	list, total, err := s.commentRepo.ListByArticleID(articleID, (req.Page-1)*req.PageSize, req.PageSize, sortBy)
 	if err != nil {
 		return nil, fmt.Errorf("获取文章评论列表失败, %w", err)
 	}
 
-	return response.NewPageResponse(list, total, req.Page, req.PageSize), nil
+	respList := s.buildCommentResponseList(list)
+
+	return response.NewPageResponse(respList, total, req.Page, req.PageSize), nil
 }
 
 // CreateComment 创建评论
-func (s *commentService) CreateComment(req *request.CreateCommentRequest) (uint, error) {
-	// 验证评论内容
+// userID: 当前登录用户 ID，0 表示访客
+// 博主身份判定条件：userID > 0（已通过登录按钮登录）
+func (s *commentService) CreateComment(req *request.CreateCommentRequest, userID uint, ip, userAgent string) (uint, error) {
 	if strings.TrimSpace(req.Content) == "" {
 		return 0, bizerrors.New(bizerrors.CodeInvalidParams, "评论内容不能为空")
 	}
 
-	// 验证昵称
 	if strings.TrimSpace(req.Nickname) == "" {
 		return 0, bizerrors.New(bizerrors.CodeInvalidParams, "昵称不能为空")
 	}
 
-	// 解析文章参数：优先用 slug，再用 ID
 	var article *entity.Article
 	var err error
 	if req.ArticleSlug != "" {
@@ -103,6 +189,68 @@ func (s *commentService) CreateComment(req *request.CreateCommentRequest) (uint,
 		ArticleID: article.ID,
 		ParentID:  req.ParentID,
 		Status:    "approved",
+		IP:        ip,
+		UserAgent: userAgent,
+	}
+
+	// 客户端信息：优先使用前端通过 JS 精确检测的结果（能区分 Win11/Win10），
+	// 空值才用后端 UA 解析兜底
+	uaInfo := ua.Parse(userAgent)
+	switch {
+	case strings.TrimSpace(req.OS) != "" && req.OS != "未知":
+		comment.OS = strings.TrimSpace(req.OS)
+		comment.OSVersion = strings.TrimSpace(req.OSVersion)
+	default:
+		if uaInfo.OS != "未知" {
+			comment.OS = uaInfo.OS
+			comment.OSVersion = uaInfo.OSVersion
+		}
+	}
+	switch {
+	case strings.TrimSpace(req.Browser) != "" && req.Browser != "未知":
+		comment.Browser = strings.TrimSpace(req.Browser)
+		comment.BrowserVersion = strings.TrimSpace(req.BrowserVersion)
+	default:
+		if uaInfo.Browser != "未知" {
+			comment.Browser = uaInfo.Browser
+			comment.BrowserVersion = uaInfo.BrowserVersion
+		}
+	}
+
+	if userID > 0 {
+		// 博主账号：直接用配置中的信息（不查用户表）
+		if s.config != nil && userID == s.config.Blogger.UserID {
+			b := s.config.Blogger
+			comment.UserID = &userID
+			if comment.Nickname == "" {
+				comment.Nickname = b.Nickname
+			}
+			if comment.Email == "" {
+				comment.Email = b.Email
+			}
+			if comment.Avatar == "" {
+				comment.Avatar = b.Avatar
+			}
+		} else {
+			// 其他登录用户：查用户表
+			user, err := s.userRepo.FindByID(userID)
+			if err == nil && user != nil {
+				comment.UserID = &userID
+				if comment.Nickname == "" {
+					comment.Nickname = user.Nickname
+				}
+				if comment.Email == "" {
+					comment.Email = user.Email
+				}
+				if comment.Avatar == "" {
+					comment.Avatar = user.Avatar
+				}
+			}
+		}
+	}
+
+	if comment.Avatar == "" && comment.Email != "" {
+		comment.Avatar = gravatar.GetAvatarURLByEmail(comment.Email, 80)
 	}
 
 	err = s.commentRepo.Create(comment)
@@ -110,7 +258,6 @@ func (s *commentService) CreateComment(req *request.CreateCommentRequest) (uint,
 		return 0, fmt.Errorf("创建评论失败, %w", err)
 	}
 
-	// 异步发送邮件通知
 	go s.sendEmailNotifications(comment, article)
 
 	return comment.ID, nil

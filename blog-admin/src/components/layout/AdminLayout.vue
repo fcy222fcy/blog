@@ -29,13 +29,13 @@
       </nav>
 
       <div class="sidebar-features">
-        <div class="feature-item">
-          <span class="feature-item-icon"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg></span>
-          <span>English</span>
-        </div>
         <div class="feature-item" @click="toggleScheme">
           <span class="feature-item-icon"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg></span>
           <span>{{ scheme === 'dark' ? '亮色模式' : '暗色模式' }}</span>
+        </div>
+        <div class="feature-item logout-feature" @click="handleLogout">
+          <span class="feature-item-icon"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg></span>
+          <span>退出登录</span>
         </div>
       </div>
     </aside>
@@ -65,25 +65,57 @@
     <BackToTop />
 
     <!-- 编辑个人资料弹窗 -->
-    <div class="modal-overlay" :class="{ active: showProfileDialog }" @click.self="showProfileDialog = false">
-      <div class="modal">
+    <div class="modal-overlay" :class="{ active: showProfileDialog }" @click.self="closeProfileDialog">
+      <div class="modal profile-modal">
         <div class="modal-header">
-          <h3 class="modal-title">编辑个人资料</h3>
-          <button class="modal-close" @click="showProfileDialog = false">×</button>
+          <h3 class="modal-title">账号设置</h3>
+          <button class="modal-close" @click="closeProfileDialog">×</button>
+        </div>
+        <div class="profile-tabs">
+          <div class="profile-tab" :class="{ active: profileTab === 'basic' }" @click="profileTab = 'basic'">基本资料</div>
+          <div class="profile-tab" :class="{ active: profileTab === 'password' }" @click="profileTab = 'password'">修改密码</div>
         </div>
         <div class="modal-body">
-          <div class="form-group">
-            <label class="form-label">昵称</label>
-            <input v-model="profileForm.nickname" class="form-input" placeholder="输入昵称">
+          <!-- 基本资料 -->
+          <div v-if="profileTab === 'basic'">
+            <div class="form-group">
+              <label class="form-label">昵称</label>
+              <input v-model="profileForm.nickname" class="form-input" placeholder="输入昵称">
+            </div>
+            <div class="form-group">
+              <label class="form-label">邮箱 <span class="label-tip">（用于博主身份识别，建议与系统配置一致）</span></label>
+              <input v-model="profileForm.email" type="email" class="form-input" placeholder="输入邮箱">
+            </div>
+            <div class="form-group">
+              <label class="form-label">个人简介</label>
+              <textarea v-model="profileForm.bio" class="form-textarea" placeholder="输入个人简介..." rows="3"></textarea>
+            </div>
           </div>
-          <div class="form-group">
-            <label class="form-label">个人简介</label>
-            <textarea v-model="profileForm.bio" class="form-textarea" placeholder="输入个人简介..." rows="3"></textarea>
+          <!-- 修改密码 -->
+          <div v-else>
+            <div class="form-group">
+              <label class="form-label">当前密码</label>
+              <input v-model="passwordForm.old_password" type="password" class="form-input" placeholder="输入当前密码">
+            </div>
+            <div class="form-group">
+              <label class="form-label">新密码</label>
+              <input v-model="passwordForm.new_password" type="password" class="form-input" placeholder="至少 6 位">
+            </div>
+            <div class="form-group">
+              <label class="form-label">确认新密码</label>
+              <input v-model="passwordForm.confirm_password" type="password" class="form-input" placeholder="再次输入新密码">
+            </div>
+            <div v-if="passwordTip" class="password-tip" :class="{ error: passwordTipIsError }">{{ passwordTip }}</div>
           </div>
         </div>
         <div class="modal-footer">
-          <button class="btn btn-secondary" @click="showProfileDialog = false">取消</button>
-          <button class="btn btn-primary" @click="saveProfile">保存</button>
+          <button class="btn btn-secondary" @click="closeProfileDialog">取消</button>
+          <button v-if="profileTab === 'basic'" class="btn btn-primary" @click="saveProfile" :disabled="savingProfile">
+            {{ savingProfile ? '保存中...' : '保存' }}
+          </button>
+          <button v-else class="btn btn-primary" @click="savePassword" :disabled="savingPassword">
+            {{ savingPassword ? '修改中...' : '修改密码' }}
+          </button>
         </div>
       </div>
     </div>
@@ -93,28 +125,48 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { getUserInfo, updateUserInfo } from '../../api/auth'
-import { ElMessage } from 'element-plus'
+import { getUserInfo, updateUserInfo, changePassword } from '../../api/auth'
+import { ElMessage, ElMessageBox } from 'element-plus'
 import BackToTop from '../common/BackToTop.vue'
 
 const route = useRoute()
 const router = useRouter()
 const menuOpen = ref(false)
 const showProfileDialog = ref(false)
+const profileTab = ref('basic')
 const scheme = ref(localStorage.getItem('scheme') || 'light')
 const avatarInput = ref(null)
+const savingProfile = ref(false)
+const savingPassword = ref(false)
+const passwordTip = ref('')
+const passwordTipIsError = ref(false)
 
 const userInfo = ref({
   nickname: 'Liu Houliang',
   bio: '日常落灰的个人博客，分享 Golang、AI 和 NAS 折腾经验',
   avatar: '',
+  email: '',
   socialLinks: []
 })
 
 const profileForm = ref({
   nickname: '',
+  email: '',
   bio: ''
 })
+
+const passwordForm = ref({
+  old_password: '',
+  new_password: '',
+  confirm_password: ''
+})
+
+const closeProfileDialog = () => {
+  showProfileDialog.value = false
+  profileTab.value = 'basic'
+  passwordTip.value = ''
+  passwordForm.value = { old_password: '', new_password: '', confirm_password: '' }
+}
 
 const menuItems = [
   { path: '/dashboard', title: '仪表盘', icon: '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>' },
@@ -127,6 +179,7 @@ const menuItems = [
   { path: '/entertainment', title: '娱乐', icon: '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"></rect><line x1="7" y1="2" x2="7" y2="22"></line><line x1="17" y1="2" x2="17" y2="22"></line><line x1="2" y1="12" x2="22" y2="12"></line></svg>' },
   { path: '/daily-question', title: '每日一问', icon: '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>' },
   { path: '/about', title: '关于我', icon: '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>' },
+  { path: '/audit', title: '操作日志', icon: '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>' },
 ]
 
 const currentPath = computed(() => route.path)
@@ -152,9 +205,18 @@ const toggleScheme = () => {
   localStorage.setItem('scheme', scheme.value)
 }
 
-const handleLogout = () => {
-  localStorage.removeItem('token')
-  router.push('/login')
+const handleLogout = async () => {
+  try {
+    await ElMessageBox.confirm('确定要退出登录吗？', '提示', {
+      confirmButtonText: '退出',
+      cancelButtonText: '取消',
+      type: 'warning'
+    })
+    localStorage.removeItem('token')
+    localStorage.removeItem('comment_user')
+    ElMessage.success('已退出登录')
+    router.push('/login')
+  } catch (e) {}
 }
 
 const handleAvatarClick = () => {
@@ -210,27 +272,184 @@ const handleAvatarUpload = async (event) => {
 }
 
 const saveProfile = async () => {
+  savingProfile.value = true
   try {
-    await updateUserInfo(profileForm.value)
+    const payload = {
+      nickname: profileForm.value.nickname,
+      bio: profileForm.value.bio
+    }
+    if (profileForm.value.email) payload.email = profileForm.value.email
+
+    await updateUserInfo(payload)
     userInfo.value.nickname = profileForm.value.nickname
     userInfo.value.bio = profileForm.value.bio
-    showProfileDialog.value = false
+    userInfo.value.email = profileForm.value.email || userInfo.value.email
     ElMessage.success('保存成功')
   } catch (e) {
-    ElMessage.error('保存失败')
+    ElMessage.error(e?.response?.data?.message || '保存失败')
+  } finally {
+    savingProfile.value = false
+  }
+}
+
+const savePassword = async () => {
+  passwordTip.value = ''
+  passwordTipIsError.value = true
+
+  if (!passwordForm.value.old_password) {
+    passwordTip.value = '请输入当前密码'
+    return
+  }
+  if (!passwordForm.value.new_password || passwordForm.value.new_password.length < 6) {
+    passwordTip.value = '新密码至少 6 位'
+    return
+  }
+  if (passwordForm.value.new_password !== passwordForm.value.confirm_password) {
+    passwordTip.value = '两次输入的新密码不一致'
+    return
+  }
+
+  savingPassword.value = true
+  try {
+    await changePassword({
+      old_password: passwordForm.value.old_password,
+      new_password: passwordForm.value.new_password
+    })
+    passwordTipIsError.value = false
+    passwordTip.value = '密码修改成功！'
+    passwordForm.value = { old_password: '', new_password: '', confirm_password: '' }
+    ElMessage.success('密码修改成功')
+  } catch (e) {
+    passwordTipIsError.value = true
+    passwordTip.value = e?.response?.data?.message || '密码修改失败，请检查当前密码是否正确'
+  } finally {
+    savingPassword.value = false
   }
 }
 
 onMounted(async () => {
   profileForm.value.nickname = userInfo.value.nickname
   profileForm.value.bio = userInfo.value.bio
+  profileForm.value.email = userInfo.value.email
   try {
     const res = await getUserInfo()
     if (res.data) {
       userInfo.value = { ...userInfo.value, ...res.data }
       profileForm.value.nickname = res.data.nickname || ''
       profileForm.value.bio = res.data.bio || ''
+      profileForm.value.email = res.data.email || ''
     }
   } catch (e) {}
 })
 </script>
+
+<style scoped>
+/* 退出登录按钮 */
+.logout-feature {
+  color: #dc2626 !important;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  border-radius: 6px;
+}
+.logout-feature:hover {
+  background: #fef2f2 !important;
+  color: #b91c1c !important;
+}
+.logout-feature:hover .feature-item-icon {
+  color: #b91c1c;
+}
+
+/* 资料弹窗 */
+.profile-modal {
+  width: 460px;
+  max-width: 92%;
+}
+
+.profile-tabs {
+  display: flex;
+  border-bottom: 1px solid #f0f0f0;
+  padding: 0 20px;
+  background: #fafafa;
+}
+
+.profile-tab {
+  padding: 12px 18px;
+  font-size: 0.9rem;
+  color: #666;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  transition: all 0.2s;
+  font-weight: 500;
+}
+
+.profile-tab:hover {
+  color: #333;
+}
+
+.profile-tab.active {
+  color: #10b981;
+  border-bottom-color: #10b981;
+  font-weight: 600;
+}
+
+/* 表单样式 */
+.form-group {
+  margin-bottom: 16px;
+}
+
+.form-label {
+  display: block;
+  font-size: 0.88rem;
+  color: #555;
+  margin-bottom: 6px;
+  font-weight: 500;
+}
+
+.label-tip {
+  font-size: 0.78rem;
+  color: #9ca3af;
+  font-weight: normal;
+}
+
+.form-input,
+.form-textarea {
+  width: 100%;
+  padding: 9px 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  box-sizing: border-box;
+  font-family: inherit;
+}
+
+.form-input:focus,
+.form-textarea:focus {
+  outline: none;
+  border-color: #10b981;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+}
+
+.form-textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+/* 密码提示 */
+.password-tip {
+  margin-top: 10px;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  background: #ecfdf5;
+  color: #047857;
+  border: 1px solid #a7f3d0;
+}
+
+.password-tip.error {
+  background: #fef2f2;
+  color: #dc2626;
+  border-color: #fecaca;
+}
+</style>

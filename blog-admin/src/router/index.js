@@ -22,6 +22,7 @@ const routes = [
       { path: 'daily-question', name: 'DailyQuestion', component: () => import('../views/daily/List.vue'), meta: { title: '每日一问' } },
       { path: 'entertainment', name: 'Entertainment', component: () => import('../views/entertainment/Index.vue'), meta: { title: '娱乐' } },
       { path: 'about', name: 'About', component: () => import('../views/about/Index.vue'), meta: { title: '关于我' } },
+      { path: 'audit', name: 'Audit', component: () => import('../views/audit/Index.vue'), meta: { title: '操作日志' } },
     ]
   }
 ]

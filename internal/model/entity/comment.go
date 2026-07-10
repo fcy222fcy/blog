@@ -30,6 +30,12 @@ type Comment struct {
 	Status       string    `gorm:"type:varchar(20);default:pending;index" json:"status"` // pending: 待审核 approved: 已通过 rejected: 已拒绝
 	IP           string    `gorm:"type:varchar(50)" json:"ip"`
 	UserAgent    string    `gorm:"type:varchar(500)" json:"user_agent"`
+
+	// 解析后的客户端信息（优先前端检测，后端 UA 解析兜底）
+	OS             string `gorm:"type:varchar(50)" json:"os"`
+	OSVersion      string `gorm:"type:varchar(50)" json:"os_version"`
+	Browser        string `gorm:"type:varchar(50)" json:"browser"`
+	BrowserVersion string `gorm:"type:varchar(50)" json:"browser_version"`
 }
 
 // TableName 表名

@@ -18,6 +18,7 @@ func RegisterRoutes(rg *gin.RouterGroup, controller *Controller) {
 // registerPublicRoutes 注册公开路由
 func registerPublicRoutes(rg *gin.RouterGroup, controller *Controller) {
 	comments := rg.Group("/comments")
+	comments.Use(middleware.OptionalAuth())
 	{
 		comments.GET("/article/:articleId", controller.GetCommentsByArticle)
 		comments.POST("", controller.CreateComment)

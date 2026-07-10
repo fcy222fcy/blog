@@ -3,6 +3,7 @@ package api
 import (
 	"blog/internal/api/v1/about_page"
 	"blog/internal/api/v1/article"
+	"blog/internal/api/v1/audit_log"
 	"blog/internal/api/v1/auth"
 	"blog/internal/api/v1/category"
 	"blog/internal/api/v1/comment"
@@ -43,6 +44,7 @@ type Router struct {
 	dailyQuestionController *daily_question.Controller
 	aboutPageController    *about_page.Controller
 	mediaController        *media.Controller
+	auditLogController     *audit_log.Controller
 	rssHandler             *rss.Handler
 	sitemapHandler         *sitemap.Handler
 
@@ -51,6 +53,9 @@ type Router struct {
 	linkRepo     repository.LinkRepository
 	commentRepo  repository.CommentRepository
 	visitRepo    repository.VisitRepository
+
+	// 审计日志服务（供中间件使用）
+	auditLogSvc service.AuditLogService
 }
 
 // NewRouter 创建路由器
@@ -64,6 +69,7 @@ func NewRouter(
 	linkSvc service.LinkService,
 	dailyQuestionSvc service.DailyQuestionService,
 	aboutPageSvc service.AboutPageService,
+	auditLogSvc service.AuditLogService,
 	articleRepo repository.ArticleRepository,
 	linkRepo repository.LinkRepository,
 	commentRepo repository.CommentRepository,
@@ -90,12 +96,14 @@ func NewRouter(
 		dailyQuestionController: daily_question.NewController(dailyQuestionSvc),
 		aboutPageController:    about_page.NewController(aboutPageSvc),
 		mediaController:        media.NewController(),
+		auditLogController:     audit_log.NewController(auditLogSvc),
 		rssHandler:             rss.NewHandler(articleRepo),
 		sitemapHandler:         sitemap.NewHandler(articleRepo),
 		articleRepo:            articleRepo,
 		linkRepo:               linkRepo,
 		commentRepo:            commentRepo,
 		visitRepo:              visitRepo,
+		auditLogSvc:            auditLogSvc,
 	}
 }
 
@@ -116,6 +124,9 @@ func (r *Router) Setup() *gin.Engine {
 		c.Next()
 	})
 
+	// 审计日志中间件（仅记录 admin 写操作）
+	apiV1.Use(middleware.Audit(r.auditLogSvc))
+
 	// 注册各模块路由
 	auth.RegisterRoutes(apiV1, r.authController)
 	article.RegisterRoutes(apiV1, r.articleController)
@@ -126,6 +137,7 @@ func (r *Router) Setup() *gin.Engine {
 	daily_question.RegisterRoutes(apiV1, r.dailyQuestionController)
 	user.RegisterRoutes(apiV1, r.userController)
 	media.RegisterRoutes(apiV1, r.mediaController)
+	audit_log.RegisterRoutes(apiV1, r.auditLogController)
 	rss.RegisterRoutes(apiV1, r.rssHandler)
 	sitemap.RegisterRoutes(apiV1, r.sitemapHandler)
 

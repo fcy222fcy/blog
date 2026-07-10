@@ -9,12 +9,13 @@ import (
 
 // Config 应用配置
 type Config struct {
-	Server ServerConfig `mapstructure:"server"`
-	MySQL  MySQLConfig  `mapstructure:"mysql"`
-	Redis  RedisConfig  `mapstructure:"redis"`
-	JWT    JWTConfig    `mapstructure:"jwt"`
-	Log    LogConfig    `mapstructure:"log"`
-	Email  EmailConfig  `mapstructure:"email"`
+	Server  ServerConfig  `mapstructure:"server"`
+	MySQL   MySQLConfig   `mapstructure:"mysql"`
+	Redis   RedisConfig   `mapstructure:"redis"`
+	JWT     JWTConfig     `mapstructure:"jwt"`
+	Log     LogConfig     `mapstructure:"log"`
+	Email   EmailConfig   `mapstructure:"email"`
+	Blogger BloggerConfig `mapstructure:"blogger"`
 }
 
 // ServerConfig 服务器配置
@@ -68,6 +69,16 @@ type EmailConfig struct {
 	Password  string `mapstructure:"password"`
 	From      string `mapstructure:"from"`
 	FromEmail string `mapstructure:"from_email"`
+}
+
+// BloggerConfig 博主账号配置（写死配置，不走用户表）
+type BloggerConfig struct {
+	UserID   uint   `mapstructure:"user_id"`  // 博主虚拟 UserID，固定值用于判断博主身份
+	Username string `mapstructure:"username"` // 登录用户名
+	Password string `mapstructure:"password"` // 登录密码（明文，注意生产环境应加密或环境变量覆盖）
+	Nickname string `mapstructure:"nickname"` // 显示昵称
+	Email    string `mapstructure:"email"`    // 邮箱（用于头像/通知，与 from_email 保持一致）
+	Avatar   string `mapstructure:"avatar"`   // 头像URL（可选，空则用邮箱Gravatar）
 }
 
 // Load 加载配置

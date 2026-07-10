@@ -1,6 +1,8 @@
 <template>
   <div>
-    <div class="stats-grid">
+    <!-- 统计卡片（加载态 + 真实态） -->
+    <SkeletonLoader v-if="loading" type="stats" :count="2" />
+    <div v-else class="stats-grid">
       <div class="stat-card">
         <div class="stat-label">分类总数</div>
         <div class="stat-value">{{ categories.length }}</div>
@@ -23,6 +25,10 @@
     </div>
 
     <div class="category-cards">
+      <!-- 骨架屏加载态 -->
+      <SkeletonLoader v-if="loading" type="card-grid" :count="6" />
+      <!-- 真实列表 -->
+      <template v-else>
       <div v-for="cat in filteredCategories" :key="cat.id" class="category-card">
         <div class="category-card-cover" :style="{ background: getGradient(cat.id) }">
           <span class="category-card-cover-icon">{{ cat.icon || '📂' }}</span>
@@ -40,9 +46,10 @@
           </div>
         </div>
       </div>
+      </template>
     </div>
 
-    <div v-if="filteredCategories.length === 0" class="card">
+    <div v-if="filteredCategories.length === 0 && !loading" class="card">
       <div class="card-body" style="text-align: center; color: var(--card-text-color-tertiary);">暂无分类</div>
     </div>
 
@@ -83,12 +90,14 @@
 import { ref, computed, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { getCategoryList, createCategory, updateCategory, deleteCategory } from '../../api/category'
+import SkeletonLoader from '../../components/common/SkeletonLoader.vue'
 
 const categories = ref([])
 const keyword = ref('')
 const showModal = ref(false)
 const editingId = ref(null)
 const totalArticles = ref(0)
+const loading = ref(true)
 const form = ref({ name: '', slug: '', description: '', icon: '' })
 
 const gradients = [
@@ -119,6 +128,7 @@ const loadCategories = async () => {
     categories.value = res.data || []
     totalArticles.value = categories.value.reduce((sum, c) => sum + (c.article_count || 0), 0)
   } catch (e) { console.error(e) }
+  loading.value = false
 }
 
 const handleSave = async () => {
