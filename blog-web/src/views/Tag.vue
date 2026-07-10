@@ -138,52 +138,41 @@ onMounted(() => {
 </script>
 
 <style scoped>
-/* 统计卡片 */
-.stats-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 16px;
+/* 标签头部 */
+.tag-header {
   margin-bottom: 20px;
 }
-.stat-card {
-  padding: 18px 20px;
+.tag-header-inner {
   background: var(--card-background);
   border: 1px solid var(--card-border);
   border-radius: var(--card-border-radius);
   box-shadow: var(--shadow-l1);
-  transition: all 0.2s ease;
+  padding: 28px 32px;
 }
-.stat-card:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-l2);
-  border-color: rgba(var(--accent-color-rgb), 0.3);
+.tag-header-content {
+  max-width: 700px;
 }
-.stat-label {
-  font-size: 0.82rem;
+.tag-header-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 1.5px;
   color: var(--card-text-color-secondary);
-  margin-bottom: 6px;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+.tag-header-count {
+  font-size: 0.85rem;
+  color: var(--card-text-color-tertiary);
+  margin-bottom: 8px;
   font-weight: 500;
 }
-.stat-value {
-  font-size: 1.6rem;
+.tag-header-title {
+  font-size: 1.85rem;
   font-weight: 800;
   color: var(--card-text-color-main);
-  line-height: 1.2;
-}
-.tag-stat-name {
-  display: flex;
-  align-items: center;
-}
-.stat-tag-pill {
-  display: inline-flex;
-  align-items: center;
-  min-height: 32px;
-  padding: 0 14px;
-  border-radius: var(--tag-border-radius);
-  font-size: 0.95rem;
-  font-weight: 700;
-  background: rgba(var(--accent-color-rgb), 0.1);
-  color: var(--accent-color);
+  margin: 0;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
 }
 
 /* 简洁列表大卡片 */
@@ -279,20 +268,11 @@ onMounted(() => {
 .pagination-inner {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
   gap: 16px;
   padding: 14px 28px;
   border-top: 1px solid var(--card-separator-color);
   flex-wrap: wrap;
-}
-.pagination-info {
-  color: var(--card-text-color-secondary);
-  font-size: 0.9rem;
-  font-weight: 500;
-}
-.pagination-info span {
-  color: var(--accent-color);
-  font-weight: 700;
 }
 .pagination-buttons {
   display: flex;
@@ -332,12 +312,13 @@ onMounted(() => {
   transform: none;
 }
 
-@media (max-width: 900px) {
-  .stats-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
 @media (max-width: 768px) {
+  .tag-header-inner {
+    padding: 20px 20px;
+  }
+  .tag-header-title {
+    font-size: 1.45rem;
+  }
   .article-list-item {
     padding: 14px 20px;
     flex-direction: column;
@@ -352,20 +333,7 @@ onMounted(() => {
     font-size: 0.96rem;
   }
   .pagination-inner {
-    justify-content: center;
     padding: 14px 20px;
-  }
-}
-@media (max-width: 480px) {
-  .stats-grid {
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-  }
-  .stat-card {
-    padding: 14px 16px;
-  }
-  .stat-value {
-    font-size: 1.3rem;
   }
 }
 </style>
