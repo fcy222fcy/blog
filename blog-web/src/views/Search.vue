@@ -206,7 +206,7 @@ onMounted(() => {
 /* 统计卡片 */
 .stats-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(2, 1fr);
   gap: 16px;
   margin-bottom: 20px;
 }
@@ -269,47 +269,6 @@ onMounted(() => {
   margin: 0;
 }
 .card-title svg { color: var(--accent-color); }
-
-/* 筛选区 */
-.filter-group {
-  display: flex;
-  gap: 12px;
-  flex-wrap: wrap;
-  align-items: center;
-}
-.search-box {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 12px;
-  background: var(--body-background);
-  border: 1px solid var(--card-separator-color);
-  border-radius: 8px;
-  min-width: 220px;
-  transition: all 0.2s ease;
-}
-.search-box:focus-within {
-  border-color: rgba(var(--accent-color-rgb), 0.45);
-  box-shadow: 0 0 0 3px rgba(var(--accent-color-rgb), 0.1);
-}
-.search-box-icon {
-  color: var(--card-text-color-tertiary);
-  font-size: 1rem;
-  line-height: 1;
-}
-.search-box input {
-  flex: 1;
-  min-width: 0;
-  background: transparent;
-  border: none;
-  outline: none;
-  color: var(--card-text-color-main);
-  font-size: 0.9rem;
-  padding: 4px 0;
-}
-.search-box input::placeholder {
-  color: var(--card-text-color-tertiary);
-}
 
 /* 通用按钮 */
 .btn {
