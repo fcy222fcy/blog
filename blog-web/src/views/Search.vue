@@ -488,28 +488,9 @@ onMounted(() => {
   transform: none;
 }
 
-@media (max-width: 900px) {
-  .stats-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
 @media (max-width: 768px) {
   .article-cards-container {
     gap: 16px;
-  }
-  .article-card-cover-wrap {
-    height: 170px;
-  }
-  .article-card-body {
-    padding: 16px 18px 18px;
-    gap: 10px;
-  }
-  .article-card-title {
-    font-size: 1.02rem;
-  }
-  .article-card-summary {
-    font-size: 0.86rem;
-    line-height: 1.7;
   }
   .card-header {
     padding: 16px 20px;
@@ -520,7 +501,7 @@ onMounted(() => {
 }
 @media (max-width: 480px) {
   .stats-grid {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr;
     gap: 10px;
   }
   .stat-card {
@@ -531,20 +512,6 @@ onMounted(() => {
   }
   .search-keyword-stat {
     font-size: 1rem;
-  }
-  .search-box {
-    min-width: 0;
-    width: 100%;
-  }
-  .article-card-cover-wrap {
-    height: 150px;
-  }
-  .article-card-body {
-    padding: 14px 16px 16px;
-  }
-  .article-card-title {
-    font-size: 1rem;
-    line-height: 1.5;
   }
 }
 </style>
