@@ -10,14 +10,6 @@
         <div class="stat-label">相关文章</div>
         <div class="stat-value">{{ total }}</div>
       </div>
-      <div class="stat-card">
-        <div class="stat-label">当前页码</div>
-        <div class="stat-value">{{ currentPage }} / {{ totalPage || 1 }}</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">总浏览量</div>
-        <div class="stat-value">{{ totalViews }}</div>
-      </div>
     </div>
 
     <div class="card">
@@ -25,18 +17,6 @@
         <div class="card-title">
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
           文章列表
-        </div>
-        <div class="filter-group">
-          <div class="search-box">
-            <span class="search-box-icon">⌕</span>
-            <input
-              ref="searchInputRef"
-              v-model="inputKeyword"
-              type="search"
-              placeholder="搜索文章..."
-              @keyup.enter="handleSearch"
-            >
-          </div>
         </div>
       </div>
 
@@ -121,7 +101,7 @@
 </template>
 
 <script setup>
-import { ref, computed, watch, onMounted, nextTick } from 'vue'
+import { ref, watch, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { searchArticles } from '../api/article'
 
@@ -129,7 +109,6 @@ const route = useRoute()
 const router = useRouter()
 
 const keyword = ref('')
-const inputKeyword = ref('')
 const articles = ref([])
 const loading = ref(false)
 const errorMsg = ref('')
@@ -137,7 +116,6 @@ const total = ref(0)
 const currentPage = ref(1)
 const pageSize = 10
 const totalPage = ref(0)
-const searchInputRef = ref(null)
 
 const escapeRegExp = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 
@@ -174,10 +152,6 @@ const displaySummary = (article) => {
   return article.summary || ''
 }
 
-const totalViews = computed(() =>
-  articles.value.reduce((sum, a) => sum + (a.view_count || 0), 0)
-)
-
 const fetchResults = async () => {
   if (!keyword.value.trim()) return
 
@@ -200,13 +174,6 @@ const fetchResults = async () => {
   }
 }
 
-const handleSearch = () => {
-  const kw = inputKeyword.value.trim()
-  if (kw) {
-    router.push({ name: 'Search', query: { q: kw } })
-  }
-}
-
 const goToPage = (page) => {
   if (page < 1 || page > totalPage.value) return
   currentPage.value = page
@@ -220,7 +187,6 @@ watch(
   (newQ) => {
     if (newQ) {
       keyword.value = newQ
-      inputKeyword.value = newQ
       currentPage.value = 1
       fetchResults()
     }
@@ -231,10 +197,8 @@ onMounted(() => {
   const q = route.query.q
   if (q) {
     keyword.value = q
-    inputKeyword.value = q
     fetchResults()
   }
-  nextTick(() => searchInputRef.value?.focus())
 })
 </script>
 

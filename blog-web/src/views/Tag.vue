@@ -1,35 +1,24 @@
 <template>
   <div class="page-view" id="view-tag">
-    <!-- 统计卡片 -->
-    <div class="stats-grid" v-if="!loading && !errorMsg && articles.length >= 0">
-      <div class="stat-card">
-        <div class="stat-label">标签</div>
-        <div class="stat-value tag-stat-name">
-          <span class="stat-tag-pill">#{{ tagName || route.params.id }}</span>
-        </div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">相关文章</div>
-        <div class="stat-value">{{ total }}</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">当前页码</div>
-        <div class="stat-value">{{ currentPage }} / {{ totalPage || 1 }}</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">总浏览量</div>
-        <div class="stat-value">{{ totalViews }}</div>
-      </div>
-    </div>
-
     <!-- 骨架屏加载 -->
     <ArticleListSkeleton v-if="loading" />
 
     <!-- 错误状态 -->
     <ErrorState v-else-if="errorMsg" :message="errorMsg" @retry="fetchResults" />
 
-    <!-- 简洁列表 -->
     <template v-else>
+      <!-- 标签头部信息 -->
+      <div class="tag-header" v-if="!loading && !errorMsg">
+        <div class="tag-header-inner">
+          <div class="tag-header-content">
+            <div class="tag-header-label">TAGS</div>
+            <div class="tag-header-count">{{ total }} 个页面</div>
+            <h1 class="tag-header-title">#{{ tagName || route.params.id }}</h1>
+          </div>
+        </div>
+      </div>
+
+      <!-- 简洁列表 -->
       <div class="list-card">
         <div class="article-list">
           <router-link
@@ -54,9 +43,6 @@
 
         <!-- 分页 -->
         <div class="pagination-inner" v-if="totalPage > 1 && articles.length > 0">
-          <div class="pagination-info">
-            共 <span>{{ total }}</span> 篇相关文章
-          </div>
           <div class="pagination-buttons">
             <button
               class="pagination-btn"
@@ -83,7 +69,7 @@
 </template>
 
 <script setup>
-import { ref, computed, watch, onMounted } from 'vue'
+import { ref, watch, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { getArticleList } from '../api/article'
 import ArticleListSkeleton from '../components/common/ArticleListSkeleton.vue'
@@ -100,10 +86,6 @@ const total = ref(0)
 const currentPage = ref(1)
 const pageSize = 50
 const totalPage = ref(0)
-
-const totalViews = computed(() =>
-  articles.value.reduce((sum, a) => sum + (a.view_count || 0), 0)
-)
 
 const fetchResults = async () => {
   const tagId = Number(route.params.id)
