@@ -64,12 +64,22 @@
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path></svg>
         {{ appStore.scheme === 'dark' ? '亮色模式' : '暗色模式' }}
       </button>
+      <div class="sidebar-bottom-item site-runtime" :title="'建站日期：' + siteStartDate">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"></circle>
+          <polyline points="12 6 12 12 16 14"></polyline>
+        </svg>
+        <div class="site-runtime-text">
+          <div class="site-runtime-label">运行时长</div>
+          <div class="site-runtime-value">{{ runtime.days }}天 {{ runtime.hours }}:{{ runtime.minutes }}:{{ runtime.seconds }}</div>
+        </div>
+      </div>
     </div>
   </aside>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, reactive, onMounted, onUnmounted } from 'vue'
 import { useAppStore } from '../../stores/app'
 
 defineProps({ menuOpen: Boolean })
@@ -81,6 +91,35 @@ const userInfo = ref({
   bio: '',
   avatar: ''
 })
+
+const siteStartDate = '2024-01-01 00:00:00'
+
+const runtime = reactive({
+  days: 0,
+  hours: '00',
+  minutes: '00',
+  seconds: '00'
+})
+
+let runtimeTimer = null
+
+const pad = (n) => String(n).padStart(2, '0')
+
+const calculateRuntime = () => {
+  const start = new Date(siteStartDate.replace(/-/g, '/')).getTime()
+  const now = Date.now()
+  const diff = Math.max(0, now - start)
+
+  const days = Math.floor(diff / (1000 * 60 * 60 * 24))
+  const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))
+  const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60))
+  const seconds = Math.floor((diff % (1000 * 60)) / 1000)
+
+  runtime.days = days
+  runtime.hours = pad(hours)
+  runtime.minutes = pad(minutes)
+  runtime.seconds = pad(seconds)
+}
 
 const fetchUserInfo = async () => {
   try {
@@ -96,5 +135,14 @@ const fetchUserInfo = async () => {
 
 onMounted(() => {
   fetchUserInfo()
+  calculateRuntime()
+  runtimeTimer = setInterval(calculateRuntime, 1000)
+})
+
+onUnmounted(() => {
+  if (runtimeTimer) {
+    clearInterval(runtimeTimer)
+    runtimeTimer = null
+  }
 })
 </script>

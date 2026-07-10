@@ -73,7 +73,10 @@ const sanitizeHtml = (html) => {
 
 const renderedContent = computed(() => {
   if (!articleStore.currentArticle?.content) return ''
-  return sanitizeHtml(marked(articleStore.currentArticle.content))
+  let html = sanitizeHtml(marked(articleStore.currentArticle.content))
+  html = html.replace(/<table>/g, '<div class="table-wrapper"><table>')
+  html = html.replace(/<\/table>/g, '</table></div>')
+  return html
 })
 
 // 计算阅读时长（中文约 400 字/分钟，英文约 200 词/分钟）
