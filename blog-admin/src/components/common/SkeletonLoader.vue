@@ -96,9 +96,9 @@ const getCellWidth = (rowIndex, colIndex) => {
 /* 骨架屏核心动画 */
 .skeleton {
   background: linear-gradient(90deg,
-    var(--skeleton-base, #e8e8e8) 25%,
-    var(--skeleton-shine, #f5f5f5) 50%,
-    var(--skeleton-base, #e8e8e8) 75%
+    var(--skeleton-base) 25%,
+    var(--skeleton-shine) 50%,
+    var(--skeleton-base) 75%
   );
   background-size: 800px 100%;
   animation: shimmer 1.5s infinite ease-in-out;

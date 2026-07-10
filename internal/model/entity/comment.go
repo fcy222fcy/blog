@@ -22,8 +22,8 @@ type Comment struct {
 	ArticleID    uint      `gorm:"index" json:"article_id"`
 	Article      Article   `gorm:"foreignKey:ArticleID" json:"-"`
 	ParentID     *uint     `gorm:"index" json:"parent_id"`
-	ReplyTo      *Comment  `gorm:"-" json:"-"`
-	ReplyToID    *uint     `gorm:"-" json:"-"`
+	ReplyToID    *uint     `gorm:"index" json:"reply_to_id"`
+	ReplyTo      *Comment  `gorm:"foreignKey:ReplyToID" json:"-"`
 	ReplyToNickname string `gorm:"-" json:"reply_to_nickname"`
 	Replies      []Comment `gorm:"-" json:"replies,omitempty"`
 	LikeCount    int       `gorm:"default:0" json:"like_count"`

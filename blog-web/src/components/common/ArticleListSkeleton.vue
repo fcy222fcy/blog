@@ -35,17 +35,17 @@ defineProps({
 }
 
 .skeleton-card {
-  background: var(--card-background, #fff);
-  border-radius: var(--card-border-radius, 12px);
+  background: var(--card-background);
+  border-radius: var(--card-border-radius);
   padding: 24px;
-  box-shadow: var(--card-shadow, 0 2px 8px rgba(0, 0, 0, 0.06));
+  box-shadow: var(--shadow-l1);
 }
 
 .skeleton-category {
   width: 60px;
   height: 20px;
   border-radius: 10px;
-  background: var(--skeleton-bg, #e5e7eb);
+  background: var(--card-separator-color);
   margin-bottom: 12px;
   animation: skeleton-pulse 1.5s ease-in-out infinite;
 }
@@ -54,7 +54,7 @@ defineProps({
   width: 70%;
   height: 24px;
   border-radius: 4px;
-  background: var(--skeleton-bg, #e5e7eb);
+  background: var(--card-separator-color);
   margin-bottom: 16px;
   animation: skeleton-pulse 1.5s ease-in-out infinite 0.1s;
 }
@@ -69,7 +69,7 @@ defineProps({
 .skeleton-line {
   height: 14px;
   border-radius: 4px;
-  background: var(--skeleton-bg, #e5e7eb);
+  background: var(--card-separator-color);
   animation: skeleton-pulse 1.5s ease-in-out infinite 0.2s;
 }
 
@@ -90,7 +90,7 @@ defineProps({
   width: 80px;
   height: 14px;
   border-radius: 4px;
-  background: var(--skeleton-bg, #e5e7eb);
+  background: var(--card-separator-color);
   animation: skeleton-pulse 1.5s ease-in-out infinite 0.3s;
 }
 

@@ -102,7 +102,11 @@ func buildReplyTree(rootComments []*entity.Comment, allComments []*entity.Commen
 	}
 
 	for _, c := range allComments {
-		if c.ParentID != nil {
+		if c.ReplyToID != nil {
+			if target, ok := allCommentMap[*c.ReplyToID]; ok {
+				c.ReplyToNickname = target.Nickname
+			}
+		} else if c.ParentID != nil {
 			if parent, ok := allCommentMap[*c.ParentID]; ok {
 				c.ReplyToNickname = parent.Nickname
 			}

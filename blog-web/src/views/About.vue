@@ -106,7 +106,7 @@ const fetchAbout = async () => {
     }
     skills.value = ['Golang', 'Erlang', 'Unity', 'Docker']
     projects.value = [
-      { name: 'GitHub', description: '我的 GitHub 主页，包含各种编程项目。', url: 'https://github.com/liu-houliang', icon: '⌘' },
+      { name: 'GitHub', description: '我的 GitHub 主页，包含各种编程项目。', url: 'https://github.com/fcy222fcy?tab=repositories', icon: '⌘' },
       { name: 'DesktopSnap', description: 'Windows 桌面图标保存和恢复工具。', url: 'https://desktopsnap.liuhouliang.com/', icon: '🖥' }
     ]
     aboutMe.value = [
@@ -130,35 +130,4 @@ onMounted(fetchAbout)
 
 <style scoped>
 /* 关于我页面样式在全局main.css中定义 */
-.error-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  min-height: 200px;
-  gap: 16px;
-}
-
-.error-message {
-  color: var(--error-color, #ef4444);
-  margin: 0;
-}
-
-.retry-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 8px 16px;
-  background-color: var(--accent-color, #3b82f6);
-  color: white;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 14px;
-  transition: background-color 0.2s;
-}
-
-.retry-btn:hover {
-  background-color: var(--accent-color-hover, #2563eb);
-}
 </style>

@@ -33,3 +33,9 @@ CREATE TABLE IF NOT EXISTS `audit_logs` (
   INDEX `idx_audit_logs_operator_id` (`operator_id`),
   INDEX `idx_audit_logs_deleted_at` (`deleted_at`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='操作审计日志表';
+
+-- 3. 评论表新增 reply_to_id 列：用于精确标识回复哪条评论（区分回复根评论/回复子评论）
+--    parent_id 仍然指向根评论（维持两级扁平化渲染），reply_to_id 才是真正回复目标
+ALTER TABLE `comments`
+  ADD COLUMN `reply_to_id` BIGINT UNSIGNED NULL COMMENT '回复目标评论ID，区分回复根评论/子评论' AFTER `parent_id`,
+  ADD INDEX `idx_comments_reply_to_id` (`reply_to_id`);

@@ -40,6 +40,16 @@ const routes = [
     path: '/daily/:date?',
     name: 'DailyQuestion',
     component: () => import('../views/DailyQuestion.vue')
+  },
+  {
+    path: '/tag/:id',
+    name: 'Tag',
+    component: () => import('../views/Tag.vue')
+  },
+  {
+    path: '/category/:id',
+    name: 'Category',
+    component: () => import('../views/Category.vue')
   }
 ]
 

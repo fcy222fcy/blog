@@ -27,7 +27,7 @@ type UpdateDailyQuestionRequest struct {
 	Question string `json:"question" binding:"min=1"`
 	Answer   string `json:"answer"`
 	Date     string `json:"date" binding:"omitempty,datetime=2006-01-02"`
-	Status   int    `json:"status" binding:"omitempty,oneof=0 1"`
+	Status   *int   `json:"status" binding:"omitempty,oneof=0 1"`
 }
 
 // ValidateDate 验证日期格式是否为 YYYY-MM-DD

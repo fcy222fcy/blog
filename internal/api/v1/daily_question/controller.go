@@ -256,9 +256,13 @@ func (c *Controller) UpdateQuestionStatus(ctx *gin.Context) {
 	}
 
 	var req struct {
-		Status int `json:"status" binding:"required"`
+		Status int `json:"status"`
 	}
 	if err := ctx.ShouldBindJSON(&req); err != nil {
+		response.BadRequest(ctx, "参数错误")
+		return
+	}
+	if req.Status != 0 && req.Status != 1 {
 		response.BadRequest(ctx, "参数错误")
 		return
 	}

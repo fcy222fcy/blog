@@ -15,14 +15,22 @@
   --card-separator-color: rgba(0, 0, 0, 0.08);
   --card-border-radius: 10px;
   --card-padding: 20px;
-  --shadow-l1: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
-  --shadow-l2: 0 3px 6px rgba(0,0,0,0.15), 0 2px 4px rgba(0,0,0,0.12);
+  --blockquote-background-color: #f2f1eb;
+  --code-background-color: #f2f1eb;
+  --code-text-color: #24292f;
+  --shadow-l1: 0px 4px 8px rgba(0, 0, 0, 0.04), 0px 0px 2px rgba(0, 0, 0, 0.06), 0px 0px 1px rgba(0, 0, 0, 0.04);
+  --shadow-l2: 0px 10px 20px rgba(0, 0, 0, 0.04), 0px 2px 6px rgba(0, 0, 0, 0.04), 0px 0px 1px rgba(0, 0, 0, 0.04);
+  --shadow-l3: 0px 15px 35px rgba(0, 0, 0, 0.08), 0px 4px 10px rgba(0, 0, 0, 0.05), 0px 0px 2px rgba(0, 0, 0, 0.04);
   --radius: 10px;
   --sidebar-width: 248px;
   --header-height: 60px;
   --success-color: #10b981;
+  --success-color-rgb: 16, 185, 129;
+  --success-color-darker: #059669;
   --warning-color: #f59e0b;
+  --warning-color-rgb: 245, 158, 11;
   --danger-color: #ef4444;
+  --danger-color-rgb: 239, 68, 68;
   --tag-border-radius: 4px;
 }
 
@@ -36,13 +44,20 @@
   --card-text-color-secondary: #b7c0ca;
   --card-text-color-tertiary: #939ca6;
   --card-separator-color: #383838;
+  --blockquote-background-color: #22272e;
+  --code-background-color: #2d333b;
+  --code-text-color: #adbac7;
   --accent-color: #58a6ff;
   --accent-color-rgb: 88, 166, 255;
   --accent-color-darker: #1f6feb;
   --accent-color-text: #000;
   --success-color: #3fb950;
+  --success-color-rgb: 63, 185, 80;
+  --success-color-darker: #238636;
   --warning-color: #d29922;
+  --warning-color-rgb: 210, 153, 34;
   --danger-color: #f85149;
+  --danger-color-rgb: 248, 81, 73;
 }
 
 /* ===== 全局样式 ===== */
@@ -464,4 +479,165 @@ button { cursor: pointer; border: none; }
   z-index: 1;
   color: var(--card-text-color-secondary);
   transition: color 0.3s;
+}
+
+/* ===== 公共组件：CustomSelect ===== */
+.custom-select-wrapper {
+  position: relative;
+  display: inline-flex;
+}
+
+.custom-select {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 32px 8px 12px;
+  border: 1px solid var(--card-separator-color);
+  border-radius: var(--card-border-radius);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--card-text-color-main);
+  background: var(--card-background);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  min-width: 100px;
+  position: relative;
+}
+
+.custom-select:hover {
+  border-color: var(--accent-color);
+}
+
+.select-value {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.select-arrow {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  color: var(--card-text-color-tertiary);
+  display: flex;
+  align-items: center;
+}
+
+.custom-dropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  min-width: 180px;
+  background: var(--card-background);
+  border: 1px solid var(--card-separator-color);
+  border-radius: var(--card-border-radius);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  z-index: 100;
+  overflow: hidden;
+}
+
+.dropdown-item {
+  padding: 10px 12px;
+  font-size: 13px;
+  color: var(--card-text-color-main);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.dropdown-item:hover {
+  background: rgba(var(--accent-color-rgb), 0.06);
+  color: var(--accent-color);
+}
+
+.dropdown-item.active {
+  background: rgba(var(--accent-color-rgb), 0.1);
+  color: var(--accent-color);
+  font-weight: 600;
+}
+
+/* ===== 全局通用：空状态 & 工具栏 ===== */
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--card-text-color-tertiary);
+}
+
+.empty-state-sm {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--card-text-color-tertiary);
+}
+
+.page-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.page-toolbar .search-box {
+  min-width: 240px;
+}
+
+/* 通用工具类 */
+.mb-0 { margin-bottom: 0 !important; }
+.mt-0 { margin-top: 0 !important; }
+.mb-20 { margin-bottom: 20px !important; }
+
+.flex-1 { flex: 1 !important; }
+.gap-s { display: flex; gap: 6px; }
+.gap-m { display: flex; gap: 12px; }
+
+.text-success { color: var(--success-color); }
+.text-danger { color: var(--danger-color); }
+.text-warning { color: var(--warning-color); }
+.text-accent { color: var(--accent-color); }
+
+/* 媒体资源网格布局 */
+.media-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 16px;
+  margin-top: 20px;
+}
+
+/* Tab 按钮组 */
+.tab-group {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+/* 强调色徽章 */
+.badge-accent {
+  background: rgba(var(--accent-color-rgb), 0.1);
+  color: var(--accent-color);
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  display: inline-block;
+}
+
+/* 让使用 Element Plus <el-card> 的组件都有统一的 hover 动效 */
+.category-card,
+.tag-card,
+.link-card,
+.comment-card,
+.media-card {
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.category-card:hover,
+.tag-card:hover,
+.link-card:hover,
+.comment-card:hover,
+.media-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-l2);
 }

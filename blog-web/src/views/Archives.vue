@@ -37,27 +37,9 @@
 import { onMounted } from 'vue'
 import { useArticleStore } from '../stores/article'
 import Loading from '../components/common/Loading.vue'
+import { formatDate } from '../utils/date'
 
 const articleStore = useArticleStore()
-
-const pad = (n) => String(n).padStart(2, '0')
-
-const formatDate = (dateStr) => {
-  if (!dateStr) return ''
-  const date = new Date(dateStr)
-  if (isNaN(date.getTime())) return dateStr.split('T')[0]
-  const now = new Date()
-  const diff = now - date
-  const THREE_DAYS = 3 * 24 * 60 * 60 * 1000
-
-  if (diff >= THREE_DAYS) {
-    return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`
-  }
-  if (diff < 60 * 1000) return '刚刚'
-  if (diff < 60 * 60 * 1000) return Math.floor(diff / (60 * 1000)) + ' 分钟前'
-  if (diff < 24 * 60 * 60 * 1000) return Math.floor(diff / (60 * 60 * 1000)) + ' 小时前'
-  return Math.floor(diff / (24 * 60 * 60 * 1000)) + ' 天前'
-}
 
 const retryFetch = () => {
   articleStore.fetchArchives()
@@ -70,41 +52,4 @@ onMounted(() => {
 
 <style scoped>
 /* 归档页面样式在全局main.css中定义 */
-.empty {
-  text-align: center;
-  padding: 40px;
-  color: var(--card-text-color-secondary);
-}
-
-.error-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  min-height: 200px;
-  gap: 16px;
-}
-
-.error-message {
-  color: var(--error-color, #ef4444);
-  margin: 0;
-}
-
-.retry-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 8px 16px;
-  background-color: var(--accent-color, #3b82f6);
-  color: white;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 14px;
-  transition: background-color 0.2s;
-}
-
-.retry-btn:hover {
-  background-color: var(--accent-color-hover, #2563eb);
-}
 </style>

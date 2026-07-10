@@ -297,11 +297,11 @@ const vClickOutside = {
   font-weight: 600;
   white-space: nowrap;
 }
-.action-create { background: rgba(16, 185, 129, 0.1); color: #10b981; }
-.action-update { background: rgba(59, 130, 246, 0.1); color: #3b82f6; }
-.action-delete { background: rgba(239, 68, 68, 0.1); color: #ef4444; }
-.action-approve { background: rgba(16, 185, 129, 0.1); color: #10b981; }
-.action-reject { background: rgba(245, 158, 11, 0.1); color: #f59e0b; }
+.action-create { background: rgba(var(--success-color-rgb), 0.1); color: var(--success-color); }
+.action-update { background: rgba(var(--accent-color-rgb), 0.1); color: var(--accent-color); }
+.action-delete { background: rgba(var(--danger-color-rgb), 0.1); color: var(--danger-color); }
+.action-approve { background: rgba(var(--success-color-rgb), 0.1); color: var(--success-color); }
+.action-reject { background: rgba(var(--warning-color-rgb), 0.1); color: var(--warning-color); }
 
 .data-table {
   width: 100%;

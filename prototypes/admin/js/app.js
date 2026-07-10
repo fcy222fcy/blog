@@ -13,7 +13,7 @@
             avatar: null,
             social: [
                 { icon: '●●', name: 'WeChat', url: '#wechat' },
-                { icon: '⌘', name: 'GitHub', url: 'https://github.com/liu-houliang' },
+                { icon: '⌘', name: 'GitHub', url: 'https://github.com/fcy222fcy?tab=repositories' },
                 { icon: '▦', name: 'Tools', url: '#tools' },
                 { icon: '◔', name: 'RSS', url: '#rss' }
             ]

@@ -13,7 +13,7 @@
       </div>
     </div>
 
-    <div style="display: flex; gap: 12px; margin-bottom: 20px; align-items: center; justify-content: space-between;">
+    <div class="page-toolbar">
       <div class="search-box">
         <span class="search-box-icon">⌕</span>
         <input type="text" v-model="keyword" placeholder="搜索分类...">
@@ -30,9 +30,6 @@
       <!-- 真实列表 -->
       <template v-else>
       <div v-for="cat in filteredCategories" :key="cat.id" class="category-card">
-        <div class="category-card-cover" :style="{ background: getGradient(cat.id) }">
-          <span class="category-card-cover-icon">{{ cat.icon || '📂' }}</span>
-        </div>
         <div class="category-card-content">
           <div class="category-card-title">{{ cat.name }}</div>
           <div class="category-card-slug">{{ cat.slug }}</div>
@@ -50,7 +47,7 @@
     </div>
 
     <div v-if="filteredCategories.length === 0 && !loading" class="card">
-      <div class="card-body" style="text-align: center; color: var(--card-text-color-tertiary);">暂无分类</div>
+      <div class="card-body empty-state-sm">暂无分类</div>
     </div>
 
     <div class="modal-overlay" :class="{ active: showModal }" @click.self="showModal = false">
@@ -71,10 +68,6 @@
           <div class="form-group">
             <label class="form-label">描述</label>
             <textarea class="form-textarea" v-model="form.description" placeholder="输入分类描述..." rows="3"></textarea>
-          </div>
-          <div class="form-group">
-            <label class="form-label">图标</label>
-            <input type="text" class="form-input" v-model="form.icon" placeholder="输入 emoji 图标">
           </div>
         </div>
         <div class="modal-footer">
@@ -98,27 +91,18 @@ const showModal = ref(false)
 const editingId = ref(null)
 const totalArticles = ref(0)
 const loading = ref(true)
-const form = ref({ name: '', slug: '', description: '', icon: '' })
-
-const gradients = [
-  'linear-gradient(135deg, #667eea, #764ba2)',
-  'linear-gradient(135deg, #f093fb, #f5576c)',
-  'linear-gradient(135deg, #43e97b, #38f9d7)',
-  'linear-gradient(135deg, #4facfe, #00f2fe)',
-  'linear-gradient(135deg, #fa709a, #fee140)',
-]
-const getGradient = (id) => gradients[(id - 1) % gradients.length]
+const form = ref({ name: '', slug: '', description: '' })
 
 const filteredCategories = computed(() => {
   if (!keyword.value) return categories.value
   return categories.value.filter(c => c.name.includes(keyword.value))
 })
 
-const resetForm = () => { editingId.value = null; form.value = { name: '', slug: '', description: '', icon: '' } }
+const resetForm = () => { editingId.value = null; form.value = { name: '', slug: '', description: '' } }
 
 const editCategory = (cat) => {
   editingId.value = cat.id
-  form.value = { name: cat.name, slug: cat.slug, description: cat.description || '', icon: cat.icon || '' }
+  form.value = { name: cat.name, slug: cat.slug, description: cat.description || '' }
   showModal.value = true
 }
 

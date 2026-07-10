@@ -45,6 +45,7 @@ const (
 	CodeMediaNotFound         = 3007
 	CodePageNotFound          = 3008
 	CodeRecordNotFound       = 3009
+	CodeEntertainmentNotFound = 3010
 
 	// 业务错误 (4000+)
 	CodeCategoryNameExists    = 4001
@@ -84,6 +85,7 @@ var CodeMessages = map[int]string{
 	CodeMediaNotFound:        "媒体文件不存在",
 	CodePageNotFound:         "页面不存在",
 	CodeRecordNotFound:       "记录不存在",
+	CodeEntertainmentNotFound: "娱乐条目不存在",
 	CodeCommentAlreadyLiked:  "您已经点赞过了",
 }
 

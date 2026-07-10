@@ -76,25 +76,26 @@
           <!-- 分类 -->
           <div class="publish-field">
             <label class="publish-label">分类 <span class="required">*</span></label>
-            <select class="publish-select" v-model="form.category_id">
-              <option value="">请选择分类</option>
-              <option v-for="cat in categories" :key="cat.id" :value="cat.id">{{ cat.name }}</option>
-            </select>
+            <CustomSelect
+              v-model="form.category_id"
+              :options="categoryOptions"
+              placeholder="请选择分类"
+            />
           </div>
 
-          <!-- 标签 -->
+          <!-- 标签：多选 + 搜索 + 全选/清空 按钮，复选框勾选一次选多个 -->
           <div class="publish-field">
             <label class="publish-label">标签</label>
-            <div class="publish-tags">
-              <span v-for="tagId in form.tag_ids" :key="tagId" class="publish-tag-item">
-                {{ getTagName(tagId) }}
-                <button class="publish-tag-remove" @click="removeTag(tagId)">×</button>
-              </span>
-              <select class="publish-select publish-tag-select" v-model="selectedTag" @change="addTag">
-                <option value="">添加标签...</option>
-                <option v-for="tag in availableTags" :key="tag.id" :value="tag.id">{{ tag.name }}</option>
-              </select>
-            </div>
+            <CustomSelect
+              v-model="form.tag_ids"
+              :multiple="true"
+              :searchable="true"
+              :show-select-all="true"
+              :options="tagOptions"
+              placeholder="选择文章标签（可多选）"
+              search-placeholder="搜索标签名..."
+            />
+            <div class="publish-hint">已选 {{ form.tag_ids?.length || 0 }} 个标签（支持批量勾选）</div>
           </div>
 
           <!-- 封面图 -->
@@ -193,12 +194,12 @@ import { getCategoryList } from '../../api/category'
 import { getTagList } from '../../api/tag'
 import { uploadFile } from '../../api/media'
 import ImageUpload from '../../components/common/ImageUpload.vue'
+import CustomSelect from '../../components/common/CustomSelect.vue'
 
 const route = useRoute()
 const router = useRouter()
 const isEdit = computed(() => !!route.params.id)
 const editorTheme = ref(localStorage.getItem('scheme') === 'dark' ? 'dark' : 'light')
-const selectedTag = ref('')
 const formRef = ref(null)
 const showPublishModal = ref(false)
 const showSeoSettings = ref(false)
@@ -254,8 +255,12 @@ const rules = {
 const categories = ref([])
 const tags = ref([])
 
-const availableTags = computed(() => {
-  return tags.value.filter(t => !form.value.tag_ids.includes(t.id))
+// CustomSelect 用的 options
+const categoryOptions = computed(() => {
+  return (categories.value || []).map(c => ({ value: c.id, label: c.name }))
+})
+const tagOptions = computed(() => {
+  return (tags.value || []).map(t => ({ value: t.id, label: t.name }))
 })
 
 const wordCount = computed(() => {
@@ -277,28 +282,12 @@ const wordCount = computed(() => {
   return plainText.length
 })
 
-const getTagName = (id) => {
-  const tag = tags.value.find(t => t.id === id)
-  return tag?.name || id
-}
-
 // 将 ISO 时间格式转换为 datetime-local input 所需格式
 const formatForDateTimeInput = (isoStr) => {
   if (!isoStr) return null
   const d = new Date(isoStr)
   if (isNaN(d.getTime())) return null
   return d.toISOString().slice(0, 16)
-}
-
-const addTag = () => {
-  if (selectedTag.value && !form.value.tag_ids.includes(selectedTag.value)) {
-    form.value.tag_ids.push(selectedTag.value)
-  }
-  selectedTag.value = ''
-}
-
-const removeTag = (id) => {
-  form.value.tag_ids = form.value.tag_ids.filter(t => t !== id)
 }
 
 // 批量上传图片并返回URL数组
@@ -850,7 +839,7 @@ onMounted(() => {
   padding: 14px 32px;
   background: var(--card-background);
   border-top: 1px solid var(--card-separator-color);
-  box-shadow: 0 -2px 12px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 -2px 12px var(--card-separator-color);
   position: fixed;
   bottom: 0;
   left: var(--sidebar-width);
@@ -899,12 +888,12 @@ onMounted(() => {
 
 .auto-save-status.saved {
   color: var(--success-color);
-  background: rgba(16, 185, 129, 0.08);
+  background: rgba(var(--success-color-rgb), 0.08);
 }
 
 .auto-save-status.error {
   color: var(--danger-color);
-  background: rgba(239, 68, 68, 0.08);
+  background: rgba(var(--danger-color-rgb), 0.08);
 }
 
 @keyframes fadeIn {
@@ -1021,44 +1010,6 @@ onMounted(() => {
   outline: none;
   border-color: var(--accent-color);
   box-shadow: 0 0 0 3px rgba(var(--accent-color-rgb), 0.1);
-}
-
-.publish-tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  align-items: center;
-}
-
-.publish-tag-item {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 12px;
-  background: rgba(var(--accent-color-rgb), 0.1);
-  color: var(--accent-color);
-  border-radius: 6px;
-  font-size: 13px;
-  font-weight: 500;
-}
-
-.publish-tag-remove {
-  background: none;
-  color: var(--accent-color);
-  font-size: 16px;
-  padding: 0;
-  line-height: 1;
-  opacity: 0.7;
-  transition: opacity 0.2s;
-}
-
-.publish-tag-remove:hover {
-  opacity: 1;
-}
-
-.publish-tag-select {
-  width: auto;
-  min-width: 140px;
 }
 
 .publish-textarea {

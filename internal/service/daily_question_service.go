@@ -191,8 +191,8 @@ func (s *dailyQuestionService) UpdateQuestion(id uint, req *request.UpdateDailyQ
 		}
 		question.Date = req.Date
 	}
-	if req.Status != 0 {
-		question.Status = req.Status
+	if req.Status != nil {
+		question.Status = *req.Status
 	}
 
 	if err := s.dailyQuestionRepo.Update(question); err != nil {

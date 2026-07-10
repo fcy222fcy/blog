@@ -13,7 +13,23 @@
     <template v-else>
       <article v-for="article in articleStore.articles" :key="article.id" class="article-card">
         <router-link :to="'/post/' + article.slug" class="card-link">
-          <span class="category-pill" :class="'category-' + (article.category?.slug || 'default')">{{ article.category?.name || '未分类' }}</span>
+          <div class="card-pills-row">
+            <router-link
+              :to="'/category/' + (article.category?.id || 0)"
+              class="category-pill"
+              :class="'category-' + (article.category?.slug || 'default')"
+              :title="'查看「' + (article.category?.name || '未分类') + '」分类下的文章'"
+              @click.stop
+            >{{ article.category?.name || '未分类' }}</router-link>
+            <router-link
+              v-for="t in (article.tags || [])"
+              :key="t.id"
+              :to="'/tag/' + t.id"
+              class="tag-pill"
+              :title="'查看「' + t.name + '」标签下的文章'"
+              @click.stop
+            >#{{ t.name }}</router-link>
+          </div>
           <h2>{{ article.title }}</h2>
           <p>{{ article.summary }}</p>
           <dl class="article-meta">
@@ -60,27 +76,9 @@ import { useArticleStore } from '../stores/article'
 import DailyQuestion from '../components/daily/DailyQuestion.vue'
 import ArticleListSkeleton from '../components/common/ArticleListSkeleton.vue'
 import ErrorState from '../components/common/ErrorState.vue'
+import { formatDate } from '../utils/date'
 
 const articleStore = useArticleStore()
-
-const pad = (n) => String(n).padStart(2, '0')
-
-const formatDate = (dateStr) => {
-  if (!dateStr) return ''
-  const date = new Date(dateStr)
-  if (isNaN(date.getTime())) return dateStr.split('T')[0]
-  const now = new Date()
-  const diff = now - date
-  const THREE_DAYS = 3 * 24 * 60 * 60 * 1000
-
-  if (diff >= THREE_DAYS) {
-    return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`
-  }
-  if (diff < 60 * 1000) return '刚刚'
-  if (diff < 60 * 60 * 1000) return Math.floor(diff / (60 * 1000)) + ' 分钟前'
-  if (diff < 24 * 60 * 60 * 1000) return Math.floor(diff / (60 * 60 * 1000)) + ' 小时前'
-  return Math.floor(diff / (24 * 60 * 60 * 1000)) + ' 天前'
-}
 
 const retryFetch = () => {
   articleStore.fetchArticles({ page: 1, page_size: 20 })
@@ -92,7 +90,41 @@ onMounted(() => {
 </script>
 
 <style scoped>
-/* 文章卡片样式在全局main.css中定义 */
+.card-pills-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 4px;
+  line-height: 1;
+}
+.tag-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 32px;
+  padding: 0 14px;
+  border-radius: var(--tag-border-radius);
+  font-size: 0.88rem;
+  font-weight: 600;
+  background: rgba(var(--accent-color-rgb), 0.1);
+  color: var(--accent-color);
+  text-decoration: none;
+  transition: background 0.15s ease, transform 0.15s ease;
+  user-select: none;
+}
+.tag-pill:hover {
+  background: rgba(var(--accent-color-rgb), 0.2);
+  transform: translateY(-1px);
+}
+.card-pills-row .category-pill {
+  text-decoration: none;
+  transition: filter 0.15s ease, transform 0.15s ease;
+}
+.card-pills-row .category-pill:hover {
+  filter: brightness(1.08);
+  transform: translateY(-1px);
+}
 .empty {
   text-align: center;
   padding: 40px;

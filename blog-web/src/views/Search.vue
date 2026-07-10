@@ -1,102 +1,129 @@
 <template>
-  <div class="page-view">
-    <h1 class="page-heading">
-      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-      搜索结果：{{ keyword }}
-    </h1>
-
-    <!-- 搜索输入框 -->
-    <div class="search-input-wrapper">
-      <input
-        ref="searchInputRef"
-        v-model="inputKeyword"
-        type="search"
-        placeholder="输入关键词搜索文章..."
-        class="search-input"
-        @keyup.enter="handleSearch"
-      >
-      <button class="search-btn" @click="handleSearch">
-        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-      </button>
+  <div class="page-view" id="view-search">
+    <!-- 统计卡片 -->
+    <div class="stats-grid" v-if="keyword && !loading && !errorMsg">
+      <div class="stat-card">
+        <div class="stat-label">搜索关键词</div>
+        <div class="stat-value search-keyword-stat">"{{ keyword }}"</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">相关文章</div>
+        <div class="stat-value">{{ total }}</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">当前页码</div>
+        <div class="stat-value">{{ currentPage }} / {{ totalPage || 1 }}</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">总浏览量</div>
+        <div class="stat-value">{{ totalViews }}</div>
+      </div>
     </div>
 
-    <!-- 加载状态 -->
-    <Loading v-if="loading" text="搜索中..." />
-
-    <!-- 错误状态 -->
-    <div v-else-if="errorMsg" class="error-container">
-      <p class="error-message">{{ errorMsg }}</p>
-      <button class="retry-btn" @click="fetchResults">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/></svg>
-        重试
-      </button>
-    </div>
-
-    <!-- 搜索结果 -->
-    <template v-else>
-      <div v-if="articles.length > 0" class="search-results-info">
-        找到 <strong>{{ total }}</strong> 篇相关文章
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+          文章列表
+        </div>
+        <div class="filter-group">
+          <div class="search-box">
+            <span class="search-box-icon">⌕</span>
+            <input
+              ref="searchInputRef"
+              v-model="inputKeyword"
+              type="search"
+              placeholder="搜索文章..."
+              @keyup.enter="handleSearch"
+            >
+          </div>
+        </div>
       </div>
 
-      <article v-for="article in articles" :key="article.id" class="article-card">
-        <router-link :to="'/post/' + article.slug" class="card-link">
-          <span class="category-pill" :class="'category-' + (article.category?.slug || 'default')">{{ article.category?.name || '未分类' }}</span>
-          <h2>{{ article.title }}</h2>
-          <p>{{ article.summary }}</p>
-          <dl class="article-meta">
-            <div>
-              <dt>日期</dt>
-              <dd>
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"></rect><line x1="16" x2="16" y1="2" y2="6"></line><line x1="8" x2="8" y1="2" y2="6"></line><line x1="3" x2="21" y1="10" y2="10"></line></svg>
-                {{ formatDate(article.created_at) }}
-              </dd>
+      <div class="article-cards-container">
+        <!-- 加载状态 -->
+        <div v-if="loading" class="search-loading">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="animate-spin"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>
+          搜索中...
+        </div>
+
+        <!-- 错误状态 -->
+        <div v-else-if="errorMsg" class="error-inline">
+          <p class="error-message">{{ errorMsg }}</p>
+          <button class="btn btn-sm btn-primary" @click="fetchResults">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/></svg>
+            重试
+          </button>
+        </div>
+
+        <!-- 真实列表 -->
+        <template v-else>
+          <router-link
+            v-for="article in articles"
+            :key="article.id"
+            :to="'/post/' + article.slug"
+            class="article-list-item"
+          >
+            <div class="article-list-body">
+              <h3 class="article-list-title">
+                <template v-for="(seg, idx) in highlightTokens(article.title, keyword)" :key="'t-'+article.id+'-'+idx">
+                  <mark v-if="seg.matched" class="search-hl">{{ seg.text }}</mark>
+                  <span v-else>{{ seg.text }}</span>
+                </template>
+              </h3>
+              <p class="article-list-summary" v-if="displaySummary(article)">
+                <template v-for="(seg, idx) in highlightTokens(displaySummary(article), keyword)" :key="'s-'+article.id+'-'+idx">
+                  <mark v-if="seg.matched" class="search-hl">{{ seg.text }}</mark>
+                  <span v-else>{{ seg.text }}</span>
+                </template>
+              </p>
+              <p v-else class="article-list-summary article-list-summary--empty">暂无摘要</p>
             </div>
-            <div>
-              <dt>浏览量</dt>
-              <dd>
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path><circle cx="12" cy="12" r="3"></circle></svg>
-                {{ article.view_count }}
-              </dd>
-            </div>
-          </dl>
-        </router-link>
-      </article>
+          </router-link>
+
+          <div v-if="articles.length === 0 && keyword" class="list-empty">
+            <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line><line x1="8" y1="8" x2="14" y2="14"></line><line x1="14" y1="8" x2="8" y2="14"></line></svg>
+            <p class="list-empty-title">没有找到与「{{ keyword }}」相关的文章</p>
+            <p class="list-empty-hint">换个关键词试试？</p>
+          </div>
+        </template>
+      </div>
 
       <!-- 分页 -->
-      <div v-if="totalPage > 1" class="pagination">
-        <button
-          class="page-btn"
-          :disabled="currentPage <= 1"
-          @click="goToPage(currentPage - 1)"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 18-6-6 6-6"></path></svg>
-          上一页
-        </button>
-        <span class="page-info">{{ currentPage }} / {{ totalPage }}</span>
-        <button
-          class="page-btn"
-          :disabled="currentPage >= totalPage"
-          @click="goToPage(currentPage + 1)"
-        >
-          下一页
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"></path></svg>
-        </button>
+      <div class="card-body" v-if="totalPage > 1 && !loading && !errorMsg && articles.length > 0">
+        <div class="pagination">
+          <div class="pagination-info">
+            共 <span>{{ total }}</span> 篇相关文章
+          </div>
+          <div class="pagination-buttons">
+            <button
+              class="pagination-btn"
+              :disabled="currentPage <= 1"
+              @click="goToPage(currentPage - 1)"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 18-6-6 6-6"></path></svg>
+              上一页
+            </button>
+            <button class="pagination-btn active">{{ currentPage }}</button>
+            <button
+              class="pagination-btn"
+              :disabled="currentPage >= totalPage"
+              @click="goToPage(currentPage + 1)"
+            >
+              下一页
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"></path></svg>
+            </button>
+          </div>
+        </div>
       </div>
-
-      <div v-if="!loading && keyword && articles.length === 0" class="empty">
-        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line><line x1="8" y1="8" x2="14" y2="14"></line><line x1="14" y1="8" x2="8" y2="14"></line></svg>
-        <p>没有找到与「{{ keyword }}」相关的文章</p>
-        <p class="empty-hint">换个关键词试试？</p>
-      </div>
-    </template>
+    </div>
   </div>
 </template>
 
 <script setup>
-import { ref, watch, onMounted, nextTick } from 'vue'
+import { ref, computed, watch, onMounted, nextTick } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { searchArticles } from '../api/article'
-import Loading from '../components/common/Loading.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -112,24 +139,44 @@ const pageSize = 10
 const totalPage = ref(0)
 const searchInputRef = ref(null)
 
-const pad = (n) => String(n).padStart(2, '0')
+const escapeRegExp = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 
-const formatDate = (dateStr) => {
-  if (!dateStr) return ''
-  const date = new Date(dateStr)
-  if (isNaN(date.getTime())) return dateStr.split('T')[0]
-  const now = new Date()
-  const diff = now - date
-  const THREE_DAYS = 3 * 24 * 60 * 60 * 1000
-
-  if (diff >= THREE_DAYS) {
-    return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`
+/**
+ * 安全的关键词高亮：把文本切分成「普通段 / 命中段」数组，避免 v-html 导致 XSS
+ * @param {string} text - 原始纯文本
+ * @param {string} kw   - 搜索关键词（可能包含空白、特殊字符）
+ * @returns {Array<{text:string, matched:boolean}>}
+ */
+const highlightTokens = (text, kw) => {
+  const src = String(text ?? '')
+  const key = String(kw ?? '').trim()
+  if (!src || !key) return [{ text: src, matched: false }]
+  const keys = key.split(/\s+/).filter(Boolean)
+  const pattern = new RegExp(keys.map(escapeRegExp).join('|'), 'ig')
+  const out = []
+  let lastEnd = 0
+  let m
+  while ((m = pattern.exec(src)) !== null) {
+    if (m.index > lastEnd) out.push({ text: src.slice(lastEnd, m.index), matched: false })
+    out.push({ text: m[0], matched: true })
+    lastEnd = m.index + m[0].length
+    if (m.index === pattern.lastIndex) pattern.lastIndex++ // 防零宽死循环
   }
-  if (diff < 60 * 1000) return '刚刚'
-  if (diff < 60 * 60 * 1000) return Math.floor(diff / (60 * 1000)) + ' 分钟前'
-  if (diff < 24 * 60 * 60 * 1000) return Math.floor(diff / (60 * 60 * 1000)) + ' 小时前'
-  return Math.floor(diff / (24 * 60 * 60 * 1000)) + ' 天前'
+  if (lastEnd < src.length) out.push({ text: src.slice(lastEnd), matched: false })
+  if (out.length === 0) out.push({ text: src, matched: false })
+  return out
 }
+
+// 搜索摘要展示顺序：优先正文命中片段(SearchSnippet) → 文章原 Summary
+const displaySummary = (article) => {
+  if (!article) return ''
+  if (article.search_snippet && article.search_snippet.trim()) return article.search_snippet
+  return article.summary || ''
+}
+
+const totalViews = computed(() =>
+  articles.value.reduce((sum, a) => sum + (a.view_count || 0), 0)
+)
 
 const fetchResults = async () => {
   if (!keyword.value.trim()) return
@@ -192,144 +239,389 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.search-input-wrapper {
-  display: flex;
-  gap: 8px;
-  margin-bottom: 24px;
-}
-
-.search-input {
-  flex: 1;
-  padding: 12px 16px;
-  border: 1px solid var(--card-border, #e2e8f0);
-  border-radius: 8px;
-  background: var(--card-background, #fff);
-  color: var(--card-text-color, #333);
-  font-size: 16px;
-  outline: none;
-  transition: border-color 0.2s;
-}
-
-.search-input:focus {
-  border-color: var(--accent-color, #3b82f6);
-}
-
-.search-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 48px;
-  height: 48px;
-  border: none;
-  border-radius: 8px;
-  background: var(--accent-color, #3b82f6);
-  color: white;
-  cursor: pointer;
-  transition: background-color 0.2s;
-}
-
-.search-btn:hover {
-  background: var(--accent-color-hover, #2563eb);
-}
-
-.search-results-info {
-  margin-bottom: 16px;
-  color: var(--card-text-color-secondary, #666);
-  font-size: 14px;
-}
-
-.search-results-info strong {
-  color: var(--accent-color, #3b82f6);
-}
-
-.empty {
-  text-align: center;
-  padding: 60px 20px;
-  color: var(--card-text-color-secondary, #999);
-}
-
-.empty svg {
-  margin-bottom: 16px;
-  opacity: 0.5;
-}
-
-.empty p {
-  margin: 8px 0;
-}
-
-.empty-hint {
-  font-size: 14px;
-  opacity: 0.7;
-}
-
-.error-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  min-height: 200px;
+/* 统计卡片 */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
   gap: 16px;
+  margin-bottom: 20px;
+}
+.stat-card {
+  padding: 18px 20px;
+  background: var(--card-background);
+  border: 1px solid var(--card-border);
+  border-radius: var(--card-border-radius);
+  box-shadow: var(--shadow-l1);
+  transition: all 0.2s ease;
+}
+.stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-l2);
+  border-color: rgba(var(--accent-color-rgb), 0.3);
+}
+.stat-label {
+  font-size: 0.82rem;
+  color: var(--card-text-color-secondary);
+  margin-bottom: 6px;
+  font-weight: 500;
+}
+.stat-value {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: var(--card-text-color-main);
+  line-height: 1.2;
+}
+.search-keyword-stat {
+  color: var(--accent-color);
+  font-size: 1.2rem;
+  word-break: break-all;
+  line-height: 1.3;
 }
 
-.error-message {
-  color: var(--error-color, #ef4444);
+/* 大卡片容器 */
+.card {
+  background: var(--card-background);
+  border: 1px solid var(--card-border);
+  border-radius: var(--card-border-radius);
+  box-shadow: var(--shadow-l1);
+  overflow: hidden;
+}
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 18px 24px;
+  border-bottom: 1px solid var(--card-separator-color);
+  flex-wrap: wrap;
+}
+.card-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--card-text-color-main);
   margin: 0;
 }
+.card-title svg { color: var(--accent-color); }
 
-.retry-btn {
+/* 筛选区 */
+.filter-group {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.search-box {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: var(--body-background);
+  border: 1px solid var(--card-separator-color);
+  border-radius: 8px;
+  min-width: 220px;
+  transition: all 0.2s ease;
+}
+.search-box:focus-within {
+  border-color: rgba(var(--accent-color-rgb), 0.45);
+  box-shadow: 0 0 0 3px rgba(var(--accent-color-rgb), 0.1);
+}
+.search-box-icon {
+  color: var(--card-text-color-tertiary);
+  font-size: 1rem;
+  line-height: 1;
+}
+.search-box input {
+  flex: 1;
+  min-width: 0;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--card-text-color-main);
+  font-size: 0.9rem;
+  padding: 4px 0;
+}
+.search-box input::placeholder {
+  color: var(--card-text-color-tertiary);
+}
+
+/* 通用按钮 */
+.btn {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 8px 16px;
-  background-color: var(--accent-color, #3b82f6);
-  color: white;
+  padding: 8px 14px;
   border: none;
-  border-radius: 6px;
+  border-radius: 8px;
   cursor: pointer;
-  font-size: 14px;
-  transition: background-color 0.2s;
+  font-size: 0.9rem;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+.btn-sm {
+  padding: 6px 12px;
+  font-size: 0.82rem;
+}
+.btn-primary {
+  background: var(--accent-color);
+  color: var(--accent-color-text);
+}
+.btn-primary:hover {
+  background: var(--accent-color-darker);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(var(--accent-color-rgb), 0.25);
 }
 
-.retry-btn:hover {
-  background-color: var(--accent-color-hover, #2563eb);
+/* 列表容器 */
+.article-cards-container {
+  padding: 0;
+  width: 100%;
 }
-
-/* 分页 */
-.pagination {
+.search-loading {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 16px;
-  margin-top: 32px;
-  padding: 16px 0;
+  gap: 10px;
+  padding: 48px 24px;
+  color: var(--card-text-color-tertiary);
+  font-size: 0.95rem;
+}
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+.error-inline {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  padding: 48px 24px;
+}
+.error-inline .error-message {
+  color: var(--danger-color);
+  margin: 0;
+  font-weight: 500;
 }
 
-.page-btn {
+/* 简洁搜索结果项（无封面无分类） */
+.article-cards-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  padding: 4px 0;
+}
+.article-list-item {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--card-separator-color);
+  transition: background 0.2s ease, padding 0.2s ease;
+}
+.article-list-item:last-child {
+  border-bottom: none;
+}
+.article-list-item:hover {
+  background: rgba(var(--accent-color-rgb), 0.05);
+}
+.article-list-body {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+.article-list-title {
+  font-size: 1.08rem;
+  font-weight: 700;
+  line-height: 1.55;
+  color: var(--card-text-color-main);
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  word-break: break-word;
+  transition: color 0.15s ease;
+}
+.article-list-item:hover .article-list-title {
+  color: var(--accent-color);
+}
+.article-list-summary {
+  font-size: 0.9rem;
+  line-height: 1.75;
+  color: var(--card-text-color-secondary);
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  word-break: break-word;
+}
+.article-list-summary--empty {
+  color: var(--card-text-color-tertiary);
+  opacity: 0.55;
+  font-style: italic;
+}
+
+/* 搜索关键词高亮（安全，纯文本分片后 mark 标签） */
+.search-hl {
+  background: linear-gradient(180deg, transparent 60%, rgba(255, 212, 59, 0.55) 40%);
+  color: inherit;
+  font-weight: 700;
+  padding: 0 2px;
+  border-radius: 2px;
+}
+[data-scheme="dark"] .search-hl {
+  background: linear-gradient(180deg, transparent 58%, rgba(255, 193, 7, 0.42) 42%);
+  color: #fff7cc;
+}
+
+/* 空状态 */
+.list-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 56px 24px;
+  color: var(--card-text-color-tertiary);
+  text-align: center;
+}
+.list-empty svg {
+  opacity: 0.5;
+  margin-bottom: 14px;
+}
+.list-empty-title {
+  margin: 0 0 4px;
+  font-size: 0.95rem;
+  color: var(--card-text-color-secondary);
+  font-weight: 600;
+}
+.list-empty-hint {
+  margin: 0;
+  font-size: 0.85rem;
+  opacity: 0.7;
+}
+
+/* card-body 分页区 */
+.card-body {
+  padding: 14px 24px;
+  border-top: 1px solid var(--card-separator-color);
+}
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.pagination-info {
+  color: var(--card-text-color-secondary);
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+.pagination-info span {
+  color: var(--accent-color);
+  font-weight: 700;
+}
+.pagination-buttons {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.pagination-btn {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  padding: 8px 16px;
-  border: 1px solid var(--card-border, #e2e8f0);
-  border-radius: 6px;
-  background: var(--card-background, #fff);
-  color: var(--card-text-color, #333);
+  padding: 7px 14px;
+  border: 1px solid var(--card-separator-color);
+  border-radius: 8px;
+  background: var(--card-background);
+  color: var(--card-text-color-secondary);
   cursor: pointer;
-  font-size: 14px;
-  transition: all 0.2s;
+  font-size: 0.85rem;
+  font-weight: 600;
+  transition: all 0.18s ease;
 }
-
-.page-btn:hover:not(:disabled) {
-  border-color: var(--accent-color, #3b82f6);
-  color: var(--accent-color, #3b82f6);
+.pagination-btn:hover:not(:disabled) {
+  border-color: var(--accent-color);
+  color: var(--accent-color);
+  background: rgba(var(--accent-color-rgb), 0.06);
+  transform: translateY(-1px);
 }
-
-.page-btn:disabled {
+.pagination-btn:disabled {
   opacity: 0.4;
   cursor: not-allowed;
 }
+.pagination-btn.active {
+  background: var(--accent-color);
+  border-color: var(--accent-color);
+  color: var(--accent-color-text);
+}
+.pagination-btn.active:hover {
+  transform: none;
+}
 
-.page-info {
-  color: var(--card-text-color-secondary, #666);
-  font-size: 14px;
+@media (max-width: 900px) {
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+@media (max-width: 768px) {
+  .article-cards-container {
+    gap: 16px;
+  }
+  .article-card-cover-wrap {
+    height: 170px;
+  }
+  .article-card-body {
+    padding: 16px 18px 18px;
+    gap: 10px;
+  }
+  .article-card-title {
+    font-size: 1.02rem;
+  }
+  .article-card-summary {
+    font-size: 0.86rem;
+    line-height: 1.7;
+  }
+  .card-header {
+    padding: 16px 20px;
+  }
+  .pagination {
+    justify-content: center;
+  }
+}
+@media (max-width: 480px) {
+  .stats-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .stat-card {
+    padding: 14px 16px;
+  }
+  .stat-value {
+    font-size: 1.3rem;
+  }
+  .search-keyword-stat {
+    font-size: 1rem;
+  }
+  .search-box {
+    min-width: 0;
+    width: 100%;
+  }
+  .article-card-cover-wrap {
+    height: 150px;
+  }
+  .article-card-body {
+    padding: 14px 16px 16px;
+  }
+  .article-card-title {
+    font-size: 1rem;
+    line-height: 1.5;
+  }
 }
 </style>

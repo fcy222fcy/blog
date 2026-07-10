@@ -114,7 +114,12 @@
     <!-- 评论列表 -->
     <div class="comment-list-wrapper">
       <div class="comment-header-bar">
-        <h3 class="comment-count">{{ comments.length }} 评论</h3>
+        <h3 class="comment-count" @click="focusEditor" title="点击跳转到输入框">
+          <span class="comment-count-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:6px;"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+          </span>
+          {{ comments.length }} 评论
+        </h3>
         <div class="sort-options">
           <button
             :class="['sort-btn', { active: sortBy === 'asc' }]"
@@ -162,7 +167,7 @@
               <div class="comment-actions">
                 <button class="action-btn like-btn" :class="{ 'liked': likedComments.has(comment.id) }" @click="handleLikeComment(comment)">
                   <span class="icon">
-                    <svg v-if="likedComments.has(comment.id)" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="#e74c3c" stroke="#e74c3c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+                    <svg v-if="likedComments.has(comment.id)" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="var(--danger-color)" stroke="var(--danger-color)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
                     <svg v-else xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
                   </span>
                   <span v-if="(comment.like_count || 0) > 0" class="like-count">{{ comment.like_count }}</span>
@@ -174,11 +179,12 @@
             </div>
           </div>
 
-          <!-- 回复表单 -->
-          <div v-if="replyingTo?.id === comment.id" class="reply-form">
+          <!-- 回复表单（回复根评论时显示在这里） -->
+          <div v-if="replyingTargetId === comment.id" class="reply-form">
             <textarea
+              ref="replyInputRef"
               v-model="replyContent"
-              :placeholder="`@${comment.nickname}: `"
+              :placeholder="`@${replyingTargetNickname}: `"
               rows="3"
             ></textarea>
             <div class="reply-actions">
@@ -216,7 +222,7 @@
                   <div class="comment-actions">
                     <button class="action-btn like-btn" :class="{ 'liked': likedComments.has(reply.id) }" @click="handleLikeComment(reply)">
                       <span class="icon">
-                        <svg v-if="likedComments.has(reply.id)" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="#e74c3c" stroke="#e74c3c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+                        <svg v-if="likedComments.has(reply.id)" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="var(--danger-color)" stroke="var(--danger-color)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
                         <svg v-else xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
                       </span>
                       <span v-if="(reply.like_count || 0) > 0" class="like-count">{{ reply.like_count }}</span>
@@ -225,6 +231,21 @@
                       <span class="icon"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg></span>
                     </button>
                   </div>
+                </div>
+              </div>
+              <!-- 回复表单（回复此子评论时显示在这里） -->
+              <div v-if="replyingTargetId === reply.id" class="reply-form nested">
+                <textarea
+                  ref="replyInputRef"
+                  v-model="replyContent"
+                  :placeholder="`@${replyingTargetNickname}: `"
+                  rows="3"
+                ></textarea>
+                <div class="reply-actions">
+                  <button class="cancel-btn" @click="cancelReply">取消</button>
+                  <button class="submit-btn" @click="submitReply" :disabled="submitting || !replyContent.trim()">
+                    提交
+                  </button>
                 </div>
               </div>
             </div>
@@ -236,7 +257,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
+import { ref, computed, onMounted, onUnmounted, watch, nextTick } from 'vue'
 import { useRoute } from 'vue-router'
 import { getCommentsByArticle, createComment, likeComment } from '../../api/comment'
 import { login } from '../../api/auth'
@@ -247,12 +268,16 @@ import { marked } from 'marked'
 
 const route = useRoute()
 const editorRef = ref(null)
+const replyInputRef = ref(null)
 
 const comments = ref([])
 const loading = ref(false) // 首次加载用的大 loading
 const refreshing = ref(false) // 切换排序/刷新时不隐藏列表
 const submitting = ref(false)
 const replyingTo = ref(null)
+const replyingTargetId = ref(null)
+const replyingTargetNickname = ref('')
+const replyingReplyToId = ref(null)
 const replyContent = ref('')
 const sortBy = ref('desc')
 const isLoggedIn = ref(false)
@@ -587,12 +612,33 @@ const submitComment = async () => {
 // 开始回复
 const startReply = (comment, reply = null) => {
   replyingTo.value = comment
-  replyContent.value = reply ? `@${reply.nickname} ` : ''
+  if (reply) {
+    replyingTargetId.value = reply.id
+    replyingTargetNickname.value = reply.nickname
+    replyingReplyToId.value = reply.id
+  } else {
+    replyingTargetId.value = comment.id
+    replyingTargetNickname.value = comment.nickname
+    replyingReplyToId.value = comment.id
+  }
+  replyContent.value = ''
+  nextTick(() => {
+    if (replyInputRef.value) {
+      const inputs = Array.isArray(replyInputRef.value) ? replyInputRef.value : [replyInputRef.value]
+      const target = inputs.find(el => el && el.offsetParent !== null) || inputs[0]
+      if (target) {
+        target.focus()
+      }
+    }
+  })
 }
 
 // 取消回复
 const cancelReply = () => {
   replyingTo.value = null
+  replyingTargetId.value = null
+  replyingTargetNickname.value = ''
+  replyingReplyToId.value = null
   replyContent.value = ''
 }
 
@@ -611,6 +657,7 @@ const submitReply = async () => {
       email: form.value.email,
       content: replyContent.value,
       parent_id: replyingTo.value.id,
+      reply_to_id: replyingReplyToId.value,
       os: client.os,
       os_version: client.os_version,
       browser: client.browser,
@@ -654,15 +701,13 @@ const handleLikeComment = async (comment) => {
   }
 }
 
-// 格式化时间：<=3天显示相对时间，>3天显示具体日期 YYYY-MM-DD HH:mm
+// 格式化时间：<=3天显示相对时间，>3天显示具体日期 YYYY-MM-DD（不显示时分）
 const pad = (n) => String(n).padStart(2, '0')
 const formatFullDate = (date) => {
   const y = date.getFullYear()
   const m = pad(date.getMonth() + 1)
   const d = pad(date.getDate())
-  const hh = pad(date.getHours())
-  const mm = pad(date.getMinutes())
-  return `${y}-${m}-${d} ${hh}:${mm}`
+  return `${y}-${m}-${d}`
 }
 
 const formatTime = (dateStr) => {
@@ -990,12 +1035,23 @@ onMounted(() => {
 onUnmounted(() => {
   document.removeEventListener('click', handleClickOutside)
 })
+
+// 暴露给父组件的方法：聚焦到主编辑器
+const focusEditor = () => {
+  if (editorRef.value) {
+    editorRef.value.focus()
+  }
+}
+
+defineExpose({
+  focusEditor
+})
 </script>
 
 <style scoped>
 .comment-section {
   margin-top: 32px;
-  background: #fdfdfb;
+  background: var(--card-background);
   border: 1px solid transparent;
   border-radius: 10px;
   box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
@@ -1020,7 +1076,7 @@ onUnmounted(() => {
 }
 
 .login-modal {
-  background: #fff;
+  background: var(--card-background);
   border-radius: 12px;
   width: 90%;
   max-width: 400px;
@@ -1039,27 +1095,27 @@ onUnmounted(() => {
   justify-content: space-between;
   align-items: center;
   padding: 16px 20px;
-  border-bottom: 1px solid #f0f0f0;
+  border-bottom: 1px solid var(--card-separator-color);
 }
 
 .modal-header h3 {
   margin: 0;
   font-size: 1.1rem;
-  color: #333;
+  color: var(--card-text-color-main);
 }
 
 .close-btn {
   background: none;
   border: none;
   font-size: 1.5rem;
-  color: #999;
+  color: var(--card-text-color-tertiary);
   cursor: pointer;
   padding: 0 4px;
   line-height: 1;
 }
 
 .close-btn:hover {
-  color: #333;
+  color: var(--card-text-color-main);
 }
 
 .modal-body {
@@ -1067,13 +1123,13 @@ onUnmounted(() => {
 }
 
 .login-tip {
-  background: #f0fdf4;
-  color: #047857;
+  background: rgba(var(--success-color-rgb), 0.1);
+  color: var(--success-color-darker);
   padding: 10px 12px;
   border-radius: 6px;
   font-size: 0.85rem;
   margin: 0 0 16px 0;
-  border: 1px solid #bbf7d0;
+  border: 1px solid rgba(var(--success-color-rgb), 0.3);
 }
 
 .login-field {
@@ -1083,14 +1139,14 @@ onUnmounted(() => {
 .login-field label {
   display: block;
   font-size: 0.9rem;
-  color: #666;
+  color: var(--card-text-color-secondary);
   margin-bottom: 6px;
 }
 
 .login-field input {
   width: 100%;
   padding: 10px 12px;
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--card-separator-color);
   border-radius: 6px;
   font-size: 0.95rem;
   box-sizing: border-box;
@@ -1099,17 +1155,17 @@ onUnmounted(() => {
 
 .login-field input:focus {
   outline: none;
-  border-color: #10b981;
+  border-color: var(--success-color);
 }
 
 .login-error {
-  background: #fef2f2;
-  color: #dc2626;
+  background: rgba(var(--danger-color-rgb), 0.08);
+  color: var(--danger-color);
   padding: 8px 12px;
   border-radius: 6px;
   font-size: 0.85rem;
   margin-top: 8px;
-  border: 1px solid #fecaca;
+  border: 1px solid rgba(var(--danger-color-rgb), 0.2);
 }
 
 .modal-footer {
@@ -1117,15 +1173,15 @@ onUnmounted(() => {
   justify-content: flex-end;
   gap: 10px;
   padding: 14px 20px;
-  border-top: 1px solid #f0f0f0;
-  background: #fafafa;
+  border-top: 1px solid var(--card-separator-color);
+  background: rgba(var(--accent-color-rgb), 0.02);
 }
 
 .modal-footer .cancel-btn {
   padding: 8px 18px;
-  background: #fff;
-  color: #666;
-  border: 1px solid #e5e7eb;
+  background: var(--card-background);
+  color: var(--card-text-color-secondary);
+  border: 1px solid var(--card-separator-color);
   border-radius: 6px;
   font-size: 0.9rem;
   cursor: pointer;
@@ -1133,12 +1189,12 @@ onUnmounted(() => {
 }
 
 .modal-footer .cancel-btn:hover {
-  background: #f5f5f5;
+  background: rgba(var(--accent-color-rgb), 0.04);
 }
 
 .modal-footer .submit-btn {
   padding: 8px 20px;
-  background: #10b981;
+  background: var(--success-color);
   color: white;
   border: none;
   border-radius: 6px;
@@ -1161,8 +1217,8 @@ onUnmounted(() => {
 .logout-btn {
   padding: 6px 12px;
   background: transparent;
-  color: #666;
-  border: 1px solid #e8e8e8;
+  color: var(--card-text-color-secondary);
+  border: 1px solid var(--card-separator-color);
   border-radius: 6px;
   font-size: 0.85rem;
   cursor: pointer;
@@ -1173,9 +1229,9 @@ onUnmounted(() => {
 }
 
 .logout-btn:hover {
-  background: #fef2f2;
-  color: #dc2626;
-  border-color: #fecaca;
+  background: rgba(var(--danger-color-rgb), 0.08);
+  color: var(--danger-color);
+  border-color: rgba(var(--danger-color-rgb), 0.2);
 }
 
 .user-info {
@@ -1183,7 +1239,7 @@ onUnmounted(() => {
   align-items: center;
   gap: 6px;
   padding-right: 6px;
-  border-right: 1px solid #e5e7eb;
+  border-right: 1px solid var(--card-separator-color);
   margin-right: 2px;
 }
 
@@ -1195,7 +1251,7 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  background: linear-gradient(135deg, var(--success-color) 0%, var(--success-color-darker) 100%);
 }
 
 .user-avatar img {
@@ -1207,19 +1263,19 @@ onUnmounted(() => {
 .user-name {
   font-weight: 500;
   font-size: 0.85rem;
-  color: #333;
+  color: var(--card-text-color-main);
 }
 
 .form-field input:disabled {
-  background: #f9fafb;
-  color: #6b7280;
+  background: rgba(var(--accent-color-rgb), 0.04);
+  color: var(--card-text-color-tertiary);
   cursor: not-allowed;
 }
 
 /* 评论表单内嵌卡片 */
 .comment-form-card {
-  background: #fff;
-  border: 1px solid rgba(0, 0, 0, 0.08);
+  background: var(--card-background);
+  border: 1px solid var(--card-separator-color);
   border-radius: 8px;
   margin-bottom: 24px;
   position: relative;
@@ -1233,7 +1289,7 @@ onUnmounted(() => {
 .form-header {
   display: flex;
   padding: 16px 20px;
-  border-bottom: 1px dashed #e8e8e8;
+  border-bottom: 1px dashed var(--card-separator-color);
 }
 
 .form-field {
@@ -1244,14 +1300,14 @@ onUnmounted(() => {
 }
 
 .form-field:first-child {
-  border-right: 1px dashed #e8e8e8;
+  border-right: 1px dashed var(--card-separator-color);
   padding-right: 16px;
   margin-right: 16px;
 }
 
 .form-field label {
   font-size: 0.9rem;
-  color: #666;
+  color: var(--card-text-color-secondary);
   white-space: nowrap;
 }
 
@@ -1260,7 +1316,7 @@ onUnmounted(() => {
   padding: 8px 12px;
   border: none;
   background: transparent;
-  color: #333;
+  color: var(--card-text-color-main);
   font-size: 0.95rem;
 }
 
@@ -1269,7 +1325,7 @@ onUnmounted(() => {
 }
 
 .form-field input::placeholder {
-  color: #999;
+  color: var(--card-text-color-tertiary);
 }
 
 .form-body {
@@ -1283,7 +1339,7 @@ onUnmounted(() => {
   overflow-y: auto;
   border: none;
   background: transparent;
-  color: #333;
+  color: var(--card-text-color-main);
   font-size: 0.95rem;
   font-family: inherit;
   line-height: 1.6;
@@ -1293,7 +1349,7 @@ onUnmounted(() => {
 
 .editor-input:empty::before {
   content: attr(data-placeholder);
-  color: #999;
+  color: var(--card-text-color-tertiary);
   pointer-events: none;
 }
 
@@ -1318,7 +1374,7 @@ onUnmounted(() => {
   justify-content: space-between;
   align-items: center;
   padding: 12px 20px;
-  border-top: 1px solid rgba(0, 0, 0, 0.08);
+  border-top: 1px solid var(--card-separator-color);
 }
 
 .form-tools {
@@ -1336,16 +1392,16 @@ onUnmounted(() => {
   border: none;
   border-radius: 4px;
   cursor: pointer;
-  color: #666;
+  color: var(--card-text-color-secondary);
   transition: all 0.2s;
 }
 
 .tool-btn:hover {
-  color: #10b981;
+  color: var(--success-color);
 }
 
 .tool-btn:hover {
-  background: rgba(16, 185, 129, 0.1);
+  background: rgba(var(--success-color-rgb), 0.1);
 }
 
 /* 表情面板 */
@@ -1358,8 +1414,8 @@ onUnmounted(() => {
   bottom: 100%;
   left: 0;
   margin-bottom: 8px;
-  background: #ffffff;
-  border: 1px solid #e8e8e8;
+  background: var(--card-background);
+  border: 1px solid var(--card-separator-color);
   border-radius: 8px;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
   z-index: 100;
@@ -1391,14 +1447,14 @@ onUnmounted(() => {
 
 .char-count {
   font-size: 0.85rem;
-  color: #999;
+  color: var(--card-text-color-tertiary);
 }
 
 .login-btn {
   padding: 8px 16px;
   background: transparent;
-  color: #666;
-  border: 1px solid #e8e8e8;
+  color: var(--card-text-color-secondary);
+  border: 1px solid var(--card-separator-color);
   border-radius: 6px;
   font-size: 0.9rem;
   cursor: pointer;
@@ -1406,12 +1462,12 @@ onUnmounted(() => {
 }
 
 .login-btn:hover {
-  background: #f5f5f5;
+  background: rgba(var(--accent-color-rgb), 0.04);
 }
 
 .submit-btn {
   padding: 8px 20px;
-  background: #10b981;
+  background: var(--success-color);
   color: white;
   border: none;
   border-radius: 6px;
@@ -1449,8 +1505,14 @@ onUnmounted(() => {
 .comment-count {
   font-size: 1.2rem;
   font-weight: 600;
-  color: #333;
+  color: var(--card-text-color-main);
   margin: 0;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.comment-count:hover {
+  color: var(--success-color);
 }
 
 .sort-options {
@@ -1461,7 +1523,7 @@ onUnmounted(() => {
 .sort-btn {
   background: none;
   border: none;
-  color: #999;
+  color: var(--card-text-color-tertiary);
   font-size: 0.9rem;
   cursor: pointer;
   padding: 4px 8px;
@@ -1470,11 +1532,11 @@ onUnmounted(() => {
 }
 
 .sort-btn:hover {
-  color: #10b981;
+  color: var(--success-color);
 }
 
 .sort-btn.active {
-  color: #10b981;
+  color: var(--success-color);
   font-weight: 500;
 }
 
@@ -1485,7 +1547,7 @@ onUnmounted(() => {
 
 .refreshing-tip {
   font-size: 0.8rem;
-  color: #10b981;
+  color: var(--success-color);
   margin-left: 8px;
   animation: pulse 1.2s ease-in-out infinite;
 }
@@ -1499,7 +1561,7 @@ onUnmounted(() => {
 .empty {
   text-align: center;
   padding: 40px;
-  color: #999;
+  color: var(--card-text-color-tertiary);
 }
 
 .comment-list {
@@ -1515,7 +1577,7 @@ onUnmounted(() => {
 
 .comment-item {
   padding: 16px 0;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  border-bottom: 1px solid var(--card-separator-color);
 }
 
 .comment-item:last-child {
@@ -1535,7 +1597,7 @@ onUnmounted(() => {
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  background: linear-gradient(135deg, var(--success-color) 0%, var(--success-color-darker) 100%);
   color: white;
   display: flex;
   align-items: center;
@@ -1583,9 +1645,9 @@ onUnmounted(() => {
   font-weight: 500;
   line-height: 1.4;
   padding: 2px 8px;
-  background: #f3f4f6;              /* 浅色背景 */
-  color: #374151;
-  border: 1px solid #e5e7eb;
+  background: rgba(var(--accent-color-rgb), 0.04);              /* 浅色背景 */
+  color: var(--card-text-color-secondary);
+  border: 1px solid var(--card-separator-color);
   border-radius: 6px;
   white-space: nowrap;
   /* 代码块那股味儿的细节：轻微内阴影 + 过渡 */
@@ -1594,8 +1656,8 @@ onUnmounted(() => {
 }
 
 .ua-text:hover {
-  background: #e9ecef;
-  border-color: #d1d5db;
+  background: rgba(var(--accent-color-rgb), 0.06);
+  border-color: var(--accent-color);
 }
 
 .ua-text.small {
@@ -1638,14 +1700,14 @@ onUnmounted(() => {
 
 .nickname {
   font-weight: 600;
-  color: #333;
+  color: var(--card-text-color-main);
   font-size: 0.9rem;
 }
 
 .admin-badge {
   display: inline-block;
   padding: 1px 6px;
-  background: #10b981;
+  background: var(--success-color);
   color: white;
   font-size: 0.7rem;
   border-radius: 3px;
@@ -1654,11 +1716,11 @@ onUnmounted(() => {
 
 .time {
   font-size: 0.8rem;
-  color: #999;
+  color: var(--card-text-color-tertiary);
 }
 
 .comment-content {
-  color: #333;
+  color: var(--card-text-color-main);
   line-height: 1.6;
   margin-bottom: 8px;
   word-wrap: break-word;
@@ -1666,7 +1728,7 @@ onUnmounted(() => {
 }
 
 .reply-to {
-  color: #10b981;
+  color: var(--success-color);
   font-weight: 500;
 }
 
@@ -1681,7 +1743,7 @@ onUnmounted(() => {
   gap: 4px;
   background: none;
   border: none;
-  color: #999;
+  color: var(--card-text-color-tertiary);
   font-size: 0.8rem;
   cursor: pointer;
   padding: 2px 4px;
@@ -1690,7 +1752,7 @@ onUnmounted(() => {
 }
 
 .action-btn:hover {
-  color: #10b981;
+  color: var(--success-color);
 }
 
 .action-btn .icon {
@@ -1704,11 +1766,11 @@ onUnmounted(() => {
 }
 
 .like-btn:hover {
-  color: #e74c3c;
+  color: var(--danger-color);
 }
 
 .like-btn.liked {
-  color: #e74c3c;
+  color: var(--danger-color);
 }
 
 .like-count {
@@ -1727,10 +1789,10 @@ onUnmounted(() => {
 .reply-form textarea {
   width: 100%;
   padding: 10px 12px;
-  border: 1px solid #e8e8e8;
+  border: 1px solid var(--card-separator-color);
   border-radius: 6px;
-  background: #ffffff;
-  color: #333;
+  background: var(--card-background);
+  color: var(--card-text-color-main);
   font-size: 0.9rem;
   resize: vertical;
   min-height: 80px;
@@ -1740,11 +1802,11 @@ onUnmounted(() => {
 
 .reply-form textarea:focus {
   outline: none;
-  border-color: #10b981;
+  border-color: var(--success-color);
 }
 
 .reply-form textarea::placeholder {
-  color: #999;
+  color: var(--card-text-color-tertiary);
 }
 
 .reply-actions {
@@ -1757,8 +1819,8 @@ onUnmounted(() => {
 .cancel-btn {
   padding: 6px 14px;
   background: transparent;
-  color: #666;
-  border: 1px solid #e8e8e8;
+  color: var(--card-text-color-secondary);
+  border: 1px solid var(--card-separator-color);
   border-radius: 4px;
   font-size: 0.85rem;
   cursor: pointer;
@@ -1766,13 +1828,19 @@ onUnmounted(() => {
 }
 
 .cancel-btn:hover {
-  background: #f5f5f5;
+  background: rgba(var(--accent-color-rgb), 0.04);
 }
 
 .reply-form .submit-btn {
   padding: 6px 14px;
   font-size: 0.85rem;
-  background: #10b981;
+  background: var(--success-color);
+}
+
+/* 嵌套在子回复列表中的回复表单，不需要左侧缩进（reply-list 已经有 margin-left + padding-left + border-left）*/
+.reply-form.nested {
+  margin-left: 0;
+  margin-top: 10px;
 }
 
 /* 子评论列表 */
@@ -1780,7 +1848,7 @@ onUnmounted(() => {
   margin-top: 12px;
   margin-left: 52px;
   padding-left: 12px;
-  border-left: 2px solid #f0f0f0;
+  border-left: 2px solid var(--card-separator-color);
 }
 
 .reply-item {
@@ -1788,7 +1856,7 @@ onUnmounted(() => {
 }
 
 .reply-item:not(:last-child) {
-  border-bottom: 1px solid #f5f5f5;
+  border-bottom: 1px solid var(--card-separator-color);
 }
 
 @media (max-width: 768px) {
@@ -1802,7 +1870,7 @@ onUnmounted(() => {
     padding-right: 0;
     margin-right: 0;
     padding-bottom: 12px;
-    border-bottom: 1px dashed #e8e8e8;
+    border-bottom: 1px dashed var(--card-separator-color);
   }
 
   .comment-header-bar {
@@ -1822,6 +1890,296 @@ onUnmounted(() => {
 
   .emoji-list {
     grid-template-columns: repeat(7, 1fr);
+  }
+}
+
+/* ===== 暗色模式适配（手动主题切换）===== */
+[data-scheme="dark"] .comment-section {
+  background: #1c2128;
+  border: 1px solid #30363d;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.3), 0 1px 2px rgba(0,0,0,0.5);
+}
+
+[data-scheme="dark"] .comment-form-card {
+  background: #22272e;
+  border: 1px solid #30363d;
+}
+
+[data-scheme="dark"] .form-header {
+  border-bottom: 1px dashed #383838;
+}
+
+[data-scheme="dark"] .form-field:first-child {
+  border-right: 1px dashed #383838;
+}
+
+[data-scheme="dark"] .form-field label {
+  color: #939ca6;
+}
+
+[data-scheme="dark"] .form-field input {
+  color: #dadee3;
+}
+
+[data-scheme="dark"] .form-field input::placeholder {
+  color: #6e7681;
+}
+
+[data-scheme="dark"] .form-field input:disabled {
+  background: #1c2128;
+  color: #939ca6;
+}
+
+[data-scheme="dark"] .editor-input {
+  color: #dadee3;
+}
+
+[data-scheme="dark"] .editor-input:empty::before {
+  color: #6e7681;
+}
+
+[data-scheme="dark"] .form-footer {
+  border-top: 1px solid #30363d;
+}
+
+[data-scheme="dark"] .tool-btn {
+  color: #939ca6;
+}
+
+[data-scheme="dark"] .tool-btn:hover {
+  color: #58a6ff;
+  background: rgba(88, 166, 255, 0.1);
+}
+
+[data-scheme="dark"] .char-count {
+  color: #939ca6;
+}
+
+[data-scheme="dark"] .login-btn {
+  color: #b7c0ca;
+  border-color: #30363d;
+}
+
+[data-scheme="dark"] .login-btn:hover {
+  background: #2d333b;
+}
+
+[data-scheme="dark"] .logout-btn {
+  color: #b7c0ca;
+  border-color: #30363d;
+}
+
+[data-scheme="dark"] .logout-btn:hover {
+  background: #2d1f1f;
+  color: #f85149;
+  border-color: #67211d;
+}
+
+[data-scheme="dark"] .user-info {
+  border-right: 1px solid #30363d;
+}
+
+[data-scheme="dark"] .user-name {
+  color: #dadee3;
+}
+
+[data-scheme="dark"] .submit-btn {
+  background: #238636;
+}
+
+[data-scheme="dark"] .submit-btn:hover:not(:disabled) {
+  background: #2ea043;
+}
+
+[data-scheme="dark"] .emoji-panel {
+  background: #22272e;
+  border: 1px solid #30363d;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+}
+
+[data-scheme="dark"] .comment-count {
+  color: #dadee3;
+}
+
+[data-scheme="dark"] .sort-btn {
+  color: #939ca6;
+}
+
+[data-scheme="dark"] .sort-btn:hover {
+  color: #58a6ff;
+}
+
+[data-scheme="dark"] .sort-btn.active {
+  color: #58a6ff;
+}
+
+[data-scheme="dark"] .refreshing-tip {
+  color: #58a6ff;
+}
+
+[data-scheme="dark"] .loading,
+[data-scheme="dark"] .empty {
+  color: #939ca6;
+}
+
+[data-scheme="dark"] .comment-item {
+  border-bottom: 1px solid #30363d;
+}
+
+[data-scheme="dark"] .nickname {
+  color: #dadee3;
+}
+
+[data-scheme="dark"] .time {
+  color: #939ca6;
+}
+
+[data-scheme="dark"] .comment-content {
+  color: #dadee3;
+}
+
+[data-scheme="dark"] .reply-to {
+  color: #58a6ff;
+}
+
+[data-scheme="dark"] .action-btn {
+  color: #939ca6;
+}
+
+[data-scheme="dark"] .action-btn:hover {
+  color: #58a6ff;
+}
+
+[data-scheme="dark"] .like-btn:hover {
+  color: #f85149;
+}
+
+[data-scheme="dark"] .like-btn.liked {
+  color: #f85149;
+}
+
+[data-scheme="dark"] .reply-form textarea {
+  border: 1px solid #30363d;
+  background: #22272e;
+  color: #dadee3;
+}
+
+[data-scheme="dark"] .reply-form textarea:focus {
+  border-color: #238636;
+}
+
+[data-scheme="dark"] .reply-form textarea::placeholder {
+  color: #6e7681;
+}
+
+[data-scheme="dark"] .reply-form .submit-btn {
+  background: #238636;
+}
+
+[data-scheme="dark"] .reply-form .cancel-btn {
+  color: #b7c0ca;
+  border-color: #30363d;
+}
+
+[data-scheme="dark"] .reply-form .cancel-btn:hover {
+  background: #2d333b;
+}
+
+[data-scheme="dark"] .reply-list {
+  border-left: 2px solid #30363d;
+}
+
+[data-scheme="dark"] .reply-item:not(:last-child) {
+  border-bottom: 1px solid #30363d;
+}
+
+[data-scheme="dark"] .ua-text {
+  background: #2d333b;
+  color: #adbac7;
+  border-color: #444c56;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+[data-scheme="dark"] .ua-text:hover {
+  background: #373e47;
+  border-color: #545d68;
+}
+
+/* ===== 登录弹窗暗色模式 ===== */
+[data-scheme="dark"] .login-modal {
+  background: #22272e;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+}
+
+[data-scheme="dark"] .modal-header {
+  border-bottom: 1px solid #30363d;
+}
+
+[data-scheme="dark"] .modal-header h3 {
+  color: #dadee3;
+}
+
+[data-scheme="dark"] .close-btn {
+  color: #939ca6;
+}
+
+[data-scheme="dark"] .close-btn:hover {
+  color: #dadee3;
+}
+
+[data-scheme="dark"] .login-tip {
+  background: #0f2a1e;
+  color: #3fb950;
+  border: 1px solid #23633e;
+}
+
+[data-scheme="dark"] .login-field label {
+  color: #b7c0ca;
+}
+
+[data-scheme="dark"] .login-field input {
+  border: 1px solid #30363d;
+  background: #1c2128;
+  color: #dadee3;
+}
+
+[data-scheme="dark"] .login-field input:focus {
+  border-color: #238636;
+}
+
+[data-scheme="dark"] .login-error {
+  background: #2d1f1f;
+  color: #f85149;
+  border: 1px solid #67211d;
+}
+
+[data-scheme="dark"] .modal-footer {
+  border-top: 1px solid #30363d;
+  background: #1c2128;
+}
+
+[data-scheme="dark"] .modal-footer .cancel-btn {
+  background: #22272e;
+  color: #b7c0ca;
+  border-color: #30363d;
+}
+
+[data-scheme="dark"] .modal-footer .cancel-btn:hover {
+  background: #2d333b;
+}
+
+[data-scheme="dark"] .modal-footer .submit-btn {
+  background: #238636;
+}
+
+[data-scheme="dark"] .modal-footer .submit-btn:hover:not(:disabled) {
+  background: #2ea043;
+}
+
+/* ===== 移动端响应式暗色模式 ===== */
+@media (max-width: 768px) {
+  [data-scheme="dark"] .form-field:first-child {
+    border-bottom: 1px dashed #383838;
   }
 }
 </style>

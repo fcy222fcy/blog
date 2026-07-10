@@ -9,7 +9,7 @@
       </div>
     </div>
 
-    <div style="display: flex; gap: 12px; margin-bottom: 20px; align-items: center; justify-content: space-between;">
+    <div class="page-toolbar">
       <div class="search-box">
         <span class="search-box-icon">⌕</span>
         <input type="text" v-model="keyword" placeholder="搜索友链...">
@@ -48,7 +48,7 @@
     </div>
 
     <div v-if="filteredLinks.length === 0 && !loading" class="card">
-      <div class="card-body" style="text-align: center; color: var(--card-text-color-tertiary);">暂无友链</div>
+      <div class="card-body empty-state-sm">暂无友链</div>
     </div>
 
     <div class="modal-overlay" :class="{ active: showModal }" @click.self="showModal = false">
@@ -70,7 +70,7 @@
             <label class="form-label">描述</label>
             <textarea class="form-textarea" v-model="form.description" placeholder="输入描述..." rows="2"></textarea>
           </div>
-          <div class="form-group" style="margin-bottom: 0;">
+          <div class="form-group mb-0">
             <label class="form-label">头像</label>
             <input type="text" class="form-input" v-model="form.avatar" placeholder="输入 emoji 如 🤖 或图片 URL">
           </div>

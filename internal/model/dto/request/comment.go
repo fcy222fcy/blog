@@ -17,6 +17,7 @@ type CreateCommentRequest struct {
 	Email       string `json:"email" binding:"omitempty,email,max=100"`
 	Website     string `json:"website" binding:"max=200"`
 	ParentID    *uint  `json:"parent_id"`
+	ReplyToID   *uint  `json:"reply_to_id"`
 
 	// 客户端信息（优先前端 JS 检测，解决 Win11 UA 无法区分等问题；不传则后端解析 UA 兜底）
 	OS             string `json:"os"`

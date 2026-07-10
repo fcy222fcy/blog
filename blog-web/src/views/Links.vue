@@ -101,42 +101,4 @@ onMounted(fetchLinks)
   font-size: 36px;
   margin-bottom: 12px;
 }
-
-.empty {
-  text-align: center;
-  padding: 40px;
-  color: var(--card-text-color-secondary);
-}
-
-.error-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  min-height: 200px;
-  gap: 16px;
-}
-
-.error-message {
-  color: var(--error-color, #ef4444);
-  margin: 0;
-}
-
-.retry-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 8px 16px;
-  background-color: var(--accent-color, #3b82f6);
-  color: white;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 14px;
-  transition: background-color 0.2s;
-}
-
-.retry-btn:hover {
-  background-color: var(--accent-color-hover, #2563eb);
-}
 </style>

@@ -175,7 +175,6 @@ const menuItems = [
   { path: '/tags', title: '标签', icon: '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7.01" y2="7"></line></svg>' },
   { path: '/comments', title: '评论', icon: '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>' },
   { path: '/links', title: '友链', icon: '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>' },
-  { path: '/media', title: '媒体库', icon: '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>' },
   { path: '/entertainment', title: '娱乐', icon: '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"></rect><line x1="7" y1="2" x2="7" y2="22"></line><line x1="17" y1="2" x2="17" y2="22"></line><line x1="2" y1="12" x2="22" y2="12"></line></svg>' },
   { path: '/daily-question', title: '每日一问', icon: '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>' },
   { path: '/about', title: '关于我', icon: '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>' },
@@ -346,17 +345,18 @@ onMounted(async () => {
 <style scoped>
 /* 退出登录按钮 */
 .logout-feature {
-  color: #dc2626 !important;
+  color: var(--danger-color) !important;
   font-weight: 500;
   transition: all 0.2s ease;
   border-radius: 6px;
 }
 .logout-feature:hover {
-  background: #fef2f2 !important;
-  color: #b91c1c !important;
+  background: rgba(239, 68, 68, 0.08) !important;
+  color: var(--danger-color) !important;
+  opacity: 0.85;
 }
 .logout-feature:hover .feature-item-icon {
-  color: #b91c1c;
+  color: var(--danger-color);
 }
 
 /* 资料弹窗 */
@@ -367,15 +367,15 @@ onMounted(async () => {
 
 .profile-tabs {
   display: flex;
-  border-bottom: 1px solid #f0f0f0;
+  border-bottom: 1px solid var(--card-separator-color);
   padding: 0 20px;
-  background: #fafafa;
+  background: var(--card-background-selected);
 }
 
 .profile-tab {
   padding: 12px 18px;
   font-size: 0.9rem;
-  color: #666;
+  color: var(--card-text-color-secondary);
   cursor: pointer;
   border-bottom: 2px solid transparent;
   margin-bottom: -1px;
@@ -384,51 +384,24 @@ onMounted(async () => {
 }
 
 .profile-tab:hover {
-  color: #333;
+  color: var(--card-text-color-main);
 }
 
 .profile-tab.active {
-  color: #10b981;
-  border-bottom-color: #10b981;
+  color: var(--accent-color);
+  border-bottom-color: var(--accent-color);
   font-weight: 600;
 }
 
-/* 表单样式 */
+/* 表单：仅保留 AdminLayout 特有属性，其余复用全局 */
 .form-group {
   margin-bottom: 16px;
 }
 
-.form-label {
-  display: block;
-  font-size: 0.88rem;
-  color: #555;
-  margin-bottom: 6px;
-  font-weight: 500;
-}
-
 .label-tip {
   font-size: 0.78rem;
-  color: #9ca3af;
+  color: var(--card-text-color-tertiary);
   font-weight: normal;
-}
-
-.form-input,
-.form-textarea {
-  width: 100%;
-  padding: 9px 12px;
-  border: 1px solid #e5e7eb;
-  border-radius: 6px;
-  font-size: 0.9rem;
-  transition: border-color 0.2s, box-shadow 0.2s;
-  box-sizing: border-box;
-  font-family: inherit;
-}
-
-.form-input:focus,
-.form-textarea:focus {
-  outline: none;
-  border-color: #10b981;
-  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
 }
 
 .form-textarea {
@@ -442,14 +415,14 @@ onMounted(async () => {
   padding: 8px 12px;
   border-radius: 6px;
   font-size: 0.85rem;
-  background: #ecfdf5;
-  color: #047857;
-  border: 1px solid #a7f3d0;
+  background: rgba(16, 185, 129, 0.1);
+  color: var(--success-color);
+  border: 1px solid rgba(16, 185, 129, 0.25);
 }
 
 .password-tip.error {
-  background: #fef2f2;
-  color: #dc2626;
-  border-color: #fecaca;
+  background: rgba(239, 68, 68, 0.08);
+  color: var(--danger-color);
+  border-color: rgba(239, 68, 68, 0.25);
 }
 </style>

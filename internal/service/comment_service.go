@@ -188,6 +188,7 @@ func (s *commentService) CreateComment(req *request.CreateCommentRequest, userID
 		Website:   req.Website,
 		ArticleID: article.ID,
 		ParentID:  req.ParentID,
+		ReplyToID: req.ReplyToID,
 		Status:    "approved",
 		IP:        ip,
 		UserAgent: userAgent,
@@ -268,29 +269,36 @@ func (s *commentService) sendEmailNotifications(comment *entity.Comment, article
 	adminEmail := s.config.Email.FromEmail
 	logger.Infof("开始发送邮件通知，博主邮箱: %s", adminEmail)
 
-	// 如果是回复评论，发送邮件给被回复的用户
-	if comment.ParentID != nil && *comment.ParentID > 0 {
-		parentComment, err := s.commentRepo.FindByID(*comment.ParentID)
-		if err != nil || parentComment == nil {
-			logger.Warnf("获取被回复评论失败, parentID: %d, err: %v", *comment.ParentID, err)
-			return
-		}
+	// 如果是回复评论，发送邮件给「被回复的评论」的作者（优先使用 ReplyToID，无则回退到 ParentID 兼容老数据）
+	var targetCommentID *uint
+	switch {
+	case comment.ReplyToID != nil && *comment.ReplyToID > 0:
+		targetCommentID = comment.ReplyToID
+	case comment.ParentID != nil && *comment.ParentID > 0:
+		targetCommentID = comment.ParentID
+	}
 
-		if parentComment.Email != "" {
+	if targetCommentID != nil && *targetCommentID > 0 {
+		targetComment, err := s.commentRepo.FindByID(*targetCommentID)
+		if err != nil || targetComment == nil {
+			logger.Warnf("获取被回复评论失败, targetID: %d, err: %v", *targetCommentID, err)
+		} else if targetComment.Email != "" && targetComment.Email != comment.Email {
 			err = s.emailSvc.SendReplyNotification(
-				parentComment.Email,
+				targetComment.Email,
 				comment.Nickname,
 				article.Title,
 				article.Slug,
 				comment.Content,
 			)
 			if err != nil {
-				logger.Warnf("发送回复通知邮件失败, to: %s, err: %v", parentComment.Email, err)
+				logger.Warnf("发送回复通知邮件失败, to: %s, err: %v", targetComment.Email, err)
 			} else {
-				logger.Infof("回复通知邮件发送成功, to: %s", parentComment.Email)
+				logger.Infof("回复通知邮件发送成功, to: %s", targetComment.Email)
 			}
 		}
-	} else {
+	}
+
+	if comment.ParentID == nil {
 		if adminEmail != "" {
 			err := s.emailSvc.SendCommentNotification(
 				adminEmail,

@@ -11,6 +11,7 @@ import (
 	"regexp"
 	"sort"
 	"strings"
+	"sync"
 	"time"
 	"unicode"
 )
@@ -143,6 +144,17 @@ func (s *articleService) GetArticleDetail(slug string, clientIP string) (*respon
 		viewCount++
 	}
 
+	cats := response.CategoryResponse{}
+	if article.Category.ID > 0 {
+		cats.ID = article.Category.ID
+		cats.Name = article.Category.Name
+		cats.Slug = article.Category.Slug
+	}
+	tags := make([]response.TagResponse, 0, len(article.Tags))
+	for _, t := range article.Tags {
+		tags = append(tags, response.TagResponse{ID: t.ID, Name: t.Name, Slug: t.Slug})
+	}
+
 	return &response.ArticleDetailResponse{
 		ID:           article.ID,
 		Title:        article.Title,
@@ -150,6 +162,8 @@ func (s *articleService) GetArticleDetail(slug string, clientIP string) (*respon
 		Content:      article.Content,
 		Summary:      article.Summary,
 		Cover:        article.Cover,
+		Category:     cats,
+		Tags:         tags,
 		ViewCount:    viewCount,
 		CommentCount: article.CommentCount,
 		Status:       article.Status,
@@ -395,7 +409,202 @@ func (s *articleService) BatchDeleteArticles(ids []uint) error {
 	return nil
 }
 
-// Search 搜索文章（标题、内容、摘要模糊搜索）
+// regexpCache 预编译正则缓存（避免 MustCompile panic，启动时安全编译）
+var (
+	regexpOnce   sync.Once
+	reFenced     *regexp.Regexp
+	reInlineCode *regexp.Regexp
+	reHTMLComment *regexp.Regexp
+	reHTMLTag    *regexp.Regexp
+	reImage      *regexp.Regexp
+	reLink       *regexp.Regexp
+	reLinePrefix *regexp.Regexp
+	// 下列正则改为「从外向内逐条剥离」的独立写法，完全避免反向引用（RE2 不支持 \1）
+	reTripleStar  *regexp.Regexp
+	reDoubleStar  *regexp.Regexp
+	reSingleStar  *regexp.Regexp
+	reTripleTilde *regexp.Regexp
+	reDoubleTilde *regexp.Regexp
+	reTripleUnder *regexp.Regexp
+	reDoubleUnder *regexp.Regexp
+	reSingleUnder *regexp.Regexp
+	reWS          *regexp.Regexp
+)
+
+func compileRegexps() {
+	regexpOnce.Do(func() {
+		reFenced = mustOrEmpty(`(?s)` + "```" + `.*?` + "```")
+		reInlineCode = mustOrEmpty("`[^`]*`")
+		reHTMLComment = mustOrEmpty(`(?s)<!--.*?-->`)
+		reHTMLTag = mustOrEmpty(`<[^>]+>`)
+		reImage = mustOrEmpty(`!\[([^\]]*)\]\([^)]*\)`)
+		reLink = mustOrEmpty(`\[([^\]]*)\]\([^)]*\)`)
+		reLinePrefix = mustOrEmpty("(?m)^\\s{0,3}(#{1,6}\\s*|>\\s*|[-*+]\\s+|\\d+\\.\\s+)")
+		reTripleStar = mustOrEmpty(`\*\*\*([^*]+?)\*\*\*`)
+		reDoubleStar = mustOrEmpty(`\*\*([^*]+?)\*\*`)
+		reSingleStar = mustOrEmpty(`(^|[^*])\*([^*\n]+?)\*([^*]|$)`)
+		reTripleTilde = mustOrEmpty(`~~~([^~]+?)~~~`)
+		reDoubleTilde = mustOrEmpty(`~~([^~]+?)~~`)
+		reTripleUnder = mustOrEmpty(`___([^_]+?)___`)
+		reDoubleUnder = mustOrEmpty(`__([^_]+?)__`)
+		reSingleUnder = mustOrEmpty(`(^|[^_\w])_([^_\n]+?)_([^_\w]|$)`)
+		reWS = mustOrEmpty(`\s+`)
+	})
+}
+
+// mustOrEmpty 编译 regexp；失败时返回一个永不匹配的空壳，保证服务不 panic
+func mustOrEmpty(expr string) *regexp.Regexp {
+	r, err := regexp.Compile(expr)
+	if err != nil {
+		// 构造一个不可能匹配的表达式（空字符串会被 RE2 视为错误）
+		return regexp.MustCompile(`a^`)
+	}
+	return r
+}
+
+// stripMarkdown 粗粒度清除 Markdown 标记，保留纯文本（用于搜索上下文片段）
+func stripMarkdown(src string) string {
+	compileRegexps()
+	if src == "" {
+		return ""
+	}
+	s := src
+	s = reFenced.ReplaceAllString(s, "")
+	s = reInlineCode.ReplaceAllString(s, "")
+	s = reHTMLComment.ReplaceAllString(s, "")
+	s = reHTMLTag.ReplaceAllString(s, "")
+	s = reImage.ReplaceAllString(s, "$1")
+	s = reLink.ReplaceAllString(s, "$1")
+	s = reLinePrefix.ReplaceAllString(s, "")
+	// 嵌套的 ***...*** / **...** / *...* 从多到少剥离
+	for reTripleStar.MatchString(s) {
+		s = reTripleStar.ReplaceAllString(s, "$1")
+	}
+	for reDoubleStar.MatchString(s) {
+		s = reDoubleStar.ReplaceAllString(s, "$1")
+	}
+	for reSingleStar.MatchString(s) {
+		s = reSingleStar.ReplaceAllString(s, "$1$2$3")
+	}
+	for reTripleTilde.MatchString(s) {
+		s = reTripleTilde.ReplaceAllString(s, "$1")
+	}
+	for reDoubleTilde.MatchString(s) {
+		s = reDoubleTilde.ReplaceAllString(s, "$1")
+	}
+	for reTripleUnder.MatchString(s) {
+		s = reTripleUnder.ReplaceAllString(s, "$1")
+	}
+	for reDoubleUnder.MatchString(s) {
+		s = reDoubleUnder.ReplaceAllString(s, "$1")
+	}
+	for reSingleUnder.MatchString(s) {
+		s = reSingleUnder.ReplaceAllString(s, "$1$2$3")
+	}
+	// 最后兜底：把孤立的 * ~ _ 符号去掉（避免残留的标记）
+	s = strings.Map(func(r rune) rune {
+		switch r {
+		case '*', '~':
+			return -1
+		}
+		return r
+	}, s)
+	s = reWS.ReplaceAllString(s, " ")
+	return strings.TrimSpace(s)
+}
+
+// keywordPattern 按空格拆分关键词做 OR 匹配的不区分大小写正则（支持 Unicode）
+func keywordPattern(keyword string) (*regexp.Regexp, error) {
+	keywords := strings.Fields(keyword)
+	if len(keywords) == 0 {
+		return nil, nil
+	}
+	parts := make([]string, 0, len(keywords))
+	for _, k := range keywords {
+		if k == "" {
+			continue
+		}
+		parts = append(parts, regexp.QuoteMeta(k))
+	}
+	if len(parts) == 0 {
+		return nil, nil
+	}
+	return regexp.Compile("(?i)(" + strings.Join(parts, "|") + ")")
+}
+
+// buildSearchSnippet 从文章正文中抽取包含关键词的上下文片段，前后用 "[...]" 省略。
+// radius 为关键词前后保留的 rune 数（中文近似为汉字数）。
+// 若文章 Summary 本身命中关键词，返回 ""（让前端直接用 Summary，不再截断）。
+func buildSearchSnippet(content, summary, keyword string, radius int) string {
+	if keyword == "" {
+		return ""
+	}
+	kwLower := strings.ToLower(keyword)
+	sumLower := strings.ToLower(summary)
+	for _, w := range strings.Fields(kwLower) {
+		if w != "" && strings.Contains(sumLower, w) {
+			return ""
+		}
+	}
+	clean := stripMarkdown(content)
+	if clean == "" {
+		return ""
+	}
+	re, err := keywordPattern(keyword)
+	if err != nil || re == nil {
+		return ""
+	}
+	loc := re.FindStringIndex(clean)
+	if loc == nil {
+		return ""
+	}
+	runes := []rune(clean)
+	// 把 byte 范围映射到 rune 范围（精确扫描）
+	hitStart, hitEnd := -1, -1
+	cur := 0
+	for i := 0; i < len(runes); i++ {
+		next := cur + len(string(runes[i:i+1]))
+		if cur <= loc[0] && loc[0] < next && hitStart == -1 {
+			hitStart = i
+		}
+		if cur <= loc[1] && loc[1] <= next {
+			hitEnd = i + 1
+		}
+		if hitStart >= 0 && hitEnd >= 0 {
+			break
+		}
+		cur = next
+	}
+	if hitStart < 0 {
+		hitStart = 0
+	}
+	if hitEnd < 0 {
+		hitEnd = len(runes)
+	}
+	left := hitStart - radius
+	if left < 0 {
+		left = 0
+	}
+	right := hitEnd + radius
+	if right > len(runes) {
+		right = len(runes)
+	}
+	segment := strings.TrimSpace(string(runes[left:right]))
+	if segment == "" {
+		return ""
+	}
+	var b strings.Builder
+	if left > 0 {
+		b.WriteString("[...]")
+	}
+	b.WriteString(segment)
+	if right < len(runes) {
+		b.WriteString("[...]")
+	}
+	return b.String()
+}
+
+// Search 搜索文章（标题、内容、摘要模糊搜索），返回带 SearchSnippet 的 SearchArticleResponse 列表
 func (s *articleService) Search(keyword string, page, pageSize int) (*response.PageResponse, error) {
 	if page <= 0 {
 		page = 1
@@ -413,5 +622,34 @@ func (s *articleService) Search(keyword string, page, pageSize int) (*response.P
 		return nil, fmt.Errorf("搜索文章失败, %w", err)
 	}
 
-	return response.NewPageResponse(articles, total, page, pageSize), nil
+	const snippetRadius = 45 // 关键词前后约 45 个汉字
+	items := make([]*response.SearchArticleResponse, 0, len(articles))
+	for _, a := range articles {
+		cats := response.CategoryResponse{}
+		if a.Category.ID > 0 {
+			cats.ID = a.Category.ID
+			cats.Name = a.Category.Name
+			cats.Slug = a.Category.Slug
+		}
+		tags := make([]response.TagResponse, 0, len(a.Tags))
+		for _, t := range a.Tags {
+			tags = append(tags, response.TagResponse{ID: t.ID, Name: t.Name, Slug: t.Slug})
+		}
+		items = append(items, &response.SearchArticleResponse{
+			ID:            a.ID,
+			Title:         a.Title,
+			Slug:          a.Slug,
+			Summary:       a.Summary,
+			SearchSnippet: buildSearchSnippet(a.Content, a.Summary, keyword, snippetRadius),
+			Cover:         a.Cover,
+			Category:      cats,
+			Tags:          tags,
+			ViewCount:     a.ViewCount,
+			CommentCount:  a.CommentCount,
+			ReadingTime:   a.ReadingTime,
+			CreatedAt:     a.CreatedAt,
+		})
+	}
+
+	return response.NewPageResponse(items, total, page, pageSize), nil
 }

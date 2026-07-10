@@ -29,22 +29,7 @@
             <span class="search-box-icon">⌕</span>
             <input type="text" v-model="keyword" placeholder="搜索文章..." @input="loadArticles">
           </div>
-          <div class="custom-select-wrapper" v-click-outside="closeDropdown">
-            <div class="custom-select" @click="toggleDropdown">
-              <span class="select-value">{{ selectedLabel }}</span>
-              <span class="select-arrow">
-                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
-              </span>
-            </div>
-            <div class="custom-dropdown" v-if="isOpen">
-              <div class="dropdown-item" :class="{ active: categoryFilter === '' }" @click="selectOption('')">
-                全部分类
-              </div>
-              <div v-for="cat in categories" :key="cat.id" class="dropdown-item" :class="{ active: categoryFilter === cat.id }" @click="selectOption(cat.id)">
-                {{ cat.name }}
-              </div>
-            </div>
-          </div>
+          <CustomSelect v-model="categoryFilter" :options="categoryOptions" @change="loadArticles" />
           <button class="btn btn-primary" @click="$router.push('/articles/edit')">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
             <span>新建文章</span>
@@ -131,40 +116,22 @@ import { getArticleList, deleteArticle } from '../../api/article'
 import { getCategoryList } from '../../api/category'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import SkeletonLoader from '../../components/common/SkeletonLoader.vue'
+import CustomSelect from '../../components/common/CustomSelect.vue'
 
 const articles = ref([])
 const categories = ref([])
 const loading = ref(false)
 const page = ref(1)
 const total = ref(0)
-const allTotal = ref(0) // 所有文章的总数，不受状态过滤影响
+const allTotal = ref(0)
 const keyword = ref('')
 const categoryFilter = ref('')
 const statusFilter = ref('')
 const stats = ref({ published: 0, draft: 0, totalViews: 0 })
 
-// 自定义下拉菜单逻辑
-const isOpen = ref(false)
-
-const selectedLabel = computed(() => {
-  if (!categoryFilter.value) return '全部分类'
-  const cat = categories.value.find(c => c.id === categoryFilter.value)
-  return cat ? cat.name : '全部分类'
+const categoryOptions = computed(() => {
+  return [{ value: '', label: '全部分类' }, ...categories.value.map(c => ({ value: c.id, label: c.name }))]
 })
-
-const toggleDropdown = () => {
-  isOpen.value = !isOpen.value
-}
-
-const closeDropdown = () => {
-  isOpen.value = false
-}
-
-const selectOption = (value) => {
-  categoryFilter.value = value
-  isOpen.value = false
-  loadArticles()
-}
 
 const statusTabs = computed(() => [
   { label: '全部', value: '', count: total.value },
@@ -239,21 +206,6 @@ onMounted(async () => {
   await loadArticles()
   loading.value = false
 })
-
-// 自定义指令：点击外部关闭下拉菜单
-const vClickOutside = {
-  mounted(el, binding) {
-    el._clickOutside = (event) => {
-      if (!el.contains(event.target)) {
-        binding.value()
-      }
-    }
-    document.addEventListener('click', el._clickOutside)
-  },
-  unmounted(el) {
-    document.removeEventListener('click', el._clickOutside)
-  }
-}
 </script>
 
 <style scoped>
@@ -262,81 +214,6 @@ const vClickOutside = {
   gap: 12px;
   flex-wrap: wrap;
   align-items: center;
-}
-
-.custom-select-wrapper {
-  position: relative;
-  display: inline-flex;
-}
-
-.custom-select {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 32px 8px 12px;
-  border: 1px solid var(--card-separator-color);
-  border-radius: var(--card-border-radius);
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--card-text-color-main);
-  background: var(--card-background);
-  cursor: pointer;
-  transition: all 0.15s ease;
-  min-width: 100px;
-}
-
-.custom-select:hover {
-  border-color: var(--accent-color);
-}
-
-.select-value {
-  flex: 1;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.select-arrow {
-  position: absolute;
-  right: 10px;
-  top: 50%;
-  transform: translateY(-50%);
-  pointer-events: none;
-  color: var(--card-text-color-tertiary);
-  display: flex;
-  align-items: center;
-}
-
-.custom-dropdown {
-  position: absolute;
-  top: calc(100% + 4px);
-  left: 0;
-  right: 0;
-  min-width: 200px;
-  background: var(--card-background);
-  border: 1px solid var(--card-separator-color);
-  border-radius: var(--card-border-radius);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  z-index: 100;
-}
-
-.dropdown-item {
-  padding: 10px 12px;
-  font-size: 13px;
-  color: var(--card-text-color-main);
-  cursor: pointer;
-  transition: all 0.15s ease;
-}
-
-.dropdown-item:hover {
-  background: rgba(var(--accent-color-rgb), 0.06);
-  color: var(--accent-color);
-}
-
-.dropdown-item.active {
-  background: rgba(var(--accent-color-rgb), 0.1);
-  color: var(--accent-color);
-  font-weight: 600;
 }
 
 .article-tabs {
@@ -420,7 +297,7 @@ const vClickOutside = {
   background: linear-gradient(135deg, #667eea20, #764ba220);
 }
 .article-card-cover.no-cover {
-  background: var(--input-background, #f5f7fa);
+  background: rgba(var(--accent-color-rgb), 0.03);
   border: 1px dashed var(--card-separator-color);
 }
 .article-cover-img {

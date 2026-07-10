@@ -18,7 +18,6 @@ const routes = [
       { path: 'tags', name: 'Tags', component: () => import('../views/tag/List.vue'), meta: { title: '标签管理' } },
       { path: 'comments', name: 'Comments', component: () => import('../views/comment/List.vue'), meta: { title: '评论管理' } },
       { path: 'links', name: 'Links', component: () => import('../views/link/List.vue'), meta: { title: '友链管理' } },
-      { path: 'media', name: 'Media', component: () => import('../views/media/Index.vue'), meta: { title: '媒体库' } },
       { path: 'daily-question', name: 'DailyQuestion', component: () => import('../views/daily/List.vue'), meta: { title: '每日一问' } },
       { path: 'entertainment', name: 'Entertainment', component: () => import('../views/entertainment/Index.vue'), meta: { title: '娱乐' } },
       { path: 'about', name: 'About', component: () => import('../views/about/Index.vue'), meta: { title: '关于我' } },

@@ -44,13 +44,13 @@ defineEmits(['retry'])
 }
 
 .error-icon {
-  color: var(--error-color, #ef4444);
+  color: var(--danger-color);
   opacity: 0.6;
 }
 
 .error-message {
   margin: 0;
-  color: var(--text-color-secondary, #6b7280);
+  color: var(--card-text-color-secondary);
   font-size: 14px;
   text-align: center;
 }
@@ -60,8 +60,8 @@ defineEmits(['retry'])
   align-items: center;
   gap: 6px;
   padding: 8px 20px;
-  background-color: var(--accent-color, #3b82f6);
-  color: white;
+  background-color: var(--accent-color);
+  color: var(--accent-color-text);
   border: none;
   border-radius: 6px;
   cursor: pointer;
@@ -70,6 +70,6 @@ defineEmits(['retry'])
 }
 
 .retry-btn:hover {
-  background-color: var(--accent-color-hover, #2563eb);
+  background-color: var(--accent-color-darker);
 }
 </style>

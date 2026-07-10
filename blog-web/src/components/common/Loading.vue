@@ -63,15 +63,15 @@ defineProps({
 .spinner {
   width: 40px;
   height: 40px;
-  border: 4px solid var(--border-color, #e5e7eb);
-  border-top: 4px solid var(--accent-color, #3b82f6);
+  border: 4px solid var(--card-separator-color);
+  border-top: 4px solid var(--accent-color);
   border-radius: 50%;
   animation: spin 1s linear infinite;
 }
 
 .loading-text {
   margin: 0;
-  color: var(--text-color-secondary, #6b7280);
+  color: var(--card-text-color-secondary);
   font-size: 14px;
 }
 

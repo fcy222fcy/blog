@@ -13,7 +13,7 @@
       </div>
     </div>
 
-    <div style="display: flex; gap: 12px; margin-bottom: 20px; align-items: center; justify-content: space-between;">
+    <div class="page-toolbar">
       <div class="search-box">
         <span class="search-box-icon">⌕</span>
         <input type="text" v-model="keyword" placeholder="搜索标签...">
@@ -41,7 +41,7 @@
     </div>
 
     <div v-if="filteredTags.length === 0 && !loading" class="card">
-      <div class="card-body" style="text-align: center; color: var(--card-text-color-tertiary);">暂无标签</div>
+      <div class="card-body empty-state-sm">暂无标签</div>
     </div>
 
     <div class="modal-overlay" :class="{ active: showModal }" @click.self="showModal = false">
@@ -55,7 +55,7 @@
             <label class="form-label">标签名称 <span class="required">*</span></label>
             <input type="text" class="form-input" v-model="form.name" placeholder="输入标签名称">
           </div>
-          <div class="form-group" style="margin-bottom: 0;">
+          <div class="form-group mb-0">
             <label class="form-label">别名</label>
             <input type="text" class="form-input" v-model="form.slug" placeholder="英文别名，如 hugo">
           </div>

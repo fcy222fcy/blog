@@ -134,38 +134,38 @@ const handleRemove = () => {
   justify-content: center;
   width: 200px;
   height: 140px;
-  border: 2px dashed var(--border-color, #dcdfe6);
+  border: 2px dashed var(--card-separator-color);
   border-radius: var(--card-border-radius, 8px);
   cursor: pointer;
   transition: border-color 0.2s, background-color 0.2s;
-  background: var(--input-background, #f5f7fa);
+  background: rgba(var(--accent-color-rgb), 0.03);
 }
 
 .upload-area:hover {
-  border-color: var(--accent-color, #409eff);
+  border-color: var(--accent-color);
   background: rgba(var(--accent-color-rgb, 64, 158, 255), 0.04);
 }
 
 .upload-area.drag-over {
-  border-color: var(--accent-color, #409eff);
+  border-color: var(--accent-color);
   background: rgba(var(--accent-color-rgb, 64, 158, 255), 0.08);
   transform: scale(1.02);
 }
 
 .upload-area svg {
-  color: var(--text-color-tertiary, #909399);
+  color: var(--card-text-color-tertiary);
   margin-bottom: 8px;
 }
 
 .upload-text {
   font-size: 13px;
-  color: var(--text-color-secondary, #606266);
+  color: var(--card-text-color-secondary);
   margin-bottom: 4px;
 }
 
 .upload-hint {
   font-size: 11px;
-  color: var(--text-color-tertiary, #909399);
+  color: var(--card-text-color-tertiary);
 }
 
 .file-input {
@@ -212,18 +212,18 @@ const handleRemove = () => {
   border: none;
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.9);
-  color: var(--text-color-secondary, #606266);
+  color: var(--card-text-color-secondary);
   cursor: pointer;
   transition: background-color 0.2s, color 0.2s;
 }
 
 .preview-btn:hover {
   background: #fff;
-  color: var(--accent-color, #409eff);
+  color: var(--accent-color);
 }
 
 .preview-btn.danger:hover {
-  color: var(--error-color, #f56c6c);
+  color: var(--danger-color);
 }
 
 .upload-progress {
@@ -237,14 +237,14 @@ const handleRemove = () => {
 .progress-bar {
   flex: 1;
   height: 4px;
-  background: var(--border-color, #e4e7ed);
+  background: var(--card-separator-color);
   border-radius: 2px;
   overflow: hidden;
 }
 
 .progress-fill {
   height: 100%;
-  background: var(--accent-color, #409eff);
+  background: var(--accent-color);
   border-radius: 2px;
   animation: progress-indeterminate 1.4s ease infinite;
 }
@@ -257,7 +257,7 @@ const handleRemove = () => {
 
 .progress-text {
   font-size: 12px;
-  color: var(--text-color-tertiary, #909399);
+  color: var(--card-text-color-tertiary);
   white-space: nowrap;
 }
 </style>

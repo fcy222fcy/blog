@@ -90,6 +90,7 @@ func (a *App) initDependencies() {
 	commentRepo := repository.NewCommentRepository(a.db.DB)
 	linkRepo := repository.NewLinkRepository(a.db.DB)
 	dailyQuestionRepo := repository.NewDailyQuestionRepository(a.db.DB)
+	entertainmentRepo := repository.NewEntertainmentRepository(a.db.DB)
 	aboutPageRepo := repository.NewAboutPageRepository(a.db.DB)
 	visitRepo := repository.NewVisitRepository(a.db.DB)
 	auditLogRepo := repository.NewAuditLogRepository(a.db.DB)
@@ -105,6 +106,7 @@ func (a *App) initDependencies() {
 	commentSvc := service.NewCommentService(commentRepo, articleRepo, userRepo, emailSvc, a.config)
 	linkSvc := service.NewLinkService(linkRepo)
 	dailyQuestionSvc := service.NewDailyQuestionService(dailyQuestionRepo)
+	entertainmentSvc := service.NewEntertainmentService(entertainmentRepo)
 	aboutPageSvc := service.NewAboutPageService(aboutPageRepo)
 	auditLogSvc := service.NewAuditLogService(auditLogRepo)
 
@@ -118,6 +120,7 @@ func (a *App) initDependencies() {
 		commentSvc,
 		linkSvc,
 		dailyQuestionSvc,
+		entertainmentSvc,
 		aboutPageSvc,
 		auditLogSvc,
 		articleRepo,

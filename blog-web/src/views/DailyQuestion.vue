@@ -135,7 +135,7 @@ onUnmounted(() => {
 .dq-sidebar {
   width: 280px;
   flex-shrink: 0;
-  background: var(--card-background, #fdfdfb);
+  background: var(--card-background);
   border-radius: 12px;
   padding: 16px;
   height: fit-content;

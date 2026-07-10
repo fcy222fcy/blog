@@ -29,7 +29,7 @@
   width: 80px;
   height: 16px;
   border-radius: 4px;
-  background: var(--skeleton-bg, #e5e7eb);
+  background: var(--card-separator-color);
   margin-bottom: 24px;
   animation: skeleton-pulse 1.5s ease-in-out infinite;
 }
@@ -38,7 +38,7 @@
   width: 60%;
   height: 32px;
   border-radius: 4px;
-  background: var(--skeleton-bg, #e5e7eb);
+  background: var(--card-separator-color);
   margin-bottom: 16px;
   animation: skeleton-pulse 1.5s ease-in-out infinite 0.1s;
 }
@@ -53,7 +53,7 @@
   width: 100px;
   height: 14px;
   border-radius: 4px;
-  background: var(--skeleton-bg, #e5e7eb);
+  background: var(--card-separator-color);
   animation: skeleton-pulse 1.5s ease-in-out infinite 0.2s;
 }
 
@@ -66,7 +66,7 @@
 .skeleton-line {
   height: 16px;
   border-radius: 4px;
-  background: var(--skeleton-bg, #e5e7eb);
+  background: var(--card-separator-color);
   animation: skeleton-pulse 1.5s ease-in-out infinite 0.3s;
 }
 

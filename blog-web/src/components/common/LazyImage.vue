@@ -83,7 +83,7 @@ onUnmounted(() => {
 .lazy-image-container {
   position: relative;
   overflow: hidden;
-  background: var(--skeleton-bg, #f0f0f0);
+  background: var(--card-separator-color);
   border-radius: inherit;
 }
 
@@ -111,8 +111,8 @@ onUnmounted(() => {
 .lazy-image-spinner {
   width: 24px;
   height: 24px;
-  border: 2px solid var(--border-color, #e5e7eb);
-  border-top-color: var(--accent-color, #3b82f6);
+  border: 2px solid var(--card-separator-color);
+  border-top-color: var(--accent-color);
   border-radius: 50%;
   animation: spin 1s linear infinite;
 }
@@ -123,8 +123,8 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--text-color-tertiary, #9ca3af);
-  background: var(--skeleton-bg, #f0f0f0);
+  color: var(--card-text-color-tertiary);
+  background: var(--card-separator-color);
 }
 
 @keyframes spin {

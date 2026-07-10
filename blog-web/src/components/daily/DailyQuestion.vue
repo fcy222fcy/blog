@@ -258,7 +258,7 @@ onUnmounted(() => {
 
 <style scoped>
 .dq-daily-card {
-  border-left: 4px solid var(--accent-color, #007bff);
+  border-left: 4px solid var(--accent-color);
   display: flex;
   flex-direction: column;
 }
@@ -287,19 +287,19 @@ onUnmounted(() => {
 
 .dq-daily-nav-btn {
   padding: 6px 12px;
-  background: var(--card-background, #fff);
-  border: 1px solid var(--card-separator-color, rgba(0, 0, 0, 0.08));
+  background: var(--card-background);
+  border: 1px solid var(--card-separator-color);
   border-radius: 6px;
   font-size: 12px;
   cursor: pointer;
   transition: all 0.2s;
-  color: var(--card-text-color-secondary, #5d5d5d);
+  color: var(--card-text-color-secondary);
 }
 
 .dq-daily-nav-btn:hover:not(:disabled) {
-  background: var(--accent-color, #1B365D);
-  color: white;
-  border-color: var(--accent-color, #1B365D);
+  background: var(--accent-color);
+  color: var(--accent-color-text);
+  border-color: var(--accent-color);
 }
 
 .dq-daily-nav-btn:disabled {
@@ -316,19 +316,19 @@ onUnmounted(() => {
   align-items: center;
   gap: 6px;
   padding: 6px 12px;
-  background: var(--card-background, #fff);
-  border: 1px solid var(--card-separator-color, rgba(0, 0, 0, 0.08));
+  background: var(--card-background);
+  border: 1px solid var(--card-separator-color);
   border-radius: 6px;
   font-size: 12px;
   cursor: pointer;
   transition: all 0.2s;
-  color: var(--card-text-color-secondary, #5d5d5d);
+  color: var(--card-text-color-secondary);
 }
 
 .dq-daily-date-btn:hover {
-  background: var(--accent-color, #1B365D);
-  color: white;
-  border-color: var(--accent-color, #1B365D);
+  background: var(--accent-color);
+  color: var(--accent-color-text);
+  border-color: var(--accent-color);
 }
 
 .dq-calendar-popup {
@@ -336,8 +336,8 @@ onUnmounted(() => {
   top: 100%;
   right: 0;
   margin-top: 8px;
-  background: var(--card-background, #fff);
-  border: 1px solid var(--card-separator-color, rgba(0, 0, 0, 0.08));
+  background: var(--card-background);
+  border: 1px solid var(--card-separator-color);
   border-radius: 8px;
   padding: 12px;
   box-shadow: var(--shadow-l2);
@@ -357,18 +357,18 @@ onUnmounted(() => {
   background: none;
   border: none;
   cursor: pointer;
-  color: var(--card-text-color-secondary, #5d5d5d);
+  color: var(--card-text-color-secondary);
   font-size: 12px;
 }
 
 .dq-calendar-nav:hover {
-  color: var(--accent-color, #1B365D);
+  color: var(--accent-color);
 }
 
 .dq-calendar-title {
   font-size: 14px;
   font-weight: 600;
-  color: var(--card-text-color-main, #333);
+  color: var(--card-text-color-main);
 }
 
 .dq-calendar-weekdays {
@@ -381,7 +381,7 @@ onUnmounted(() => {
 .dq-calendar-weekdays span {
   text-align: center;
   font-size: 11px;
-  color: var(--card-text-color-tertiary, #8c8c8c);
+  color: var(--card-text-color-tertiary);
   padding: 4px 0;
 }
 
@@ -401,46 +401,46 @@ onUnmounted(() => {
   border-radius: 4px;
   font-size: 12px;
   cursor: pointer;
-  color: var(--card-text-color-main, #333);
+  color: var(--card-text-color-main);
   transition: all 0.15s;
 }
 
 .dq-calendar-day:hover:not(:disabled) {
-  background: rgba(var(--accent-color-rgb, 27, 54, 93), 0.1);
-  color: var(--accent-color, #1B365D);
+  background: rgba(var(--accent-color-rgb), 0.1);
+  color: var(--accent-color);
 }
 
 .dq-calendar-day.other-month {
-  color: var(--card-text-color-tertiary, #8c8c8c);
+  color: var(--card-text-color-tertiary);
   opacity: 0.4;
   cursor: not-allowed;
 }
 
 .dq-calendar-day.is-today {
   font-weight: 700;
-  color: var(--accent-color, #1B365D);
+  color: var(--accent-color);
 }
 
 .dq-calendar-day.is-selected {
-  background: var(--accent-color, #1B365D);
-  color: white;
+  background: var(--accent-color);
+  color: var(--accent-color-text);
 }
 
 .dq-calendar-close {
   width: 100%;
   margin-top: 8px;
   padding: 6px;
-  background: var(--card-separator-color, rgba(0, 0, 0, 0.08));
+  background: var(--card-separator-color);
   border: none;
   border-radius: 4px;
   font-size: 12px;
   cursor: pointer;
-  color: var(--card-text-color-secondary, #5d5d5d);
+  color: var(--card-text-color-secondary);
 }
 
 .dq-calendar-close:hover {
-  background: var(--accent-color, #1B365D);
-  color: white;
+  background: var(--accent-color);
+  color: var(--accent-color-text);
 }
 
 .dq-daily-title {
@@ -448,7 +448,7 @@ onUnmounted(() => {
   font-weight: 700;
   margin-bottom: 8px;
   line-height: 1.4;
-  color: var(--card-text-color-main, #333);
+  color: var(--card-text-color-main);
 }
 
 .dq-daily-answer-wrapper {
@@ -459,7 +459,7 @@ onUnmounted(() => {
 }
 
 .dq-daily-preview {
-  color: var(--card-text-color-secondary, #5d5d5d);
+  color: var(--card-text-color-secondary);
   line-height: 1.6;
   margin-bottom: 0;
 }
@@ -470,7 +470,7 @@ onUnmounted(() => {
   left: 0;
   right: 0;
   height: 100%;
-  background: linear-gradient(to bottom, transparent 20%, var(--card-background, #fff) 65%);
+  background: linear-gradient(to bottom, transparent 20%, var(--card-background) 65%);
   display: flex;
   align-items: flex-end;
   justify-content: center;
@@ -480,13 +480,13 @@ onUnmounted(() => {
 
 .dq-daily-mask-text {
   font-size: 13px;
-  color: var(--accent-color, #1B365D);
+  color: var(--accent-color);
   font-weight: 500;
 }
 
 .dq-daily-mask-text {
   font-size: 13px;
-  color: var(--accent-color, #1B365D);
+  color: var(--accent-color);
   font-weight: 500;
 }
 
@@ -497,7 +497,7 @@ onUnmounted(() => {
 
 .dq-daily-hide-text {
   font-size: 13px;
-  color: var(--accent-color, #1B365D);
+  color: var(--accent-color);
   font-weight: 500;
   cursor: pointer;
 }
@@ -507,8 +507,8 @@ onUnmounted(() => {
   align-items: center;
   gap: 6px;
   padding: 8px 16px;
-  background: rgba(var(--accent-color-rgb, 27, 54, 93), 0.08);
-  color: var(--accent-color, #1B365D);
+  background: rgba(var(--accent-color-rgb), 0.08);
+  color: var(--accent-color);
   border-radius: 6px;
   font-size: 13px;
   font-weight: 500;
@@ -519,8 +519,8 @@ onUnmounted(() => {
 }
 
 .dq-view-btn:hover {
-  background: var(--accent-color, #1B365D);
-  color: white;
+  background: var(--accent-color);
+  color: var(--accent-color-text);
 }
 
 .category-life {

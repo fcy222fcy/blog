@@ -8,6 +8,7 @@ import (
 	"blog/internal/api/v1/category"
 	"blog/internal/api/v1/comment"
 	"blog/internal/api/v1/daily_question"
+	"blog/internal/api/v1/entertainment"
 	"blog/internal/api/v1/link"
 	"blog/internal/api/v1/media"
 	"blog/internal/api/v1/rss"
@@ -43,6 +44,7 @@ type Router struct {
 	linkController         *link.Controller
 	dailyQuestionController *daily_question.Controller
 	aboutPageController    *about_page.Controller
+	entertainmentController *entertainment.Controller
 	mediaController        *media.Controller
 	auditLogController     *audit_log.Controller
 	rssHandler             *rss.Handler
@@ -68,6 +70,7 @@ func NewRouter(
 	commentSvc service.CommentService,
 	linkSvc service.LinkService,
 	dailyQuestionSvc service.DailyQuestionService,
+	entertainmentSvc service.EntertainmentService,
 	aboutPageSvc service.AboutPageService,
 	auditLogSvc service.AuditLogService,
 	articleRepo repository.ArticleRepository,
@@ -95,6 +98,7 @@ func NewRouter(
 		linkController:         link.NewController(linkSvc),
 		dailyQuestionController: daily_question.NewController(dailyQuestionSvc),
 		aboutPageController:    about_page.NewController(aboutPageSvc),
+		entertainmentController: entertainment.NewController(entertainmentSvc),
 		mediaController:        media.NewController(),
 		auditLogController:     audit_log.NewController(auditLogSvc),
 		rssHandler:             rss.NewHandler(articleRepo),
@@ -135,6 +139,7 @@ func (r *Router) Setup() *gin.Engine {
 	comment.RegisterRoutes(apiV1, r.commentController)
 	link.RegisterRoutes(apiV1, r.linkController)
 	daily_question.RegisterRoutes(apiV1, r.dailyQuestionController)
+	entertainment.RegisterRoutes(apiV1, r.entertainmentController)
 	user.RegisterRoutes(apiV1, r.userController)
 	media.RegisterRoutes(apiV1, r.mediaController)
 	audit_log.RegisterRoutes(apiV1, r.auditLogController)
