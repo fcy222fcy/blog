@@ -99,22 +99,6 @@ CREATE TABLE IF NOT EXISTS comments (
     CONSTRAINT fk_comments_parent FOREIGN KEY (parent_id) REFERENCES comments(id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- 友链表
-CREATE TABLE IF NOT EXISTS links (
-    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    created_at DATETIME(3) NULL,
-    updated_at DATETIME(3) NULL,
-    deleted_at DATETIME(3) NULL,
-    name VARCHAR(100) NOT NULL,
-    url VARCHAR(500) NOT NULL,
-    description VARCHAR(200) NULL,
-    avatar VARCHAR(500) NULL,
-    logo VARCHAR(10) NULL,
-    sort_order INT DEFAULT 0,
-    status VARCHAR(20) DEFAULT 'approved',
-    INDEX idx_links_deleted_at (deleted_at)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
 -- 每日一问表
 CREATE TABLE IF NOT EXISTS daily_questions (
     id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,

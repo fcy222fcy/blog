@@ -41,13 +41,6 @@ func TestComment_TableName(t *testing.T) {
 	}
 }
 
-func TestLink_TableName(t *testing.T) {
-	l := entity.Link{}
-	if l.TableName() != "links" {
-		t.Errorf("TableName() = %v, want links", l.TableName())
-	}
-}
-
 func TestDailyQuestion_TableName(t *testing.T) {
 	dq := entity.DailyQuestion{}
 	if dq.TableName() != "daily_questions" {

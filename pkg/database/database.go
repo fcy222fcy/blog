@@ -49,7 +49,6 @@ func (d *Database) AutoMigrate() error {
 		&entity.Tag{},
 		&entity.Comment{},
 		&entity.CommentLikeLog{},
-		&entity.Link{},
 		&entity.DailyQuestion{},
 		&entity.Media{},
 		&entity.AboutPage{},

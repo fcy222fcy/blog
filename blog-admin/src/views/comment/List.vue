@@ -2,7 +2,7 @@
   <div>
     <!-- 统计卡片（加载态 + 真实态） -->
     <SkeletonLoader v-if="loading" type="stats" :count="4" />
-    <div v-else class="stats-grid">
+    <div v-else class="comment-stats-grid">
       <div class="stat-card">
         <div class="stat-label">全部评论</div>
         <div class="stat-value">{{ comments.length }}</div>
@@ -21,8 +21,8 @@
       </div>
     </div>
 
-    <div class="filter-bar">
-      <CustomSelect v-model="statusFilter" :options="statusOptions" />
+    <div class="comment-filter-bar">
+      <CustomSelect class="status-select" v-model="statusFilter" :options="statusOptions" />
       <div class="search-box">
         <span class="search-box-icon">⌕</span>
         <input type="text" v-model="keyword" placeholder="搜索评论...">
@@ -50,7 +50,18 @@
         <div class="comment-card-body">
           <p class="comment-content">{{ comment.content }}</p>
           <div class="comment-meta">
-            <span>评论于 <a class="text-accent">{{ comment.article_title || '文章' }}</a></span>
+            <span>评论于
+              <a
+                v-if="comment.article && comment.article.slug"
+                class="text-accent"
+                :href="getArticleUrl(comment.article.slug)"
+                target="_blank"
+                rel="noopener noreferrer"
+                @click.stop
+              >{{ comment.article.title }}</a>
+              <span v-else-if="comment.article && comment.article.title" class="text-accent">{{ comment.article.title }}</span>
+              <span v-else class="text-accent">未知文章</span>
+            </span>
             <span>·</span>
             <span>{{ formatDate(comment.created_at) }}</span>
           </div>
@@ -91,6 +102,17 @@ const statusOptions = [
 
 const formatDate = (d) => d ? new Date(d).toLocaleDateString('zh-CN') : ''
 const statusText = (s) => ({ pending: '待审核', approved: '已通过', rejected: '已拒绝' }[s] || s)
+
+const getArticleUrl = (slug) => {
+  const hashPath = `/#/post/${slug}#comment-section`
+  if (typeof window !== 'undefined' && window.location) {
+    const host = window.location.hostname
+    if (host === 'localhost' || host === '127.0.0.1') {
+      return `${window.location.protocol}//${host}:5173${hashPath}`
+    }
+  }
+  return hashPath
+}
 
 const getAvatarStyle = (status) => {
   const colors = {
@@ -137,12 +159,68 @@ onMounted(loadComments)
 </script>
 
 <style scoped>
-.filter-bar {
+.comment-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+  width: 100%;
+}
+.comment-stats-grid .stat-card {
+  padding: 18px 20px;
+}
+.comment-stats-grid .stat-label {
+  font-size: 13px;
+  margin-bottom: 6px;
+}
+.comment-stats-grid .stat-value {
+  font-size: 24px;
+}
+@media (max-width: 900px) {
+  .comment-stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+    max-width: 100%;
+  }
+}
+@media (max-width: 520px) {
+  .comment-stats-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.comment-filter-bar {
   display: flex;
   gap: 12px;
   margin-bottom: 20px;
-  align-items: center;
-  justify-content: space-between;
+  align-items: stretch;
+  justify-content: flex-end;
+  flex-wrap: nowrap;
+}
+.comment-filter-bar .status-select {
+  flex: 0 0 auto;
+  width: 150px;
+}
+.comment-filter-bar .status-select :deep(.custom-select) {
+  min-height: 40px;
+  height: 40px;
+  padding-top: 0;
+  padding-bottom: 0;
+  border-radius: var(--card-border-radius);
+}
+.comment-filter-bar .search-box {
+  flex: 0 0 auto;
+  width: 260px;
+}
+@media (max-width: 768px) {
+  .comment-filter-bar {
+    flex-wrap: wrap;
+    justify-content: stretch;
+  }
+  .comment-filter-bar .status-select,
+  .comment-filter-bar .search-box {
+    flex: 1 1 100%;
+    width: 100%;
+  }
 }
 
 .comment-user-info { display: flex; flex-direction: column; }

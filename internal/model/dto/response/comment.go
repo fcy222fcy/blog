@@ -28,4 +28,5 @@ type CommentResponse struct {
 type ArticleBriefResponse struct {
 	ID    uint   `json:"id"`
 	Title string `json:"title"`
+	Slug  string `json:"slug"`
 }

@@ -188,27 +188,6 @@ func TestCreateTagRequest_Fields(t *testing.T) {
 	}
 }
 
-func TestCreateLinkRequest_Fields(t *testing.T) {
-	req := request.CreateLinkRequest{
-		Name:        "示例网站",
-		URL:         "https://example.com",
-		Description: "一个示例网站",
-		Avatar:      "https://example.com/avatar.jpg",
-		Logo:        "🔗",
-		SortOrder:   1,
-		Status:      "approved",
-	}
-	if req.Name != "示例网站" {
-		t.Errorf("Name = %v", req.Name)
-	}
-	if req.URL != "https://example.com" {
-		t.Errorf("URL = %v", req.URL)
-	}
-	if req.Status != "approved" {
-		t.Errorf("Status = %v, want approved", req.Status)
-	}
-}
-
 func TestCreateDailyQuestionRequest_Fields(t *testing.T) {
 	req := request.CreateDailyQuestionRequest{
 		Question: "今天学了什么？",

@@ -48,22 +48,24 @@
         </div>
       </div>
 
-      <div
-        v-for="opt in filteredOptions"
-        :key="String(opt.value)"
-        class="dropdown-item"
-        :class="{ active: isOptionActive(opt.value), disabled: opt.disabled }"
-        @click.stop="selectOption(opt)"
-      >
-        <!-- 复选框（多选或强制 showCheckbox） -->
-        <span
-          v-if="multiple || showCheckbox"
-          class="item-checkbox"
-          :class="{ checked: isOptionActive(opt.value) }"
+      <div class="dropdown-list" :class="{ 'wrap-mode': multiple }">
+        <div
+          v-for="opt in filteredOptions"
+          :key="String(opt.value)"
+          class="dropdown-item"
+          :class="{ active: isOptionActive(opt.value), disabled: opt.disabled }"
+          @click.stop="selectOption(opt)"
         >
-          <svg v-if="isOptionActive(opt.value)" xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
-        </span>
-        <span class="item-label">{{ opt.label }}</span>
+          <!-- 复选框（多选或强制 showCheckbox） -->
+          <span
+            v-if="multiple || showCheckbox"
+            class="item-checkbox"
+            :class="{ checked: isOptionActive(opt.value) }"
+          >
+            <svg v-if="isOptionActive(opt.value)" xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+          </span>
+          <span class="item-label">{{ opt.label }}</span>
+        </div>
       </div>
       <div v-if="filteredOptions.length === 0" class="dropdown-empty">无匹配项</div>
     </div>
@@ -340,6 +342,17 @@ defineExpose({ close })
 }
 .da-btn:hover { background: rgba(var(--accent-color-rgb), 0.16); }
 
+.dropdown-list {
+  display: flex;
+  flex-direction: column;
+}
+.dropdown-list.wrap-mode {
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 8px 10px;
+}
+
 .dropdown-item {
   display: flex;
   align-items: center;
@@ -352,11 +365,28 @@ defineExpose({ close })
   border-radius: 2px;
   margin: 0 4px;
 }
+.dropdown-list.wrap-mode .dropdown-item {
+  margin: 0;
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: 1px solid var(--card-separator-color);
+  background: var(--card-background);
+  font-size: 13px;
+  flex: 0 0 auto;
+}
 .dropdown-item:hover { background: var(--body-background); }
+.dropdown-list.wrap-mode .dropdown-item:hover {
+  border-color: rgba(var(--accent-color-rgb), 0.45);
+  background: rgba(var(--accent-color-rgb), 0.04);
+}
 .dropdown-item.active {
   background: rgba(var(--accent-color-rgb), 0.1);
   color: var(--accent-color);
   font-weight: 600;
+}
+.dropdown-list.wrap-mode .dropdown-item.active {
+  border-color: var(--accent-color);
+  background: rgba(var(--accent-color-rgb), 0.1);
 }
 .dropdown-item.disabled {
   opacity: 0.45;

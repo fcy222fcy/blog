@@ -11,16 +11,7 @@ const routes = [
     name: 'Archives',
     component: () => import('../views/Archives.vue')
   },
-  {
-    path: '/links',
-    name: 'Links',
-    component: () => import('../views/Links.vue')
-  },
-  {
-    path: '/media',
-    name: 'Media',
-    component: () => import('../views/Media.vue')
-  },
+
   {
     path: '/about',
     name: 'About',

@@ -8,8 +8,6 @@ import (
 	"blog/internal/api/v1/category"
 	"blog/internal/api/v1/comment"
 	"blog/internal/api/v1/daily_question"
-	"blog/internal/api/v1/entertainment"
-	"blog/internal/api/v1/link"
 	"blog/internal/api/v1/media"
 	"blog/internal/api/v1/rss"
 	"blog/internal/api/v1/sitemap"
@@ -41,10 +39,8 @@ type Router struct {
 	categoryController     *category.Controller
 	tagController          *tag.Controller
 	commentController      *comment.Controller
-	linkController         *link.Controller
 	dailyQuestionController *daily_question.Controller
 	aboutPageController    *about_page.Controller
-	entertainmentController *entertainment.Controller
 	mediaController        *media.Controller
 	auditLogController     *audit_log.Controller
 	rssHandler             *rss.Handler
@@ -52,7 +48,6 @@ type Router struct {
 
 	// 仓库（用于仪表盘统计）
 	articleRepo  repository.ArticleRepository
-	linkRepo     repository.LinkRepository
 	commentRepo  repository.CommentRepository
 	visitRepo    repository.VisitRepository
 
@@ -68,13 +63,10 @@ func NewRouter(
 	categorySvc service.CategoryService,
 	tagSvc service.TagService,
 	commentSvc service.CommentService,
-	linkSvc service.LinkService,
 	dailyQuestionSvc service.DailyQuestionService,
-	entertainmentSvc service.EntertainmentService,
 	aboutPageSvc service.AboutPageService,
 	auditLogSvc service.AuditLogService,
 	articleRepo repository.ArticleRepository,
-	linkRepo repository.LinkRepository,
 	commentRepo repository.CommentRepository,
 	visitRepo repository.VisitRepository,
 	config *config.Config,
@@ -95,16 +87,13 @@ func NewRouter(
 		categoryController:     category.NewController(categorySvc),
 		tagController:          tag.NewController(tagSvc),
 		commentController:      comment.NewController(commentSvc),
-		linkController:         link.NewController(linkSvc),
 		dailyQuestionController: daily_question.NewController(dailyQuestionSvc),
 		aboutPageController:    about_page.NewController(aboutPageSvc),
-		entertainmentController: entertainment.NewController(entertainmentSvc),
 		mediaController:        media.NewController(),
 		auditLogController:     audit_log.NewController(auditLogSvc),
 		rssHandler:             rss.NewHandler(articleRepo),
 		sitemapHandler:         sitemap.NewHandler(articleRepo),
 		articleRepo:            articleRepo,
-		linkRepo:               linkRepo,
 		commentRepo:            commentRepo,
 		visitRepo:              visitRepo,
 		auditLogSvc:            auditLogSvc,
@@ -137,9 +126,7 @@ func (r *Router) Setup() *gin.Engine {
 	category.RegisterRoutes(apiV1, r.categoryController)
 	tag.RegisterRoutes(apiV1, r.tagController)
 	comment.RegisterRoutes(apiV1, r.commentController)
-	link.RegisterRoutes(apiV1, r.linkController)
 	daily_question.RegisterRoutes(apiV1, r.dailyQuestionController)
-	entertainment.RegisterRoutes(apiV1, r.entertainmentController)
 	user.RegisterRoutes(apiV1, r.userController)
 	media.RegisterRoutes(apiV1, r.mediaController)
 	audit_log.RegisterRoutes(apiV1, r.auditLogController)
@@ -217,12 +204,6 @@ func (r *Router) getDashboardStats(c *gin.Context) {
 		}
 	}
 
-	// 统计友链数量
-	linkCount, err := r.linkRepo.Count("approved")
-	if err != nil {
-		logger.Warn("统计友链数量失败", zap.Error(err))
-	}
-
 	// 统计评论数量
 	commentCount, err := r.commentRepo.Count("")
 	if err != nil {
@@ -244,7 +225,6 @@ func (r *Router) getDashboardStats(c *gin.Context) {
 			"draft_count":        articleCount - publishedCount,
 			"total_views":        totalViews,
 			"today_views":        todayViews,
-			"link_count":         linkCount,
 			"comment_count":      commentCount,
 			"pending_count":      pendingCommentCount,
 		},

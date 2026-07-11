@@ -61,6 +61,14 @@ func (s *commentService) convertToCommentResponse(comment *entity.Comment) respo
 		IsAdmin:   s.isBlogger(comment.UserID),
 	}
 
+	if comment.Article.ID > 0 {
+		resp.Article = response.ArticleBriefResponse{
+			ID:    comment.Article.ID,
+			Title: comment.Article.Title,
+			Slug:  comment.Article.Slug,
+		}
+	}
+
 	if resp.Avatar == "" && resp.Email != "" {
 		resp.Avatar = gravatar.GetAvatarURLByEmail(resp.Email, 80)
 	}
@@ -219,21 +227,30 @@ func (s *commentService) CreateComment(req *request.CreateCommentRequest, userID
 	}
 
 	if userID > 0 {
-		// 博主账号：直接用配置中的信息（不查用户表）
+		// 博主账号：强制覆盖前端传值，昵称/头像/邮箱统一从 user 表读取（与主页 /api/v1/user/info 同源），
+		// 用户表无记录时再回退配置文件，防止冒充
 		if s.config != nil && userID == s.config.Blogger.UserID {
 			b := s.config.Blogger
+			nickname := b.Nickname
+			email := b.Email
+			avatar := b.Avatar
+			if u, dbErr := s.userRepo.FindByID(userID); dbErr == nil && u != nil {
+				if u.Nickname != "" {
+					nickname = u.Nickname
+				}
+				if u.Email != "" {
+					email = u.Email
+				}
+				if u.Avatar != "" {
+					avatar = u.Avatar
+				}
+			}
 			comment.UserID = &userID
-			if comment.Nickname == "" {
-				comment.Nickname = b.Nickname
-			}
-			if comment.Email == "" {
-				comment.Email = b.Email
-			}
-			if comment.Avatar == "" {
-				comment.Avatar = b.Avatar
-			}
+			comment.Nickname = nickname
+			comment.Email = email
+			comment.Avatar = avatar
 		} else {
-			// 其他登录用户：查用户表
+			// 其他登录用户：查用户表，空值才填充
 			user, err := s.userRepo.FindByID(userID)
 			if err == nil && user != nil {
 				comment.UserID = &userID
@@ -332,7 +349,12 @@ func (s *commentService) GetAdminCommentList(req *request.CommentListRequest) (*
 		return nil, fmt.Errorf("获取后台评论列表失败, %w", err)
 	}
 
-	return response.NewPageResponse(list, total, req.Page, req.PageSize), nil
+	respList := make([]response.CommentResponse, 0, len(list))
+	for _, c := range list {
+		respList = append(respList, s.convertToCommentResponse(c))
+	}
+
+	return response.NewPageResponse(respList, total, req.Page, req.PageSize), nil
 }
 
 // UpdateCommentStatus 更新评论状态

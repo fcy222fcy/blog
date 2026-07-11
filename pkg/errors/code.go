@@ -40,12 +40,10 @@ const (
 	CodeCategoryNotFound      = 3002
 	CodeTagNotFound           = 3003
 	CodeCommentNotFound       = 3004
-	CodeLinkNotFound          = 3005
 	CodeDailyQuestionNotFound = 3006
 	CodeMediaNotFound         = 3007
 	CodePageNotFound          = 3008
-	CodeRecordNotFound       = 3009
-	CodeEntertainmentNotFound = 3010
+	CodeRecordNotFound        = 3009
 
 	// 业务错误 (4000+)
 	CodeCategoryNameExists    = 4001
@@ -76,17 +74,15 @@ var CodeMessages = map[int]string{
 	CodeInvalidPhone:         "手机号格式错误",
 	CodePasswordTooShort:     "密码长度不足",
 	CodeUsernameTooShort:     "用户名长度不足",
-	CodeArticleNotFound:      "文章不存在",
-	CodeCategoryNotFound:     "分类不存在",
-	CodeTagNotFound:          "标签不存在",
-	CodeCommentNotFound:      "评论不存在",
-	CodeLinkNotFound:         "友链不存在",
+	CodeArticleNotFound:       "文章不存在",
+	CodeCategoryNotFound:      "分类不存在",
+	CodeTagNotFound:           "标签不存在",
+	CodeCommentNotFound:       "评论不存在",
 	CodeDailyQuestionNotFound: "每日一问不存在",
-	CodeMediaNotFound:        "媒体文件不存在",
-	CodePageNotFound:         "页面不存在",
-	CodeRecordNotFound:       "记录不存在",
-	CodeEntertainmentNotFound: "娱乐条目不存在",
-	CodeCommentAlreadyLiked:  "您已经点赞过了",
+	CodeMediaNotFound:         "媒体文件不存在",
+	CodePageNotFound:          "页面不存在",
+	CodeRecordNotFound:        "记录不存在",
+	CodeCommentAlreadyLiked:   "您已经点赞过了",
 }
 
 // GetMessage 获取错误码对应的消息

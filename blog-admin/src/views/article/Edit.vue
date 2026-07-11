@@ -101,7 +101,7 @@
           <!-- 封面图 -->
           <div class="publish-field">
             <label class="publish-label">封面图</label>
-            <ImageUpload v-model="form.cover" />
+            <ImageUpload v-model="form.cover" :category="MEDIA_CATEGORIES.ARTICLE" />
           </div>
 
           <!-- URL Slug -->
@@ -192,7 +192,7 @@ import 'md-editor-v3/lib/style.css'
 import { getArticleDetail, createArticle, updateArticle } from '../../api/article'
 import { getCategoryList } from '../../api/category'
 import { getTagList } from '../../api/tag'
-import { uploadFile } from '../../api/media'
+import { uploadFile, MEDIA_CATEGORIES } from '../../api/media'
 import ImageUpload from '../../components/common/ImageUpload.vue'
 import CustomSelect from '../../components/common/CustomSelect.vue'
 
@@ -241,8 +241,7 @@ const form = ref({
 // 表单验证规则
 const rules = {
   title: [
-    { required: true, message: '请输入文章标题', trigger: 'blur' },
-    { min: 2, max: 100, message: '标题长度在 2 到 100 个字符', trigger: 'blur' }
+    { required: true, message: '请输入文章标题', trigger: 'blur' }
   ],
   category_id: [
     { required: true, message: '请选择文章分类', trigger: 'change' }
@@ -295,7 +294,7 @@ const uploadImages = async (files) => {
   const urls = []
   for (const file of files) {
     try {
-      const uploadRes = await uploadFile(file)
+      const uploadRes = await uploadFile(file, MEDIA_CATEGORIES.ARTICLE)
       if (uploadRes.code === 0) {
         urls.push(uploadRes.data.url)
       } else {
@@ -519,7 +518,7 @@ const autoSaveDraft = async () => {
 
   // 编辑模式：保存到服务端
   if (form.value.title === lastAutoSavedTitle && form.value.content === lastAutoSavedContent) return
-  if (!form.value.title || form.value.title.trim().length < 2) return
+  if (!form.value.title || !form.value.title.trim()) return
 
   autoSaveStatus.value = 'saving'
   try {
@@ -562,14 +561,8 @@ const handleSaveDraft = async () => {
 
 const handlePublish = async () => {
   // 验证标题
-  if (!form.value.title || form.value.title.trim().length < 2) {
-    ElMessage.warning('请先输入文章标题（至少2个字符）')
-    return
-  }
-
-  // 验证内容长度
-  if (!form.value.content || form.value.content.trim().length < 10) {
-    ElMessage.warning('文章内容至少需要 10 个字符')
+  if (!form.value.title || !form.value.title.trim()) {
+    ElMessage.warning('请先输入文章标题')
     return
   }
 
@@ -592,8 +585,8 @@ const confirmPublish = async () => {
 
 const handleSave = async (isDraft = false) => {
   // 草稿保存只验证标题
-  if (!form.value.title || form.value.title.trim().length < 2) {
-    ElMessage.warning('请输入文章标题（至少2个字符）')
+  if (!form.value.title || !form.value.title.trim()) {
+    ElMessage.warning('请输入文章标题')
     return
   }
 
@@ -829,6 +822,8 @@ onMounted(() => {
 .md-editor :deep(.md-editor-textarea-wrapper) {
   /* 编辑输入区左右留白 - 参考CSDN */
   padding: 16px 24px !important;
+  border-right: 1px solid var(--card-separator-color);
+  box-sizing: border-box;
 }
 
 /* 底部操作栏 */

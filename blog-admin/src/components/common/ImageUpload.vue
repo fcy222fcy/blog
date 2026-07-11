@@ -47,12 +47,17 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { ElMessage } from 'element-plus'
-import { uploadFile } from '../../api/media'
+import { uploadFile, MEDIA_CATEGORIES } from '../../api/media'
 
 const props = defineProps({
   modelValue: {
     type: String,
     default: ''
+  },
+  category: {
+    type: String,
+    default: MEDIA_CATEGORIES.COMMON,
+    validator: (v) => Object.values(MEDIA_CATEGORIES).includes(v)
   }
 })
 
@@ -102,7 +107,7 @@ const uploadImage = async (file) => {
 
   uploading.value = true
   try {
-    const res = await uploadFile(file)
+    const res = await uploadFile(file, props.category)
     if (res.code === 0) {
       imageUrl.value = res.data.url
       ElMessage.success('上传成功')

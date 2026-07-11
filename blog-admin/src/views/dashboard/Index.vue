@@ -16,8 +16,8 @@
         <div class="stat-value">{{ stats.total_views || 0 }}</div>
       </div>
       <div class="stat-card">
-        <div class="stat-label">友情链接</div>
-        <div class="stat-value">{{ stats.link_count || 0 }}</div>
+        <div class="stat-label">评论总数</div>
+        <div class="stat-value">{{ stats.comment_count || 0 }}</div>
       </div>
     </div>
 
@@ -32,25 +32,6 @@
         <div class="dashboard-card-arrow">→</div>
       </div>
 
-      <div class="dashboard-card" @click="$router.push('/links')">
-        <div class="dashboard-card-icon">🔗</div>
-        <div class="dashboard-card-info">
-          <div class="dashboard-card-title">友链管理</div>
-          <div class="dashboard-card-desc">管理友情链接，添加、编辑、删除</div>
-          <div class="dashboard-card-meta">共 {{ stats.link_count || 0 }} 个友链</div>
-        </div>
-        <div class="dashboard-card-arrow">→</div>
-      </div>
-
-      <div class="dashboard-card" @click="$router.push('/media')">
-        <div class="dashboard-card-icon">🖼️</div>
-        <div class="dashboard-card-info">
-          <div class="dashboard-card-title">媒体库</div>
-          <div class="dashboard-card-desc">上传和管理图片、文件等媒体资源</div>
-          <div class="dashboard-card-meta">图片、文档、视频</div>
-        </div>
-        <div class="dashboard-card-arrow">→</div>
-      </div>
 
       <div class="dashboard-card" @click="$router.push('/categories')">
         <div class="dashboard-card-icon">📂</div>

@@ -71,13 +71,32 @@ func (s *authService) Login(req *request.LoginRequest) (*response.LoginResponse,
 		return nil, bizerrors.New(bizerrors.CodeInvalidParams, "输入包含非法字符")
 	}
 
-	// 1. 优先匹配博主硬编码账号（不查用户表）
+	// 1. 优先匹配博主硬编码账号（密码校验走配置）
 	if s.isBloggerLogin(req.Username, req.Password) {
 		b := s.config.Blogger
 		token, expiresAt, err := s.jwt.GenerateToken(b.UserID, b.Username)
 		if err != nil {
 			logger.Error("生成博主Token失败", zap.Error(err))
 			return nil, fmt.Errorf("生成Token失败, %w", err)
+		}
+		// 展示信息（昵称/头像/邮箱）统一从 user 表读取，与主页 /api/v1/user/info 同源，
+		// 配置文件仅保留 Blogger.UserID/Username/Password 用于身份判断，不再做展示兜底
+		nickname := ""
+		avatar := ""
+		email := ""
+		if u, dbErr := s.userRepo.FindByID(b.UserID); dbErr == nil && u != nil {
+			nickname = u.Nickname
+			avatar = u.Avatar
+			email = u.Email
+		}
+		if nickname == "" {
+			nickname = b.Nickname
+		}
+		if avatar == "" {
+			avatar = b.Avatar
+		}
+		if email == "" {
+			email = b.Email
 		}
 		logger.Infof("博主登录成功, username: %s", req.Username)
 		return &response.LoginResponse{
@@ -86,9 +105,9 @@ func (s *authService) Login(req *request.LoginRequest) (*response.LoginResponse,
 			User: response.UserInfo{
 				ID:       b.UserID,
 				Username: b.Username,
-				Nickname: b.Nickname,
-				Avatar:   b.Avatar,
-				Email:    b.Email,
+				Nickname: nickname,
+				Avatar:   avatar,
+				Email:    email,
 			},
 		}, nil
 	}
@@ -134,16 +153,34 @@ func (s *authService) Login(req *request.LoginRequest) (*response.LoginResponse,
 func (s *authService) GetProfile(userID uint) (*response.UserProfileResponse, error) {
 	logger.Infof("获取用户信息, userID: %d", userID)
 
-	// 博主虚拟账号直接从配置返回
+	// 博主账号：与主页 /api/v1/user/info 保持同源，从 user 表读取展示信息
 	if s.isBlogger(userID) {
 		b := s.config.Blogger
+		nickname := b.Nickname
+		avatar := b.Avatar
+		email := b.Email
+		bio := ""
+		if u, dbErr := s.userRepo.FindByID(userID); dbErr == nil && u != nil {
+			if u.Nickname != "" {
+				nickname = u.Nickname
+			}
+			if u.Avatar != "" {
+				avatar = u.Avatar
+			}
+			if u.Email != "" {
+				email = u.Email
+			}
+			if u.Bio != "" {
+				bio = u.Bio
+			}
+		}
 		return &response.UserProfileResponse{
 			ID:       b.UserID,
 			Username: b.Username,
-			Nickname: b.Nickname,
-			Email:    b.Email,
-			Avatar:   b.Avatar,
-			Bio:      "",
+			Nickname: nickname,
+			Email:    email,
+			Avatar:   avatar,
+			Bio:      bio,
 		}, nil
 	}
 

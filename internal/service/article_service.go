@@ -433,8 +433,8 @@ var (
 
 func compileRegexps() {
 	regexpOnce.Do(func() {
-		reFenced = mustOrEmpty(`(?s)` + "```" + `.*?` + "```")
-		reInlineCode = mustOrEmpty("`[^`]*`")
+		reFenced = mustOrEmpty("(?s)```" + `[^\n]*\n?(.*?)` + "```")
+		reInlineCode = mustOrEmpty("`([^`]*)`")
 		reHTMLComment = mustOrEmpty(`(?s)<!--.*?-->`)
 		reHTMLTag = mustOrEmpty(`<[^>]+>`)
 		reImage = mustOrEmpty(`!\[([^\]]*)\]\([^)]*\)`)
@@ -469,8 +469,8 @@ func stripMarkdown(src string) string {
 		return ""
 	}
 	s := src
-	s = reFenced.ReplaceAllString(s, "")
-	s = reInlineCode.ReplaceAllString(s, "")
+	s = reFenced.ReplaceAllString(s, " $1 ")
+	s = reInlineCode.ReplaceAllString(s, " $1 ")
 	s = reHTMLComment.ReplaceAllString(s, "")
 	s = reHTMLTag.ReplaceAllString(s, "")
 	s = reImage.ReplaceAllString(s, "$1")

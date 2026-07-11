@@ -227,6 +227,7 @@ func (r *commentRepository) AdminList(offset, limit int, status string) ([]*enti
 	}
 
 	err = query.Offset(offset).Limit(limit).
+		Preload("Article").
 		Order("created_at DESC").
 		Find(&comments).Error
 	return comments, total, err

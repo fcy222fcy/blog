@@ -29,26 +29,26 @@
             <span class="search-box-icon">⌕</span>
             <input type="text" v-model="keyword" placeholder="搜索文章..." @input="loadArticles">
           </div>
-          <CustomSelect v-model="categoryFilter" :options="categoryOptions" @change="loadArticles" />
-          <button class="btn btn-primary" @click="$router.push('/articles/edit')">
+          <CustomSelect class="category-select" v-model="categoryFilter" :options="categoryOptions" @change="loadArticles" />
+          <div class="custom-select-wrapper" v-click-outside="closeStatusDropdown">
+            <div class="custom-select" @click="toggleStatusDropdown">
+              <span class="select-value">{{ selectedStatusLabel }}</span>
+              <span class="select-arrow">
+                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+              </span>
+            </div>
+            <div class="custom-dropdown" v-if="isStatusOpen">
+              <div class="dropdown-item" :class="{ active: statusFilter === '' }" @click="selectStatus('')">全部状态</div>
+              <div class="dropdown-item" :class="{ active: statusFilter === 'published' }" @click="selectStatus('published')">已发布</div>
+              <div class="dropdown-item" :class="{ active: statusFilter === 'draft' }" @click="selectStatus('draft')">草稿</div>
+              <div class="dropdown-item" :class="{ active: statusFilter === 'scheduled' }" @click="selectStatus('scheduled')">定时发布</div>
+            </div>
+          </div>
+          <button class="btn btn-primary btn-new-article" @click="$router.push('/articles/edit')">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
             <span>新建文章</span>
           </button>
         </div>
-      </div>
-
-      <!-- 状态标签页 -->
-      <div class="article-tabs">
-        <button
-          v-for="tab in statusTabs"
-          :key="tab.value"
-          class="article-tab"
-          :class="{ active: statusFilter === tab.value }"
-          @click="switchTab(tab.value)"
-        >
-          {{ tab.label }}
-          <span v-if="tab.count !== undefined" class="article-tab-count">{{ tab.count }}</span>
-        </button>
       </div>
 
       <div class="article-cards-container">
@@ -133,21 +133,30 @@ const categoryOptions = computed(() => {
   return [{ value: '', label: '全部分类' }, ...categories.value.map(c => ({ value: c.id, label: c.name }))]
 })
 
-const statusTabs = computed(() => [
-  { label: '全部', value: '', count: total.value },
-  { label: '已发布', value: 'published', count: stats.value.published },
-  { label: '草稿', value: 'draft', count: stats.value.draft },
-  { label: '定时发布', value: 'scheduled', count: stats.value.scheduled || 0 }
-])
+const isStatusOpen = ref(false)
 
-const formatDate = (d) => d ? d.split('T')[0] : ''
-const statusLabel = (s) => ({ published: '已发布', draft: '草稿', scheduled: '定时发布' }[s] || s)
+const selectedStatusLabel = computed(() => {
+  const map = { '': '全部状态', 'published': '已发布', 'draft': '草稿', 'scheduled': '定时发布' }
+  return map[statusFilter.value] || '全部状态'
+})
 
-const switchTab = (status) => {
-  statusFilter.value = status
+const toggleStatusDropdown = () => {
+  isStatusOpen.value = !isStatusOpen.value
+}
+
+const closeStatusDropdown = () => {
+  isStatusOpen.value = false
+}
+
+const selectStatus = (value) => {
+  statusFilter.value = value
+  isStatusOpen.value = false
   page.value = 1
   loadArticles()
 }
+
+const formatDate = (d) => d ? d.split('T')[0] : ''
+const statusLabel = (s) => ({ published: '已发布', draft: '草稿', scheduled: '定时发布' }[s] || s)
 
 const loadStats = async () => {
   try {
@@ -206,65 +215,147 @@ onMounted(async () => {
   await loadArticles()
   loading.value = false
 })
+
+const vClickOutside = {
+  mounted(el, binding) {
+    el._clickOutside = (event) => {
+      if (!el.contains(event.target)) {
+        binding.value()
+      }
+    }
+    document.addEventListener('click', el._clickOutside)
+  },
+  unmounted(el) {
+    document.removeEventListener('click', el._clickOutside)
+  }
+}
 </script>
 
 <style scoped>
 .filter-group {
   display: flex;
   gap: 12px;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   align-items: center;
 }
+.filter-group .search-box {
+  flex: 0 0 auto;
+  width: 260px;
+}
+.filter-group .category-select {
+  flex: 0 0 auto;
+  width: 150px;
+}
+.filter-group .category-select :deep(.custom-select) {
+  min-height: 40px;
+  height: 40px;
+  padding-top: 0;
+  padding-bottom: 0;
+  border-radius: var(--card-border-radius);
+}
+.filter-group .custom-select-wrapper {
+  position: relative;
+  display: inline-flex;
+  flex: 0 0 auto;
+  width: 130px;
+}
+.filter-group .custom-select-wrapper .custom-select {
+  width: 100%;
+}
+.filter-group .btn-new-article {
+  flex: 0 0 auto;
+  height: 40px;
+  white-space: nowrap;
+}
 
-.article-tabs {
+.custom-select-wrapper {
+  position: relative;
+  display: inline-flex;
+}
+
+.custom-select {
   display: flex;
-  gap: 0;
-  border-bottom: 1px solid var(--card-separator-color);
-  padding: 0 20px;
-}
-
-.article-tab {
-  display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 12px 20px;
-  border: none;
-  background: none;
-  color: var(--card-text-color-secondary);
-  font-size: 14px;
+  gap: 8px;
+  padding: 8px 32px 8px 12px;
+  border: 1px solid var(--card-separator-color);
+  border-radius: var(--card-border-radius);
+  font-size: 13px;
   font-weight: 500;
-  cursor: pointer;
-  border-bottom: 2px solid transparent;
-  transition: all 0.2s ease;
-  margin-bottom: -1px;
-}
-
-.article-tab:hover {
   color: var(--card-text-color-main);
+  background: var(--card-background);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  min-width: 100px;
+  height: 40px;
 }
 
-.article-tab.active {
-  color: var(--accent-color);
-  border-bottom-color: var(--accent-color);
+.custom-select:hover {
+  border-color: var(--accent-color);
 }
 
-.article-tab-count {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 20px;
-  height: 20px;
-  padding: 0 6px;
-  border-radius: 10px;
-  background: var(--input-background);
+.select-value {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.select-arrow {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
   color: var(--card-text-color-tertiary);
-  font-size: 12px;
+  display: flex;
+  align-items: center;
+}
+
+.custom-dropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  min-width: 140px;
+  background: var(--card-background);
+  border: 1px solid var(--card-separator-color);
+  border-radius: var(--card-border-radius);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  z-index: 100;
+}
+
+.dropdown-item {
+  padding: 10px 12px;
+  font-size: 13px;
+  color: var(--card-text-color-main);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.dropdown-item:hover {
+  background: rgba(var(--accent-color-rgb), 0.06);
+  color: var(--accent-color);
+}
+
+.dropdown-item.active {
+  background: rgba(var(--accent-color-rgb), 0.1);
+  color: var(--accent-color);
   font-weight: 600;
 }
 
-.article-tab.active .article-tab-count {
-  background: rgba(var(--accent-color-rgb), 0.1);
-  color: var(--accent-color);
+@media (max-width: 900px) {
+  .filter-group {
+    flex-wrap: wrap;
+    justify-content: stretch;
+  }
+  .filter-group .search-box,
+  .filter-group .category-select,
+  .filter-group .custom-select-wrapper,
+  .filter-group .btn-new-article {
+    flex: 1 1 100%;
+    width: 100%;
+  }
 }
 
 .article-cards-container {

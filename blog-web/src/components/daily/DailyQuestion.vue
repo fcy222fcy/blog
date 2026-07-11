@@ -46,13 +46,13 @@
 
       <h2 class="dq-daily-title">{{ question?.question || '暂无问题' }}</h2>
 
-      <div class="dq-daily-answer-wrapper" v-if="question">
-        <p class="dq-daily-preview" :class="{ expanded: answerVisible }">{{ question.answer }}</p>
+      <div class="dq-daily-answer-wrapper" v-if="question" :class="{ expanded: answerVisible }">
+        <p class="dq-daily-preview">{{ question.answer }}</p>
         <div v-if="!answerVisible" class="dq-daily-mask" @click.stop="answerVisible = true">
-          <span class="dq-daily-mask-text">👉 点击查看答案</span>
+          <span class="dq-daily-mask-text">点击查看答案</span>
         </div>
         <div v-if="answerVisible" class="dq-daily-hide-btn" @click.stop="answerVisible = false">
-          <span class="dq-daily-hide-text">👈 点击收起答案</span>
+          <span class="dq-daily-hide-text">点击收起答案</span>
         </div>
       </div>
 
@@ -454,8 +454,14 @@ onUnmounted(() => {
 .dq-daily-answer-wrapper {
   position: relative;
   margin-bottom: 12px;
-  height: 100px;
+  max-height: 104px;
   overflow: hidden;
+  transition: max-height 0.35s ease;
+}
+
+.dq-daily-answer-wrapper.expanded {
+  max-height: 2000px;
+  overflow: visible;
 }
 
 .dq-daily-preview {
@@ -466,28 +472,50 @@ onUnmounted(() => {
 
 .dq-daily-mask {
   position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 100%;
-  background: linear-gradient(to bottom, transparent 20%, var(--card-background) 65%);
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    transparent 0%,
+    transparent 18%,
+    color-mix(in srgb, var(--card-background) 55%, transparent) 38%,
+    var(--card-background) 62%,
+    var(--card-background) 100%
+  );
   display: flex;
   align-items: flex-end;
   justify-content: center;
-  padding-bottom: 4px;
+  padding-bottom: 10px;
   cursor: pointer;
+  z-index: 2;
+}
+
+.dq-daily-mask::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 56px;
+  background: var(--card-background);
+  z-index: 0;
 }
 
 .dq-daily-mask-text {
+  position: relative;
+  z-index: 1;
   font-size: 13px;
   color: var(--accent-color);
-  font-weight: 500;
+  font-weight: 600;
+  background: var(--card-background);
+  padding: 6px 18px;
+  border-radius: 20px;
+  border: 1px solid var(--accent-color);
+  transition: all 0.2s;
 }
 
-.dq-daily-mask-text {
-  font-size: 13px;
-  color: var(--accent-color);
-  font-weight: 500;
+.dq-daily-mask-text:hover {
+  background: var(--accent-color);
+  color: var(--accent-color-text);
 }
 
 .dq-daily-hide-btn {

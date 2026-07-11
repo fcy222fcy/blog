@@ -114,8 +114,6 @@ func mapPathToTargetType(path string, re *regexp.Regexp) string {
 		return "tag"
 	case "comments":
 		return "comment"
-	case "links":
-		return "link"
 	case "daily-questions":
 		return "daily_question"
 	case "about":

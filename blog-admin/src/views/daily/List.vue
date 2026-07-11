@@ -128,7 +128,7 @@ import { ElMessage, ElMessageBox } from 'element-plus'
 import { MdEditor } from 'md-editor-v3'
 import 'md-editor-v3/lib/style.css'
 import { getDailyQuestionList, createDailyQuestion, updateDailyQuestion, deleteDailyQuestion, updateDailyQuestionStatus } from '../../api/daily'
-import { uploadFile } from '../../api/media'
+import { uploadFile, MEDIA_CATEGORIES } from '../../api/media'
 
 const questions = ref([])
 const keyword = ref('')
@@ -186,7 +186,7 @@ const onUploadImg = async (files, callback) => {
   const res = []
   for (const file of files) {
     try {
-      const uploadRes = await uploadFile(file)
+      const uploadRes = await uploadFile(file, MEDIA_CATEGORIES.DAILY)
       if (uploadRes.code === 0) {
         res.push(uploadRes.data.url)
       } else {
