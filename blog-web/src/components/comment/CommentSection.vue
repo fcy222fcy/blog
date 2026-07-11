@@ -65,16 +65,21 @@
           </div>
           <div class="form-actions">
             <span class="char-count">{{ form.content.length }} 字</span>
-            <button v-if="isLoggedIn" type="button" class="logout-btn" @click="handleLogout">
-              <span class="user-info" v-if="currentUser">
-                <span class="user-avatar" v-if="currentUser.avatar">
-                  <img :src="currentUser.avatar" />
+            <template v-if="isLoggedIn">
+              <button type="button" class="profile-btn" @click="openProfileModal" title="个人设置">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+              </button>
+              <button type="button" class="logout-btn" @click="handleLogout">
+                <span class="user-info" v-if="currentUser">
+                  <span class="user-avatar" v-if="currentUser.avatar">
+                    <img :src="currentUser.avatar" />
+                  </span>
+                  <span class="user-name">{{ currentUser.nickname || currentUser.username }}</span>
                 </span>
-                <span class="user-name">{{ currentUser.nickname || currentUser.username }}</span>
-              </span>
-              退出
-            </button>
-            <button v-else type="button" class="login-btn" @click="showLoginModal = true">登录</button>
+                退出
+              </button>
+            </template>
+            <button v-else type="button" class="login-btn" @click="authTab='login'; showLoginModal = true">登录 / 注册</button>
             <button type="submit" class="submit-btn" :disabled="submitting || !form.content.trim()">
               提交
             </button>
@@ -83,29 +88,121 @@
       </form>
     </div>
 
-    <!-- 登录弹窗 -->
+    <!-- 登录/注册弹窗 -->
     <div v-if="showLoginModal" class="modal-overlay" @click.self="showLoginModal = false">
-      <div class="login-modal">
+      <div class="login-modal auth-modal">
         <div class="modal-header">
-          <h3>博主登录</h3>
+          <div class="auth-tabs">
+            <button :class="['auth-tab', { active: authTab === 'login' }]" @click="authTab='login'; loginError=''; registerError=''; registerSuccess=''">登录</button>
+            <button :class="['auth-tab', { active: authTab === 'register' }]" @click="authTab='register'; loginError=''; registerError=''; registerSuccess=''">注册</button>
+          </div>
           <button type="button" class="close-btn" @click="showLoginModal = false">×</button>
         </div>
         <div class="modal-body">
-          <p class="login-tip">仅博主本人登录后发布的评论会显示「博主」标识，防止他人冒充。</p>
-          <div class="login-field">
-            <label>用户名</label>
-            <input v-model="loginForm.username" type="text" placeholder="请输入用户名" @keyup.enter="handleLogin" />
+          <!-- 登录 Tab -->
+          <div v-show="authTab === 'login'">
+            <p class="login-tip">普通用户也可登录发表评论；博主登录会显示「博主」标识，防止他人冒充。</p>
+            <div class="login-field">
+              <label>邮箱</label>
+              <input v-model="loginForm.email" type="email" placeholder="请输入邮箱（推荐）" @keyup.enter="handleLogin" />
+            </div>
+            <div class="login-or-divider"><span>或</span></div>
+            <div class="login-field">
+              <label>用户名</label>
+              <input v-model="loginForm.username" type="text" placeholder="请输入用户名（可选）" @keyup.enter="handleLogin" />
+            </div>
+            <div class="login-field">
+              <label>密码</label>
+              <input v-model="loginForm.password" type="password" placeholder="请输入密码" @keyup.enter="handleLogin" />
+            </div>
+            <div v-if="loginError" class="login-error">{{ loginError }}</div>
+            <div class="modal-footer no-border">
+              <button type="button" class="cancel-btn" @click="showLoginModal = false">取消</button>
+              <button type="button" class="submit-btn" @click="handleLogin" :disabled="loginLoading">
+                {{ loginLoading ? '登录中...' : '登录' }}
+              </button>
+            </div>
+          </div>
+          <!-- 注册 Tab -->
+          <div v-show="authTab === 'register'">
+            <p class="login-tip">使用邮箱+密码注册账号，登录后可自定义昵称和头像。</p>
+            <div class="login-field">
+              <label>邮箱</label>
+              <input v-model="registerForm.email" type="email" placeholder="请输入邮箱" @keyup.enter="handleRegister" />
+            </div>
+            <div class="login-field">
+              <label>昵称</label>
+              <input v-model="registerForm.nickname" type="text" placeholder="请输入昵称" @keyup.enter="handleRegister" />
+            </div>
+            <div class="login-field">
+              <label>密码</label>
+              <input v-model="registerForm.password" type="password" placeholder="至少 6 位" @keyup.enter="handleRegister" />
+            </div>
+            <div class="login-field">
+              <label>确认密码</label>
+              <input v-model="registerForm.confirmPassword" type="password" placeholder="再次输入密码" @keyup.enter="handleRegister" />
+            </div>
+            <div v-if="registerError" class="login-error">{{ registerError }}</div>
+            <div v-if="registerSuccess" class="register-success">{{ registerSuccess }}</div>
+            <div class="modal-footer no-border">
+              <button type="button" class="cancel-btn" @click="showLoginModal = false">取消</button>
+              <button type="button" class="submit-btn" @click="handleRegister" :disabled="registerLoading">
+                {{ registerLoading ? '注册中...' : '注册' }}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 个人设置弹窗 -->
+    <div v-if="showProfileModal" class="modal-overlay" @click.self="showProfileModal = false">
+      <div class="login-modal profile-modal">
+        <div class="modal-header">
+          <h3>个人设置</h3>
+          <button type="button" class="close-btn" @click="showProfileModal = false">×</button>
+        </div>
+        <div class="modal-body">
+          <div v-if="currentUser" class="profile-info-row">
+            <span class="profile-label">邮箱：</span>
+            <span class="profile-value">{{ currentUser.email }}</span>
+          </div>
+          <div v-if="currentUser && currentUser.username" class="profile-info-row">
+            <span class="profile-label">账号：</span>
+            <span class="profile-value">{{ currentUser.username }}</span>
           </div>
           <div class="login-field">
-            <label>密码</label>
-            <input v-model="loginForm.password" type="password" placeholder="请输入密码" @keyup.enter="handleLogin" />
+            <label>昵称</label>
+            <input v-model="profileForm.nickname" type="text" placeholder="请输入昵称" maxlength="50" />
           </div>
-          <div v-if="loginError" class="login-error">{{ loginError }}</div>
+          <div class="login-field">
+            <label>头像 URL</label>
+            <input v-model="profileForm.avatar" type="text" placeholder="填写图片链接（可选）" />
+          </div>
+          <div v-if="profileForm.avatar" class="avatar-preview-row">
+            <span class="avatar-preview-label">预览：</span>
+            <img class="avatar-preview" :src="profileForm.avatar" @error="profileForm.avatar=''" />
+          </div>
+          <div class="login-field">
+            <label>快速选择头像</label>
+            <div class="avatar-grid">
+              <div
+                v-for="(av, idx) in defaultAvatars"
+                :key="idx"
+                :class="['avatar-grid-item', { selected: profileForm.avatar === av }]"
+                @click="profileForm.avatar = av"
+              >
+                <img :src="av" />
+              </div>
+            </div>
+          </div>
+          <div v-if="profileError" class="login-error">{{ profileError }}</div>
+          <div v-if="profileSuccess" class="register-success">{{ profileSuccess }}</div>
         </div>
         <div class="modal-footer">
-          <button type="button" class="cancel-btn" @click="showLoginModal = false">取消</button>
-          <button type="button" class="submit-btn" @click="handleLogin" :disabled="loginLoading">
-            {{ loginLoading ? '登录中...' : '登录' }}
+          <button type="button" class="cancel-btn" @click="showProfileModal = false">取消</button>
+          <button type="button" class="submit-btn" @click="handleUpdateProfile" :disabled="profileLoading">
+            {{ profileLoading ? '保存中...' : '保存' }}
           </button>
         </div>
       </div>
@@ -260,7 +357,8 @@
 import { ref, computed, onMounted, onUnmounted, watch, nextTick } from 'vue'
 import { useRoute } from 'vue-router'
 import { getCommentsByArticle, createComment, likeComment } from '../../api/comment'
-import { login } from '../../api/auth'
+import { login, register } from '../../api/auth'
+import { getUserProfile, updateUserProfile } from '../../api/user'
 import EmojiPicker from 'vue3-emoji-picker'
 import 'vue3-emoji-picker/css'
 import { getAvatarUrl } from '../../utils/avatar'
@@ -286,10 +384,44 @@ const showEmojiPanel = ref(false)
 const showLoginModal = ref(false)
 const loginLoading = ref(false)
 const loginError = ref('')
+const registerLoading = ref(false)
+const registerError = ref('')
+const registerSuccess = ref('')
+const authTab = ref('login') // 'login' | 'register'
+
+// 个人设置弹窗相关
+const showProfileModal = ref(false)
+const profileLoading = ref(false)
+const profileError = ref('')
+const profileSuccess = ref('')
+const profileForm = ref({
+  nickname: '',
+  avatar: ''
+})
+
+// 默认头像选项（供用户快速选择）
+const defaultAvatars = [
+  'https://api.dicebear.com/7.x/avataaars/svg?seed=Felix',
+  'https://api.dicebear.com/7.x/avataaars/svg?seed=Aneka',
+  'https://api.dicebear.com/7.x/avataaars/svg?seed=Luna',
+  'https://api.dicebear.com/7.x/avataaars/svg?seed=Max',
+  'https://api.dicebear.com/7.x/avataaars/svg?seed=Zoe',
+  'https://api.dicebear.com/7.x/avataaars/svg?seed=Jack',
+  'https://api.dicebear.com/7.x/avataaars/svg?seed=Mia',
+  'https://api.dicebear.com/7.x/avataaars/svg?seed=Leo'
+]
 
 const loginForm = ref({
+  email: '',
   username: '',
   password: ''
+})
+
+const registerForm = ref({
+  email: '',
+  nickname: '',
+  password: '',
+  confirmPassword: ''
 })
 
 const form = ref({
@@ -297,6 +429,22 @@ const form = ref({
   email: localStorage.getItem('comment_email') || '',
   content: ''
 })
+
+// 刷新用户信息（从后端拉取最新资料，保证与数据库一致）
+const refreshCurrentUser = async () => {
+  try {
+    const res = await getUserProfile()
+    const u = res.data
+    if (u) {
+      currentUser.value = u
+      localStorage.setItem('comment_user', JSON.stringify(u))
+      form.value.nickname = u.nickname || u.username || form.value.nickname
+      form.value.email = u.email || form.value.email
+    }
+  } catch (e) {
+    // 静默失败：token失效等情况下交由全局处理
+  }
+}
 
 const checkLoginStatus = () => {
   const token = localStorage.getItem('token')
@@ -309,6 +457,8 @@ const checkLoginStatus = () => {
         form.value.nickname = currentUser.value.nickname || currentUser.value.username || form.value.nickname
         form.value.email = currentUser.value.email || form.value.email
       }
+      // 后台静默刷新用户资料
+      refreshCurrentUser()
     } catch (e) {
       isLoggedIn.value = false
       currentUser.value = null
@@ -317,14 +467,23 @@ const checkLoginStatus = () => {
 }
 
 const handleLogin = async () => {
-  if (!loginForm.value.username || !loginForm.value.password) {
-    loginError.value = '请输入用户名和密码'
+  const hasEmail = loginForm.value.email && loginForm.value.email.trim()
+  const hasUsername = loginForm.value.username && loginForm.value.username.trim()
+  if (!hasEmail && !hasUsername) {
+    loginError.value = '请输入邮箱或用户名'
+    return
+  }
+  if (!loginForm.value.password) {
+    loginError.value = '请输入密码'
     return
   }
   loginLoading.value = true
   loginError.value = ''
   try {
-    const res = await login(loginForm.value)
+    const payload = { password: loginForm.value.password }
+    if (hasEmail) payload.email = loginForm.value.email.trim()
+    if (hasUsername) payload.username = loginForm.value.username.trim()
+    const res = await login(payload)
     const { token, user } = res.data || {}
     if (token && user) {
       localStorage.setItem('token', token)
@@ -334,13 +493,114 @@ const handleLogin = async () => {
       form.value.nickname = user.nickname || user.username || form.value.nickname
       form.value.email = user.email || form.value.email
       showLoginModal.value = false
-      loginForm.value = { username: '', password: '' }
+      loginForm.value = { email: '', username: '', password: '' }
     }
   } catch (err) {
-    const msg = err.response?.data?.message || err.response?.data?.msg || '登录失败，请检查用户名和密码'
+    const msg = err.response?.data?.message || err.response?.data?.msg || '登录失败，请检查邮箱和密码'
     loginError.value = msg
   } finally {
     loginLoading.value = false
+  }
+}
+
+const handleRegister = async () => {
+  if (!registerForm.value.email || !registerForm.value.email.trim()) {
+    registerError.value = '请输入邮箱'
+    return
+  }
+  if (!registerForm.value.nickname || !registerForm.value.nickname.trim()) {
+    registerError.value = '请输入昵称'
+    return
+  }
+  if (!registerForm.value.password || registerForm.value.password.length < 6) {
+    registerError.value = '密码至少 6 位'
+    return
+  }
+  if (registerForm.value.password !== registerForm.value.confirmPassword) {
+    registerError.value = '两次密码输入不一致'
+    return
+  }
+  registerLoading.value = true
+  registerError.value = ''
+  registerSuccess.value = ''
+  try {
+    await register({
+      email: registerForm.value.email.trim(),
+      nickname: registerForm.value.nickname.trim(),
+      password: registerForm.value.password
+    })
+    registerSuccess.value = '注册成功！正在自动登录…'
+    // 注册成功后直接用邮箱+密码登录
+    setTimeout(async () => {
+      try {
+        const res = await login({
+          email: registerForm.value.email.trim(),
+          password: registerForm.value.password
+        })
+        const { token, user } = res.data || {}
+        if (token && user) {
+          localStorage.setItem('token', token)
+          localStorage.setItem('comment_user', JSON.stringify(user))
+          currentUser.value = user
+          isLoggedIn.value = true
+          form.value.nickname = user.nickname || user.username || form.value.nickname
+          form.value.email = user.email || form.value.email
+          showLoginModal.value = false
+          registerForm.value = { email: '', nickname: '', password: '', confirmPassword: '' }
+          registerSuccess.value = ''
+        }
+      } catch (e) {
+        // 自动登录失败，切到登录Tab让用户手动登录
+        authTab.value = 'login'
+        loginForm.value.email = registerForm.value.email
+        loginError.value = '注册成功，请手动登录'
+      } finally {
+        registerLoading.value = false
+      }
+    }, 600)
+  } catch (err) {
+    registerLoading.value = false
+    const msg = err.response?.data?.message || err.response?.data?.msg || '注册失败，请稍后重试'
+    registerError.value = msg
+  }
+}
+
+// 打开个人设置弹窗
+const openProfileModal = () => {
+  if (!currentUser.value) return
+  profileForm.value.nickname = currentUser.value.nickname || ''
+  profileForm.value.avatar = currentUser.value.avatar || ''
+  profileError.value = ''
+  profileSuccess.value = ''
+  showProfileModal.value = true
+}
+
+// 提交个人资料修改
+const handleUpdateProfile = async () => {
+  if (!profileForm.value.nickname || !profileForm.value.nickname.trim()) {
+    profileError.value = '昵称不能为空'
+    return
+  }
+  profileLoading.value = true
+  profileError.value = ''
+  profileSuccess.value = ''
+  try {
+    const payload = { nickname: profileForm.value.nickname.trim() }
+    if (profileForm.value.avatar && profileForm.value.avatar.trim()) {
+      payload.avatar = profileForm.value.avatar.trim()
+    }
+    await updateUserProfile(payload)
+    profileSuccess.value = '修改成功！'
+    // 刷新用户信息
+    await refreshCurrentUser()
+    setTimeout(() => {
+      showProfileModal.value = false
+    }, 600)
+  } catch (err) {
+    const msg = err.response?.data?.message || err.response?.data?.msg || '修改失败，请稍后重试'
+    profileError.value = msg
+  } finally {
+    profileLoading.value = false
   }
 }
 
@@ -349,6 +609,7 @@ const handleLogout = () => {
   localStorage.removeItem('comment_user')
   isLoggedIn.value = false
   currentUser.value = null
+  showProfileModal.value = false
   form.value.nickname = localStorage.getItem('comment_nickname') || ''
   form.value.email = localStorage.getItem('comment_email') || ''
 }
@@ -1166,6 +1427,170 @@ defineExpose({
   font-size: 0.85rem;
   margin-top: 8px;
   border: 1px solid rgba(var(--danger-color-rgb), 0.2);
+}
+
+.register-success {
+  background: rgba(var(--success-color-rgb), 0.1);
+  color: var(--success-color-darker);
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  margin-top: 8px;
+  border: 1px solid rgba(var(--success-color-rgb), 0.3);
+}
+
+/* auth 弹窗 Tab */
+.auth-modal .modal-header {
+  flex-direction: row;
+}
+.auth-tabs {
+  display: flex;
+  gap: 20px;
+}
+.auth-tab {
+  background: none;
+  border: none;
+  padding: 6px 2px;
+  font-size: 1rem;
+  color: var(--card-text-color-tertiary);
+  cursor: pointer;
+  font-weight: 500;
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s;
+}
+.auth-tab:hover {
+  color: var(--card-text-color-main);
+}
+.auth-tab.active {
+  color: var(--success-color);
+  border-bottom-color: var(--success-color);
+}
+
+/* 登录中的「或」分隔线 */
+.login-or-divider {
+  position: relative;
+  margin: 2px 0 12px 0;
+  text-align: center;
+}
+.login-or-divider::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: var(--card-separator-color);
+}
+.login-or-divider span {
+  position: relative;
+  background: var(--card-background);
+  padding: 0 10px;
+  font-size: 0.8rem;
+  color: var(--card-text-color-tertiary);
+}
+
+/* Tab 内嵌的 footer，去掉上下边框和背景 */
+.modal-footer.no-border {
+  border: none;
+  background: none;
+  padding: 4px 0 0 0;
+  margin-top: 6px;
+}
+
+/* 个人设置弹窗样式 */
+.profile-modal {
+  max-width: 460px;
+}
+.profile-info-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: rgba(var(--accent-color-rgb), 0.04);
+  border-radius: 6px;
+  margin-bottom: 14px;
+  font-size: 0.9rem;
+}
+.profile-label {
+  color: var(--card-text-color-tertiary);
+  white-space: nowrap;
+}
+.profile-value {
+  color: var(--card-text-color-main);
+  font-weight: 500;
+  word-break: break-all;
+}
+.avatar-preview-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 0 14px 0;
+}
+.avatar-preview-label {
+  color: var(--card-text-color-tertiary);
+  font-size: 0.85rem;
+  white-space: nowrap;
+}
+.avatar-preview {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--card-separator-color);
+  background: var(--card-background);
+}
+.avatar-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin-top: 6px;
+}
+.avatar-grid-item {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 2px solid transparent;
+  cursor: pointer;
+  background: var(--card-background);
+  transition: all 0.2s;
+  padding: 4px;
+  box-sizing: border-box;
+}
+.avatar-grid-item:hover {
+  border-color: var(--success-color);
+  transform: translateY(-1px);
+}
+.avatar-grid-item.selected {
+  border-color: var(--success-color);
+  box-shadow: 0 0 0 3px rgba(var(--success-color-rgb), 0.2);
+}
+.avatar-grid-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 6px;
+}
+
+/* 个人设置按钮 */
+.profile-btn {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  color: var(--card-text-color-secondary);
+  border: 1px solid var(--card-separator-color);
+  border-radius: 6px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.profile-btn:hover {
+  background: rgba(var(--success-color-rgb), 0.08);
+  color: var(--success-color);
+  border-color: rgba(var(--success-color-rgb), 0.3);
 }
 
 .modal-footer {

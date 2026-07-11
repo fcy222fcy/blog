@@ -49,13 +49,13 @@
         <table v-else class="data-table">
           <thead>
             <tr>
-              <th style="width: 60px;">ID</th>
-              <th style="width: 80px;">操作人</th>
-              <th style="width: 70px;">操作</th>
-              <th style="width: 60px;">类型</th>
-              <th style="min-width: 120px; max-width: 200px;">目标</th>
-              <th style="width: 150px;">时间</th>
-              <th style="width: 90px;">IP</th>
+              <th style="width: 64px;">ID</th>
+              <th style="width: 90px;">操作人</th>
+              <th style="width: 80px;">操作</th>
+              <th style="width: 80px;">类型</th>
+              <th>目标</th>
+              <th style="width: 165px;">时间</th>
+              <th style="width: 120px;">IP</th>
             </tr>
           </thead>
           <tbody>
@@ -67,7 +67,7 @@
               </td>
               <td class="cell-type">{{ targetTypeText(log.target_type) }}</td>
               <td class="cell-target">
-                <span class="log-target-title">{{ log.target_title || '-' }}</span>
+                <span class="log-target-title" :title="log.target_title || '-'">{{ log.target_title || '-' }}</span>
               </td>
               <td class="cell-time">{{ formatTime(log.created_at) }}</td>
               <td class="cell-ip">{{ log.ip }}</td>
@@ -355,11 +355,13 @@ const vClickOutside = {
 .cell-time {
   font-size: 12px;
   color: var(--card-text-color-secondary);
+  white-space: nowrap;
 }
 .cell-ip {
   font-size: 12px;
   color: var(--card-text-color-tertiary);
   font-family: monospace;
+  white-space: nowrap;
 }
 
 .log-id {
@@ -367,7 +369,12 @@ const vClickOutside = {
   color: var(--card-text-color-tertiary);
 }
 .log-target-title {
+  display: block;
+  width: 100%;
   font-size: 13px;
   color: var(--card-text-color-main);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 </style>

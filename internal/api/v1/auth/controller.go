@@ -25,7 +25,12 @@ func NewController(authSvc service.AuthService) *Controller {
 func (c *Controller) Login(ctx *gin.Context) {
 	var req request.LoginRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		response.BadRequest(ctx, "参数错误")
+		response.BadRequest(ctx, "参数错误: "+err.Error())
+		return
+	}
+	// 自定义校验：邮箱和用户名至少填一个
+	if !req.ValidateLogin() {
+		response.BadRequest(ctx, "请输入邮箱或用户名")
 		return
 	}
 

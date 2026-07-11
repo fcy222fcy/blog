@@ -42,6 +42,19 @@ func (r *userRepository) FindByUsername(username string) (*entity.User, error) {
 	return &user, nil
 }
 
+// FindByEmail 根据邮箱查找用户
+func (r *userRepository) FindByEmail(email string) (*entity.User, error) {
+	var user entity.User
+	err := r.db.Where("email = ?", email).First(&user).Error
+	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return nil, nil
+		}
+		return nil, err
+	}
+	return &user, nil
+}
+
 // FindFirstAdmin 查找第一个管理员用户（博客主人）
 func (r *userRepository) FindFirstAdmin() (*entity.User, error) {
 	var user entity.User

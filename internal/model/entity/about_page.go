@@ -11,6 +11,7 @@ type AboutPage struct {
 	AboutSite   string `gorm:"type:text" json:"about_site"`           // 关于网站信息（JSON）
 	Projects    string `gorm:"type:text" json:"projects"`             // 项目列表（JSON）
 	ContactInfo string `gorm:"type:text" json:"contact_info"`         // 联系信息（JSON）
+	SiteHistory string `gorm:"type:text" json:"site_history"`         // 建站历程（JSON 数组）
 }
 
 // TableName 表名
@@ -44,4 +45,11 @@ type ContactItem struct {
 	Value string `json:"value"`
 	Icon  string `json:"icon"`
 	Url   string `json:"url"`
+}
+
+// SiteHistoryItem 建站历程项
+type SiteHistoryItem struct {
+	Date    string `json:"date"`
+	Content string `json:"content"`
+	Icon    string `json:"icon"`
 }

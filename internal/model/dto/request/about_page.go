@@ -10,6 +10,7 @@ type UpdateAboutPageRequest struct {
 	AboutSite   string `json:"about_site"`
 	Projects    string `json:"projects"`
 	ContactInfo string `json:"contact_info"`
+	SiteHistory string `json:"site_history"`
 }
 
 // AboutPageResponse 关于页面响应
@@ -23,4 +24,5 @@ type AboutPageResponse struct {
 	AboutSite   string `json:"about_site"`
 	Projects    string `json:"projects"`
 	ContactInfo string `json:"contact_info"`
+	SiteHistory string `json:"site_history"`
 }

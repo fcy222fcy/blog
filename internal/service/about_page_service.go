@@ -5,6 +5,8 @@ import (
 	"blog/internal/model/entity"
 	"blog/internal/repository"
 	"blog/pkg/logger"
+	"encoding/json"
+	"sort"
 
 	"go.uber.org/zap"
 )
@@ -16,6 +18,22 @@ type aboutPageService struct {
 // NewAboutPageService 创建关于页面服务
 func NewAboutPageService(aboutPageRepo repository.AboutPageRepository) AboutPageService {
 	return &aboutPageService{aboutPageRepo: aboutPageRepo}
+}
+
+// sortSiteHistory 按日期排序建站历程（日期升序，最早的在前）
+func sortSiteHistory(siteHistoryJSON string) string {
+	var items []entity.SiteHistoryItem
+	if err := json.Unmarshal([]byte(siteHistoryJSON), &items); err != nil {
+		return siteHistoryJSON
+	}
+	sort.SliceStable(items, func(i, j int) bool {
+		return items[i].Date < items[j].Date
+	})
+	data, err := json.Marshal(items)
+	if err != nil {
+		return siteHistoryJSON
+	}
+	return string(data)
 }
 
 // GetAboutPage 获取关于页面
@@ -37,6 +55,7 @@ func (s *aboutPageService) GetAboutPage() (*request.AboutPageResponse, error) {
 			AboutSite: `[{"label":"框架","value":"Go + Gin","icon":"⚙️"},{"label":"前端","value":"Vue 3","icon":"🎨"},{"label":"部署","value":"Docker","icon":"☁️"}]`,
 			Projects: `[{"name":"GitHub","description":"我的 GitHub 主页，包含各种编程项目。","url":"https://github.com/liu-houliang","icon":"⌘"},{"name":"DesktopSnap","description":"Windows 桌面图标保存和恢复工具。","url":"https://desktopsnap.liuhouliang.com/","icon":"🖥"}]`,
 			ContactInfo: `[{"label":"GitHub","value":"liu-houliang","icon":"🐙","url":"https://github.com/liu-houliang"}]`,
+			SiteHistory: `[]`,
 		}, nil
 	}
 
@@ -50,6 +69,7 @@ func (s *aboutPageService) GetAboutPage() (*request.AboutPageResponse, error) {
 		AboutSite:   page.AboutSite,
 		Projects:    page.Projects,
 		ContactInfo: page.ContactInfo,
+		SiteHistory: sortSiteHistory(page.SiteHistory),
 	}, nil
 }
 
@@ -73,6 +93,7 @@ func (s *aboutPageService) UpdateAboutPage(req *request.UpdateAboutPageRequest) 
 	page.AboutSite = req.AboutSite
 	page.Projects = req.Projects
 	page.ContactInfo = req.ContactInfo
+	page.SiteHistory = sortSiteHistory(req.SiteHistory)
 
 	return s.aboutPageRepo.Save(page)
 }

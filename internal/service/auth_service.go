@@ -64,23 +64,33 @@ func (s *authService) isBloggerLogin(username, password string) bool {
 
 // Login 用户登录
 func (s *authService) Login(req *request.LoginRequest) (*response.LoginResponse, error) {
-	logger.Infof("用户登录, username: %s", req.Username)
+	logger.Infof("用户登录尝试, username=%s, email=%s", req.Username, req.Email)
 
-	// 验证输入是否包含危险字符
-	if !validateInput(req.Username) || !validateInput(req.Password) {
+	// 危险字符校验（密码一律不做危险字符校验，防止误伤合法密码）
+	if req.Username != "" && !validateInput(req.Username) {
+		return nil, bizerrors.New(bizerrors.CodeInvalidParams, "输入包含非法字符")
+	}
+	if req.Email != "" && !validateInput(req.Email) {
 		return nil, bizerrors.New(bizerrors.CodeInvalidParams, "输入包含非法字符")
 	}
 
-	// 1. 优先匹配博主硬编码账号（密码校验走配置）
-	if s.isBloggerLogin(req.Username, req.Password) {
+	// 1. 优先匹配博主硬编码账号（用 username 匹配；若用户只填 email 且与博主邮箱相同，也兼容）
+	bloggerByUsername := strings.TrimSpace(req.Username) != "" && s.isBloggerLogin(req.Username, req.Password)
+	bloggerByEmail := false
+	if !bloggerByUsername && strings.TrimSpace(req.Email) != "" && s.config != nil {
+		b := s.config.Blogger
+		if strings.EqualFold(strings.TrimSpace(req.Email), strings.TrimSpace(b.Email)) &&
+			strings.TrimSpace(req.Password) == strings.TrimSpace(b.Password) {
+			bloggerByEmail = true
+		}
+	}
+	if bloggerByUsername || bloggerByEmail {
 		b := s.config.Blogger
 		token, expiresAt, err := s.jwt.GenerateToken(b.UserID, b.Username)
 		if err != nil {
 			logger.Error("生成博主Token失败", zap.Error(err))
 			return nil, fmt.Errorf("生成Token失败, %w", err)
 		}
-		// 展示信息（昵称/头像/邮箱）统一从 user 表读取，与主页 /api/v1/user/info 同源，
-		// 配置文件仅保留 Blogger.UserID/Username/Password 用于身份判断，不再做展示兜底
 		nickname := ""
 		avatar := ""
 		email := ""
@@ -98,7 +108,7 @@ func (s *authService) Login(req *request.LoginRequest) (*response.LoginResponse,
 		if email == "" {
 			email = b.Email
 		}
-		logger.Infof("博主登录成功, username: %s", req.Username)
+		logger.Infof("博主登录成功, username: %s", b.Username)
 		return &response.LoginResponse{
 			Token:     token,
 			ExpiresAt: expiresAt,
@@ -112,20 +122,39 @@ func (s *authService) Login(req *request.LoginRequest) (*response.LoginResponse,
 		}, nil
 	}
 
-	// 2. 非博主账号，走用户表查询
-	user, err := s.userRepo.FindByUsername(req.Username)
-	if err != nil {
-		logger.Error("查询用户失败", zap.Error(err))
-		return nil, fmt.Errorf("查询用户失败, %w", err)
+	// 2. 非博主账号：优先按邮箱查，其次按用户名查
+	var user *entity.User
+	var err error
+	loginID := ""
+	if strings.TrimSpace(req.Email) != "" {
+		loginID = strings.TrimSpace(req.Email)
+		user, err = s.userRepo.FindByEmail(loginID)
+		if err != nil {
+			logger.Error("按邮箱查询用户失败", zap.Error(err))
+			return nil, fmt.Errorf("查询用户失败, %w", err)
+		}
+	}
+	if user == nil && strings.TrimSpace(req.Username) != "" {
+		loginID = strings.TrimSpace(req.Username)
+		user, err = s.userRepo.FindByUsername(loginID)
+		if err != nil {
+			logger.Error("按用户名查询用户失败", zap.Error(err))
+			return nil, fmt.Errorf("查询用户失败, %w", err)
+		}
 	}
 	if user == nil {
-		logger.Warn("用户不存在", zap.String("username", req.Username))
-		return nil, bizerrors.New(bizerrors.CodeUserNotFound, bizerrors.GetMessage(bizerrors.CodeUserNotFound))
+		logger.Warn("用户不存在", zap.String("loginID", loginID))
+		return nil, bizerrors.New(bizerrors.CodeUserNotFound, "账号或密码错误")
 	}
 
 	// 验证密码
 	if !bizcrypt.CheckPassword(req.Password, user.Password) {
-		return nil, bizerrors.New(bizerrors.CodePasswordIncorrect, bizerrors.GetMessage(bizerrors.CodePasswordIncorrect))
+		return nil, bizerrors.New(bizerrors.CodePasswordIncorrect, "账号或密码错误")
+	}
+
+	// 检查账号状态
+	if user.Status != 1 {
+		return nil, bizerrors.New(bizerrors.CodeAccountDisabled, bizerrors.GetMessage(bizerrors.CodeAccountDisabled))
 	}
 
 	// 生成 Token
@@ -135,7 +164,7 @@ func (s *authService) Login(req *request.LoginRequest) (*response.LoginResponse,
 		return nil, fmt.Errorf("生成Token失败, %w", err)
 	}
 
-	logger.Infof("用户登录成功, username: %s", req.Username)
+	logger.Infof("用户登录成功, username=%s, email=%s", user.Username, user.Email)
 	return &response.LoginResponse{
 		Token:     token,
 		ExpiresAt: expiresAt,
@@ -252,17 +281,100 @@ func (s *authService) ChangePassword(userID uint, req *request.ChangePasswordReq
 
 // Register 用户注册
 func (s *authService) Register(req *request.RegisterRequest) error {
-	logger.Infof("用户注册, username: %s", req.Username)
+	logger.Infof("用户注册, email: %s, username: %s", req.Email, req.Username)
 
-	// 检查用户名是否已存在
-	existing, err := s.userRepo.FindByUsername(req.Username)
+	req.Email = strings.TrimSpace(req.Email)
+	req.Username = strings.TrimSpace(req.Username)
+	req.Nickname = strings.TrimSpace(req.Nickname)
+
+	// 邮箱必填
+	if req.Email == "" {
+		return bizerrors.New(bizerrors.CodeInvalidEmail, "邮箱不能为空")
+	}
+	// 昵称必填
+	if req.Nickname == "" {
+		return bizerrors.New(bizerrors.CodeInvalidParams, "昵称不能为空")
+	}
+
+	// 邮箱唯一性检查
+	existingByEmail, err := s.userRepo.FindByEmail(req.Email)
 	if err != nil {
-		logger.Error("查询用户失败", zap.Error(err))
+		logger.Error("按邮箱查询用户失败", zap.Error(err))
 		return fmt.Errorf("查询用户失败, %w", err)
 	}
-	if existing != nil {
-		logger.Warn("用户名已存在", zap.String("username", req.Username))
-		return bizerrors.New(bizerrors.CodeUserAlreadyExists, bizerrors.GetMessage(bizerrors.CodeUserAlreadyExists))
+	if existingByEmail != nil {
+		logger.Warn("邮箱已存在", zap.String("email", req.Email))
+		return bizerrors.New(bizerrors.CodeUserAlreadyExists, "该邮箱已被注册")
+	}
+
+	userSpecifiedUsername := req.Username != ""
+	username := req.Username
+	if !userSpecifiedUsername {
+		// 用户没填：自动从邮箱前缀生成；若冲突则追加编号后缀
+		if idx := strings.Index(req.Email, "@"); idx > 0 {
+			username = req.Email[:idx]
+		} else {
+			username = req.Email
+		}
+		// 过滤特殊字符，只保留字母数字下划线中划线
+		clean := strings.Builder{}
+		for _, r := range username {
+			if (r >= 'a' && r <= 'z') || (r >= 'A' && r <= 'Z') || (r >= '0' && r <= '9') || r == '_' || r == '-' {
+				clean.WriteRune(r)
+			}
+		}
+		username = clean.String()
+		if username == "" {
+			username = "user"
+		}
+		// 长度约束
+		if len(username) < 3 {
+			username = username + "user"
+		}
+		if len(username) > 50 {
+			username = username[:50]
+		}
+		// 自动生成时，若冲突追加编号
+		baseUsername := username
+		counter := 1
+		for {
+			existingByName, err := s.userRepo.FindByUsername(username)
+			if err != nil {
+				logger.Error("按用户名查询用户失败", zap.Error(err))
+				return fmt.Errorf("查询用户失败, %w", err)
+			}
+			if existingByName == nil {
+				break
+			}
+			suffix := fmt.Sprintf("%d", counter)
+			maxBase := 50 - len(suffix) - 1
+			if len(baseUsername) > maxBase {
+				username = baseUsername[:maxBase] + "_" + suffix
+			} else {
+				username = baseUsername + "_" + suffix
+			}
+			counter++
+			if counter > 100 {
+				return bizerrors.New(bizerrors.CodeInternalServer, "生成用户名失败，请稍后重试")
+			}
+		}
+	} else {
+		// 用户显式指定 username：长度约束+若冲突直接报错
+		if len(username) < 3 {
+			return bizerrors.New(bizerrors.CodeUsernameTooShort, bizerrors.GetMessage(bizerrors.CodeUsernameTooShort))
+		}
+		if len(username) > 50 {
+			username = username[:50]
+		}
+		existingByName, err := s.userRepo.FindByUsername(username)
+		if err != nil {
+			logger.Error("按用户名查询用户失败", zap.Error(err))
+			return fmt.Errorf("查询用户失败, %w", err)
+		}
+		if existingByName != nil {
+			logger.Warn("用户名已存在", zap.String("username", username))
+			return bizerrors.New(bizerrors.CodeUserAlreadyExists, bizerrors.GetMessage(bizerrors.CodeUserAlreadyExists))
+		}
 	}
 
 	// 加密密码
@@ -272,7 +384,7 @@ func (s *authService) Register(req *request.RegisterRequest) error {
 	}
 
 	user := &entity.User{
-		Username: req.Username,
+		Username: username,
 		Password: hashedPassword,
 		Nickname: req.Nickname,
 		Email:    req.Email,
@@ -284,6 +396,6 @@ func (s *authService) Register(req *request.RegisterRequest) error {
 		return fmt.Errorf("创建用户失败, %w", err)
 	}
 
-	logger.Infof("用户注册成功, username: %s", req.Username)
+	logger.Infof("用户注册成功, username: %s, email: %s", username, req.Email)
 	return nil
 }
