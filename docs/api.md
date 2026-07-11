@@ -9,28 +9,35 @@
 | 基础 URL | `http://localhost:8080/api/v1` |
 | 数据格式 | JSON |
 | 字符编码 | UTF-8 |
-| 认证方式 | JWT Token（管理员接口需要） |
+| 认证方式 | JWT Token（管理员接口需要；评论接口可选，用于识别博主身份） |
 
 ### 统一响应格式
 
 ```json
 {
-  "code": 200,
+  "code": 0,
   "message": "success",
   "data": {}
 }
 ```
 
+**说明**：`code = 0` 表示成功，非 0 表示失败（参考错误码表）。
+
 ### 错误码说明
 
 | 错误码 | HTTP 状态码 | 说明 |
 |--------|-------------|------|
-| 200 | 200 | 成功 |
-| 400 | 400 | 请求参数错误 |
-| 401 | 401 | 未授权（未登录） |
-| 403 | 403 | 禁止访问（权限不足） |
-| 404 | 404 | 资源不存在 |
-| 500 | 500 | 服务器内部错误 |
+| 0 | 200 | 成功 |
+| 40000+ | 400 | 请求参数错误（具体见细分码） |
+| 40100 | 401 | 未授权（未登录或 Token 无效） |
+| 40300 | 403 | 禁止访问（权限不足） |
+| 40400 | 404 | 资源不存在 |
+| 50000 | 500 | 服务器内部错误 |
+| 10001 | 400 | 用户名或密码错误 |
+| 10002 | 400 | 旧密码错误 |
+| 20001 | 400 | 评论内容不能为空 |
+| 20002 | 400 | 文章不存在 |
+| 20003 | 400 | 评论不存在 |
 
 ### 分页参数
 
@@ -43,7 +50,7 @@
 
 ```json
 {
-  "code": 200,
+  "code": 0,
   "message": "success",
   "data": {
     "list": [],
@@ -79,7 +86,7 @@ POST /auth/login
 
 ```json
 {
-  "code": 200,
+  "code": 0,
   "message": "success",
   "data": {
     "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
@@ -88,40 +95,25 @@ POST /auth/login
 }
 ```
 
-### 1.2 获取当前用户信息
+### 1.2 管理员注册（可选）
 
 **请求**
 
 ```
-GET /auth/profile
+POST /auth/register
 ```
 
-**请求头**
-
-```
-Authorization: Bearer <token>
-```
-
-**响应**
+**请求体**
 
 ```json
 {
-  "code": 200,
-  "message": "success",
-  "data": {
-    "id": 1,
-    "username": "admin",
-    "nickname": "Liu Houliang",
-    "avatar": "https://example.com/avatar.jpg",
-    "email": "admin@example.com",
-    "description": "Go 开发者",
-    "social_links": [
-      {"name": "GitHub", "url": "https://github.com/xxx"},
-      {"name": "Twitter", "url": "https://twitter.com/xxx"}
-    ]
-  }
+  "username": "admin",
+  "password": "123456",
+  "email": "admin@example.com"
 }
 ```
+
+**说明**：通常用于首次部署，生产环境建议关闭或限制访问。
 
 ### 1.3 修改密码
 
@@ -150,7 +142,7 @@ Authorization: Bearer <token>
 
 ```json
 {
-  "code": 200,
+  "code": 0,
   "message": "密码修改成功",
   "data": null
 }
@@ -158,9 +150,101 @@ Authorization: Bearer <token>
 
 ---
 
-## 二、文章模块
+## 二、用户模块
 
-### 2.1 获取文章列表（前台）
+### 2.1 获取公开博主信息（前台）
+
+**请求**
+
+```
+GET /user/info
+```
+
+**响应**
+
+```json
+{
+  "code": 0,
+  "message": "success",
+  "data": {
+    "id": 1,
+    "nickname": "Liu Houliang",
+    "avatar": "https://example.com/avatar.jpg",
+    "email": "admin@example.com",
+    "description": "Go 开发者",
+    "social_links": [
+      {"name": "GitHub", "url": "https://github.com/xxx"},
+      {"name": "Twitter", "url": "https://twitter.com/xxx"}
+    ]
+  }
+}
+```
+
+### 2.2 获取当前登录用户信息（后台）
+
+**请求**
+
+```
+GET /user/profile
+```
+
+**请求头**
+
+```
+Authorization: Bearer <token>
+```
+
+**响应**
+
+```json
+{
+  "code": 0,
+  "message": "success",
+  "data": {
+    "id": 1,
+    "username": "admin",
+    "nickname": "Liu Houliang",
+    "avatar": "https://example.com/avatar.jpg",
+    "email": "admin@example.com",
+    "description": "Go 开发者",
+    "social_links": []
+  }
+}
+```
+
+### 2.3 更新当前用户信息（后台）
+
+**请求**
+
+```
+PUT /user/profile
+```
+
+**请求头**
+
+```
+Authorization: Bearer <token>
+```
+
+**请求体**
+
+```json
+{
+  "nickname": "新昵称",
+  "avatar": "https://example.com/new-avatar.jpg",
+  "email": "new@example.com",
+  "description": "新个人简介",
+  "social_links": [
+    {"name": "GitHub", "url": "https://github.com/xxx"}
+  ]
+}
+```
+
+---
+
+## 三、文章模块（前台）
+
+### 3.1 获取文章列表
 
 **请求**
 
@@ -174,15 +258,15 @@ GET /articles
 |--------|------|------|------|
 | page | int | 否 | 页码 |
 | page_size | int | 否 | 每页数量 |
-| category | string | 否 | 分类 slug |
-| tag | string | 否 | 标签 slug |
-| keyword | string | 否 | 搜索关键词 |
+| category_id | int | 否 | 分类 ID |
+| tag_id | int | 否 | 标签 ID |
+| status | string | 否 | 固定传 `published`（前台仅返回已发布） |
 
 **响应**
 
 ```json
 {
-  "code": 200,
+  "code": 0,
   "message": "success",
   "data": {
     "list": [
@@ -195,7 +279,8 @@ GET /articles
         "category": {
           "id": 1,
           "name": "搭建网站",
-          "slug": "build"
+          "slug": "build",
+          "description": "网站搭建、博客部署相关"
         },
         "tags": [
           {"id": 1, "name": "Hugo", "slug": "hugo"},
@@ -215,7 +300,57 @@ GET /articles
 }
 ```
 
-### 2.2 获取文章详情（前台）
+### 3.2 搜索文章（带 search_snippet 摘要）
+
+**请求**
+
+```
+GET /articles/search
+```
+
+**查询参数**
+
+| 参数名 | 类型 | 必填 | 说明 |
+|--------|------|------|------|
+| keyword | string | 是 | 搜索关键词，多关键词以空格分隔 |
+| page | int | 否 | 页码 |
+| page_size | int | 否 | 每页数量 |
+
+**响应**
+
+```json
+{
+  "code": 0,
+  "message": "success",
+  "data": {
+    "list": [
+      {
+        "id": 1,
+        "title": "我的博客主题已开源",
+        "slug": "open-source-theme",
+        "cover": "https://example.com/cover.jpg",
+        "category": {
+          "id": 1,
+          "name": "搭建网站"
+        },
+        "tags": [
+          {"id": 1, "name": "Hugo"}
+        ],
+        "search_snippet": "...主题已<strong>开源</strong>，基于 Hugo Theme Stack 打造，支持自定义主题颜色...",
+        "view_count": 252,
+        "created_at": "2026-04-24T10:00:00Z"
+      }
+    ],
+    "total": 3,
+    "page": 1,
+    "page_size": 10
+  }
+}
+```
+
+**说明**：`search_snippet` 已清洗 Markdown，并将匹配关键词用 `<strong>` 包裹高亮，前后保留上下文。
+
+### 3.3 获取文章详情
 
 **请求**
 
@@ -227,7 +362,7 @@ GET /articles/:slug
 
 ```json
 {
-  "code": 200,
+  "code": 0,
   "message": "success",
   "data": {
     "id": 1,
@@ -239,11 +374,11 @@ GET /articles/:slug
     "category": {
       "id": 1,
       "name": "搭建网站",
-      "slug": "build"
+      "slug": "build",
+      "description": "网站搭建、博客部署相关"
     },
     "tags": [
-      {"id": 1, "name": "Hugo", "slug": "hugo"},
-      {"id": 2, "name": "开源", "slug": "open-source"}
+      {"id": 1, "name": "Hugo", "slug": "hugo"}
     ],
     "view_count": 252,
     "like_count": 42,
@@ -255,7 +390,7 @@ GET /articles/:slug
 }
 ```
 
-### 2.3 文章点赞
+### 3.4 文章点赞
 
 **请求**
 
@@ -267,7 +402,7 @@ POST /articles/:id/like
 
 ```json
 {
-  "code": 200,
+  "code": 0,
   "message": "点赞成功",
   "data": {
     "like_count": 43
@@ -275,7 +410,7 @@ POST /articles/:id/like
 }
 ```
 
-### 2.4 获取文章归档（前台）
+### 3.5 获取文章归档
 
 **请求**
 
@@ -287,7 +422,7 @@ GET /articles/archives
 
 ```json
 {
-  "code": 200,
+  "code": 0,
   "message": "success",
   "data": [
     {
@@ -307,9 +442,9 @@ GET /articles/archives
 
 ---
 
-## 三、后台文章管理
+## 四、文章管理（后台）
 
-### 3.1 获取文章列表（后台）
+### 4.1 获取文章列表（后台）
 
 **请求**
 
@@ -330,45 +465,10 @@ Authorization: Bearer <token>
 | page | int | 否 | 页码 |
 | page_size | int | 否 | 每页数量 |
 | category_id | int | 否 | 分类 ID |
-| status | string | 否 | 状态：published/draft |
-| keyword | string | 否 | 搜索关键词 |
+| status | string | 否 | 状态：published/draft/空(全部) |
+| keyword | string | 否 | 搜索关键词(标题) |
 
-**响应**
-
-```json
-{
-  "code": 200,
-  "message": "success",
-  "data": {
-    "list": [
-      {
-        "id": 1,
-        "title": "我的博客主题已开源",
-        "slug": "open-source-theme",
-        "status": "published",
-        "category": {
-          "id": 1,
-          "name": "搭建网站"
-        },
-        "tags": [
-          {"id": 1, "name": "Hugo"},
-          {"id": 2, "name": "开源"}
-        ],
-        "view_count": 252,
-        "like_count": 42,
-        "comment_count": 8,
-        "created_at": "2026-04-24T10:00:00Z",
-        "updated_at": "2026-04-24T10:00:00Z"
-      }
-    ],
-    "total": 6,
-    "page": 1,
-    "page_size": 10
-  }
-}
-```
-
-### 3.2 获取文章详情（后台）
+### 4.2 获取文章详情（后台）
 
 **请求**
 
@@ -386,36 +486,28 @@ Authorization: Bearer <token>
 
 ```json
 {
-  "code": 200,
+  "code": 0,
   "message": "success",
   "data": {
     "id": 1,
     "title": "我的博客主题已开源",
     "slug": "open-source-theme",
     "content": "# 标题\n\n这里是文章正文...",
-    "summary": "基于 Hugo Theme Stack 打造的开箱即用博客模板...",
+    "summary": "摘要",
     "cover": "https://example.com/cover.jpg",
     "category_id": 1,
     "tag_ids": [1, 2],
     "status": "published",
     "is_top": false,
-    "created_at": "2026-04-24T10:00:00Z",
-    "updated_at": "2026-04-24T10:00:00Z"
+    "created_at": "2026-04-24T10:00:00Z"
   }
 }
 ```
 
-### 3.3 创建文章
-
-**请求**
+### 4.3 创建文章
 
 ```
 POST /admin/articles
-```
-
-**请求头**
-
-```
 Authorization: Bearer <token>
 ```
 
@@ -424,7 +516,7 @@ Authorization: Bearer <token>
 ```json
 {
   "title": "新文章标题",
-  "content": "# 标题\n\n文章正文内容...",
+  "content": "# 标题\n\n文章正文...",
   "summary": "文章摘要（可选，留空自动截取）",
   "cover": "https://example.com/cover.jpg",
   "category_id": 1,
@@ -434,118 +526,34 @@ Authorization: Bearer <token>
 }
 ```
 
-**响应**
-
-```json
-{
-  "code": 200,
-  "message": "文章创建成功",
-  "data": {
-    "id": 7
-  }
-}
-```
-
-### 3.4 更新文章
-
-**请求**
+### 4.4 更新文章
 
 ```
 PUT /admin/articles/:id
-```
-
-**请求头**
-
-```
 Authorization: Bearer <token>
 ```
 
-**请求体**
-
-```json
-{
-  "title": "更新后的标题",
-  "content": "更新后的内容...",
-  "summary": "更新后的摘要",
-  "cover": "https://example.com/new-cover.jpg",
-  "category_id": 1,
-  "tag_ids": [1, 2, 3],
-  "status": "published",
-  "is_top": true
-}
-```
-
-**响应**
-
-```json
-{
-  "code": 200,
-  "message": "文章更新成功",
-  "data": null
-}
-```
-
-### 3.5 删除文章
-
-**请求**
+### 4.5 删除文章
 
 ```
 DELETE /admin/articles/:id
-```
-
-**请求头**
-
-```
 Authorization: Bearer <token>
 ```
 
-**响应**
-
-```json
-{
-  "code": 200,
-  "message": "文章删除成功",
-  "data": null
-}
-```
-
-### 3.6 批量删除文章
-
-**请求**
+### 4.6 批量删除文章
 
 ```
 POST /admin/articles/batch-delete
-```
-
-**请求头**
-
-```
 Authorization: Bearer <token>
-```
 
-**请求体**
-
-```json
-{
-  "ids": [1, 2, 3]
-}
-```
-
-**响应**
-
-```json
-{
-  "code": 200,
-  "message": "批量删除成功",
-  "data": null
-}
+{ "ids": [1, 2, 3] }
 ```
 
 ---
 
-## 四、分类模块
+## 五、分类模块
 
-### 4.1 获取分类列表（前台）
+### 5.1 获取分类列表（前台）
 
 **请求**
 
@@ -557,7 +565,7 @@ GET /categories
 
 ```json
 {
-  "code": 200,
+  "code": 0,
   "message": "success",
   "data": [
     {
@@ -572,111 +580,70 @@ GET /categories
 }
 ```
 
-### 4.2 创建分类（后台）
+### 5.2 获取分类详情（前台）
 
 **请求**
 
 ```
-POST /admin/categories
-```
-
-**请求头**
-
-```
-Authorization: Bearer <token>
-```
-
-**请求体**
-
-```json
-{
-  "name": "新分类",
-  "slug": "new-category",
-  "description": "分类描述",
-  "icon": "📁",
-  "sort_order": 0
-}
+GET /categories/:id
 ```
 
 **响应**
 
 ```json
 {
-  "code": 200,
-  "message": "分类创建成功",
+  "code": 0,
+  "message": "success",
   "data": {
-    "id": 4
+    "id": 1,
+    "name": "搭建网站",
+    "slug": "build",
+    "description": "网站搭建、博客部署相关",
+    "article_count": 3
   }
 }
 ```
 
-### 4.3 更新分类（后台）
+### 5.3 创建分类（后台）
 
-**请求**
+```
+POST /admin/categories
+Authorization: Bearer <token>
+
+{
+  "name": "新分类",
+  "slug": "new-category",
+  "description": "分类描述",
+  "sort_order": 0
+}
+```
+
+### 5.4 更新分类（后台）
 
 ```
 PUT /admin/categories/:id
-```
-
-**请求头**
-
-```
 Authorization: Bearer <token>
-```
 
-**请求体**
-
-```json
 {
   "name": "更新后的分类名",
   "slug": "updated-slug",
   "description": "更新后的描述",
-  "icon": "📂",
   "sort_order": 1
 }
 ```
 
-**响应**
-
-```json
-{
-  "code": 200,
-  "message": "分类更新成功",
-  "data": null
-}
-```
-
-### 4.4 删除分类（后台）
-
-**请求**
+### 5.5 删除分类（后台）
 
 ```
 DELETE /admin/categories/:id
-```
-
-**请求头**
-
-```
 Authorization: Bearer <token>
-```
-
-**响应**
-
-```json
-{
-  "code": 200,
-  "message": "分类删除成功",
-  "data": null
-}
 ```
 
 ---
 
-## 五、标签模块
+## 六、标签模块
 
-### 5.1 获取标签列表（前台）
-
-**请求**
+### 6.1 获取标签列表（前台）
 
 ```
 GET /tags
@@ -686,135 +653,70 @@ GET /tags
 
 ```json
 {
-  "code": 200,
+  "code": 0,
   "message": "success",
   "data": [
-    {
-      "id": 1,
-      "name": "Hugo",
-      "slug": "hugo",
-      "article_count": 3
-    }
+    { "id": 1, "name": "Hugo", "slug": "hugo", "article_count": 3 }
   ]
 }
 ```
 
-### 5.2 创建标签（后台）
-
-**请求**
+### 6.2 创建标签（后台）
 
 ```
 POST /admin/tags
-```
-
-**请求头**
-
-```
 Authorization: Bearer <token>
+
+{ "name": "新标签", "slug": "new-tag" }
 ```
 
-**请求体**
-
-```json
-{
-  "name": "新标签",
-  "slug": "new-tag"
-}
-```
-
-**响应**
-
-```json
-{
-  "code": 200,
-  "message": "标签创建成功",
-  "data": {
-    "id": 13
-  }
-}
-```
-
-### 5.3 更新标签（后台）
-
-**请求**
+### 6.3 更新标签（后台）
 
 ```
 PUT /admin/tags/:id
-```
-
-**请求头**
-
-```
 Authorization: Bearer <token>
+
+{ "name": "更新后的标签名", "slug": "updated-tag" }
 ```
 
-**请求体**
-
-```json
-{
-  "name": "更新后的标签名",
-  "slug": "updated-tag"
-}
-```
-
-**响应**
-
-```json
-{
-  "code": 200,
-  "message": "标签更新成功",
-  "data": null
-}
-```
-
-### 5.4 删除标签（后台）
-
-**请求**
+### 6.4 删除标签（后台）
 
 ```
 DELETE /admin/tags/:id
-```
-
-**请求头**
-
-```
 Authorization: Bearer <token>
-```
-
-**响应**
-
-```json
-{
-  "code": 200,
-  "message": "标签删除成功",
-  "data": null
-}
 ```
 
 ---
 
-## 六、评论模块
+## 七、评论模块
 
-### 6.1 获取文章评论列表（前台）
+### 7.1 获取文章评论列表（前台，支持 OptionalAuth）
 
 **请求**
 
 ```
-GET /articles/:article_id/comments
+GET /comments/article/:articleId
 ```
 
 **查询参数**
 
-| 参数名 | 类型 | 必填 | 说明 |
-|--------|------|------|------|
-| page | int | 否 | 页码 |
-| page_size | int | 否 | 每页数量 |
+| 参数名 | 类型 | 必填 | 默认值 | 说明 |
+|--------|------|------|--------|------|
+| page | int | 否 | 1 | 页码 |
+| page_size | int | 否 | 10 | 每页数量 |
+| sort_by | string | 否 | hot | 排序方式：`hot`(热度，点赞×2+回复数，同分按时间倒序) / `time_desc`(时间倒序) / `time_asc`(时间正序) |
+
+**请求头（可选）**
+
+```
+Authorization: Bearer <token>
+```
 
 **响应**
 
 ```json
 {
-  "code": 200,
+  "code": 0,
   "message": "success",
   "data": {
     "list": [
@@ -824,7 +726,11 @@ GET /articles/:article_id/comments
         "nickname": "张三",
         "email": "zhangsan@example.com",
         "website": "https://zhangsan.com",
-        "avatar": "https://www.gravatar.com/avatar/xxx",
+        "avatar": "https://thirdqq.qlogo.cn/g?b=qq&nk=10000&s=100",
+        "is_admin": false,
+        "reply_to": null,
+        "like_count": 5,
+        "user_id": null,
         "status": "approved",
         "created_at": "2026-04-24T12:00:00Z",
         "replies": [
@@ -832,6 +738,14 @@ GET /articles/:article_id/comments
             "id": 2,
             "content": "谢谢支持！",
             "nickname": "博主",
+            "avatar": "https://.../avatar.jpg",
+            "is_admin": true,
+            "reply_to": {
+              "id": 1,
+              "nickname": "张三"
+            },
+            "like_count": 2,
+            "user_id": 1,
             "created_at": "2026-04-24T13:00:00Z"
           }
         ]
@@ -844,18 +758,26 @@ GET /articles/:article_id/comments
 }
 ```
 
-### 6.2 提交评论（前台）
+**关键说明**：
+- `avatar` 获取优先级：QQ邮箱→提取QQ号走 qlogo.cn → 其他邮箱走 Gravatar → 空字符串（前端兜底首字母头像）
+- `is_admin`：仅当用户通过登录按钮登录 **且** 其 UserID 与配置 `blogger.user_id` 一致时为 true（防冒充）
+- `reply_to`：回复某条评论时，给出被回复人的 id 和 nickname；根评论为 null
+- 排序在后端全量根评论计算后再分页，保证多页数据一致性
+
+### 7.2 提交评论（前台，OptionalAuth）
 
 **请求**
 
 ```
-POST /articles/:article_id/comments
+POST /comments
+Authorization: Bearer <token>  # 可选
 ```
 
 **请求体**
 
 ```json
 {
+  "article_id": 1,
   "content": "评论内容",
   "nickname": "张三",
   "email": "zhangsan@example.com",
@@ -864,1017 +786,240 @@ POST /articles/:article_id/comments
 }
 ```
 
-**响应**
+**说明**：
+- 若携带了有效登录 Token，会关联 `user_id` 并从用户表填充昵称、邮箱、头像（游客填写的会被覆盖）
+- 游客必须至少填 nickname 和 email
 
-```json
-{
-  "code": 200,
-  "message": "评论提交成功，等待审核",
-  "data": {
-    "id": 3
-  }
-}
+### 7.3 评论点赞（前台）
+
+```
+POST /comments/:id/like
 ```
 
-### 6.3 获取评论列表（后台）
-
-**请求**
+### 7.4 获取评论列表（后台）
 
 ```
 GET /admin/comments
-```
-
-**请求头**
-
-```
 Authorization: Bearer <token>
 ```
 
-**查询参数**
+**查询参数**：page / page_size / status(pending/approved/rejected) / article_id
 
-| 参数名 | 类型 | 必填 | 说明 |
-|--------|------|------|------|
-| page | int | 否 | 页码 |
-| page_size | int | 否 | 每页数量 |
-| status | string | 否 | 状态：pending/approved/rejected |
-| article_id | int | 否 | 文章 ID |
-
-**响应**
-
-```json
-{
-  "code": 200,
-  "message": "success",
-  "data": {
-    "list": [
-      {
-        "id": 1,
-        "content": "很棒的文章，学到了很多！",
-        "nickname": "张三",
-        "email": "zhangsan@example.com",
-        "status": "pending",
-        "article": {
-          "id": 1,
-          "title": "我的博客主题已开源"
-        },
-        "created_at": "2026-04-24T12:00:00Z"
-      }
-    ],
-    "total": 12,
-    "page": 1,
-    "page_size": 10
-  }
-}
-```
-
-### 6.4 审核评论（后台）
-
-**请求**
+### 7.5 审核评论（后台）
 
 ```
 PUT /admin/comments/:id/status
-```
-
-**请求头**
-
-```
 Authorization: Bearer <token>
+
+{ "status": "approved" }
 ```
 
-**请求体**
-
-```json
-{
-  "status": "approved"
-}
-```
-
-**响应**
-
-```json
-{
-  "code": 200,
-  "message": "评论状态更新成功",
-  "data": null
-}
-```
-
-### 6.5 删除评论（后台）
-
-**请求**
+### 7.6 删除评论（后台）
 
 ```
 DELETE /admin/comments/:id
-```
-
-**请求头**
-
-```
 Authorization: Bearer <token>
 ```
 
-**响应**
-
-```json
-{
-  "code": 200,
-  "message": "评论删除成功",
-  "data": null
-}
-```
-
----
-
-## 七、友链模块
-
-### 7.1 获取友链列表（前台）
-
-**请求**
+### 7.7 批量删除评论（后台）
 
 ```
-GET /links
-```
-
-**响应**
-
-```json
-{
-  "code": 200,
-  "message": "success",
-  "data": [
-    {
-      "id": 1,
-      "name": "吴同学的笔记本",
-      "url": "https://www.wutongqi.cn",
-      "description": "全栈开发者，分享技术与生活",
-      "avatar": "https://example.com/avatar.jpg",
-      "logo": "🤖",
-      "sort_order": 1,
-      "status": "approved"
-    }
-  ]
-}
-```
-
-### 7.2 申请友链（前台）
-
-**请求**
-
-```
-POST /links/apply
-```
-
-**请求体**
-
-```json
-{
-  "name": "我的博客",
-  "url": "https://myblog.com",
-  "description": "一个技术博客",
-  "avatar": "https://myblog.com/avatar.jpg",
-  "email": "me@myblog.com"
-}
-```
-
-**响应**
-
-```json
-{
-  "code": 200,
-  "message": "申请已提交，等待审核",
-  "data": null
-}
-```
-
-### 7.3 获取友链列表（后台）
-
-**请求**
-
-```
-GET /admin/links
-```
-
-**请求头**
-
-```
+POST /admin/comments/batch-delete
 Authorization: Bearer <token>
-```
 
-**查询参数**
-
-| 参数名 | 类型 | 必填 | 说明 |
-|--------|------|------|------|
-| page | int | 否 | 页码 |
-| page_size | int | 否 | 每页数量 |
-| status | string | 否 | 状态：pending/approved/rejected |
-
-**响应**
-
-```json
-{
-  "code": 200,
-  "message": "success",
-  "data": {
-    "list": [
-      {
-        "id": 1,
-        "name": "吴同学的笔记本",
-        "url": "https://www.wutongqi.cn",
-        "description": "全栈开发者，分享技术与生活",
-        "avatar": "https://example.com/avatar.jpg",
-        "status": "approved",
-        "created_at": "2026-01-01T00:00:00Z"
-      }
-    ],
-    "total": 4,
-    "page": 1,
-    "page_size": 10
-  }
-}
-```
-
-### 7.4 创建友链（后台）
-
-**请求**
-
-```
-POST /admin/links
-```
-
-**请求头**
-
-```
-Authorization: Bearer <token>
-```
-
-**请求体**
-
-```json
-{
-  "name": "新友链",
-  "url": "https://newblog.com",
-  "description": "友链描述",
-  "avatar": "https://newblog.com/avatar.jpg",
-  "logo": "🔗",
-  "sort_order": 0,
-  "status": "approved"
-}
-```
-
-**响应**
-
-```json
-{
-  "code": 200,
-  "message": "友链创建成功",
-  "data": {
-    "id": 5
-  }
-}
-```
-
-### 7.5 更新友链（后台）
-
-**请求**
-
-```
-PUT /admin/links/:id
-```
-
-**请求头**
-
-```
-Authorization: Bearer <token>
-```
-
-**请求体**
-
-```json
-{
-  "name": "更新后的名称",
-  "url": "https://updated-url.com",
-  "description": "更新后的描述",
-  "avatar": "https://updated-avatar.jpg",
-  "logo": "🔗",
-  "sort_order": 1,
-  "status": "approved"
-}
-```
-
-**响应**
-
-```json
-{
-  "code": 200,
-  "message": "友链更新成功",
-  "data": null
-}
-```
-
-### 7.6 删除友链（后台）
-
-**请求**
-
-```
-DELETE /admin/links/:id
-```
-
-**请求头**
-
-```
-Authorization: Bearer <token>
-```
-
-**响应**
-
-```json
-{
-  "code": 200,
-  "message": "友链删除成功",
-  "data": null
-}
-```
-
-### 7.7 审核友链（后台）
-
-**请求**
-
-```
-PUT /admin/links/:id/status
-```
-
-**请求头**
-
-```
-Authorization: Bearer <token>
-```
-
-**请求体**
-
-```json
-{
-  "status": "approved"
-}
-```
-
-**响应**
-
-```json
-{
-  "code": 200,
-  "message": "友链状态更新成功",
-  "data": null
-}
+{ "ids": [1, 2, 3] }
 ```
 
 ---
 
 ## 八、每日一问模块
 
-### 8.1 获取今日问题（前台）
-
-**请求**
+### 8.1 获取最新问题（前台）
 
 ```
-GET /daily-questions/today
+GET /daily-questions/latest
 ```
 
 **响应**
 
 ```json
 {
-  "code": 200,
+  "code": 0,
   "message": "success",
   "data": {
     "id": 1,
     "question": "什么是最好的编程语言？",
     "answer": "没有最好的编程语言，只有最适合的...",
-    "date": "2026-06-15",
+    "date": "2026-07-11",
     "like_count": 42,
     "comment_count": 8
   }
 }
 ```
 
-### 8.2 获取指定日期问题（前台）
-
-**请求**
+### 8.2 获取全部已发布问题（前台）
 
 ```
-GET /daily-questions/:date
+GET /daily-questions/all
 ```
 
-**路径参数**
+### 8.3 按日期获取问题（前台）
 
-| 参数名 | 类型 | 说明 |
-|--------|------|------|
-| date | string | 日期，格式：2026-06-15 |
-
-**响应**
-
-```json
-{
-  "code": 200,
-  "message": "success",
-  "data": {
-    "id": 1,
-    "question": "什么是最好的编程语言？",
-    "answer": "没有最好的编程语言，只有最适合的...",
-    "date": "2026-06-15",
-    "like_count": 42,
-    "comment_count": 8
-  }
-}
+```
+GET /daily-questions/date/:date
 ```
 
-### 8.3 每日一问点赞（前台）
+路径参数 `date` 格式：`2026-07-11`
 
-**请求**
+### 8.4 上一天 / 下一天（前台）
+
+```
+GET /daily-questions/previous/:date
+GET /daily-questions/next/:date
+```
+
+### 8.5 每日一问点赞（前台）
 
 ```
 POST /daily-questions/:id/like
 ```
 
-**响应**
-
-```json
-{
-  "code": 200,
-  "message": "点赞成功",
-  "data": {
-    "like_count": 43
-  }
-}
-```
-
-### 8.4 获取问题列表（后台）
-
-**请求**
+### 8.6 获取问题列表（后台）
 
 ```
 GET /admin/daily-questions
-```
-
-**请求头**
-
-```
 Authorization: Bearer <token>
 ```
 
-**查询参数**
+查询参数：page / page_size / status(0禁用,1启用) / keyword
 
-| 参数名 | 类型 | 必填 | 说明 |
-|--------|------|------|------|
-| page | int | 否 | 页码 |
-| page_size | int | 否 | 每页数量 |
-| status | int | 否 | 状态：0-禁用 1-启用 |
-| keyword | string | 否 | 搜索关键词 |
-
-**响应**
-
-```json
-{
-  "code": 200,
-  "message": "success",
-  "data": {
-    "list": [
-      {
-        "id": 1,
-        "question": "什么是最好的编程语言？",
-        "answer": "没有最好的编程语言，只有最适合的...",
-        "date": "2026-06-15",
-        "status": 1,
-        "view_count": 100,
-        "like_count": 42,
-        "comment_count": 8,
-        "created_at": "2026-06-15T00:00:00Z"
-      }
-    ],
-    "total": 10,
-    "page": 1,
-    "page_size": 10
-  }
-}
-```
-
-### 8.5 创建问题（后台）
-
-**请求**
+### 8.7 创建问题（后台）
 
 ```
 POST /admin/daily-questions
-```
-
-**请求头**
-
-```
 Authorization: Bearer <token>
-```
 
-**请求体**
-
-```json
 {
-  "question": "新问题是什么？",
-  "answer": "这是问题的答案...",
-  "date": "2026-06-20",
+  "question": "新问题？",
+  "answer": "问题答案...",
+  "date": "2026-07-12",
   "status": 1
 }
 ```
 
-**响应**
-
-```json
-{
-  "code": 200,
-  "message": "问题创建成功",
-  "data": {
-    "id": 11
-  }
-}
-```
-
-### 8.6 更新问题（后台）
-
-**请求**
+### 8.8 更新问题（后台）
 
 ```
 PUT /admin/daily-questions/:id
-```
-
-**请求头**
-
-```
 Authorization: Bearer <token>
 ```
 
-**请求体**
+### 8.9 启用/禁用问题（后台）
 
-```json
-{
-  "question": "更新后的问题",
-  "answer": "更新后的答案...",
-  "date": "2026-06-20",
-  "status": 1
-}
+```
+PUT /admin/daily-questions/:id/status
+Authorization: Bearer <token>
+
+{ "status": 1 }
 ```
 
-**响应**
-
-```json
-{
-  "code": 200,
-  "message": "问题更新成功",
-  "data": null
-}
-```
-
-### 8.7 删除问题（后台）
-
-**请求**
+### 8.10 删除问题（后台）
 
 ```
 DELETE /admin/daily-questions/:id
-```
-
-**请求头**
-
-```
 Authorization: Bearer <token>
-```
-
-**响应**
-
-```json
-{
-  "code": 200,
-  "message": "问题删除成功",
-  "data": null
-}
 ```
 
 ---
 
-## 九、媒体库模块
+## 九、媒体模块（后台，仅上传/列表/删除，无媒体库页面）
 
-### 9.1 上传文件（后台）
-
-**请求**
+### 9.1 上传文件
 
 ```
 POST /media/upload
-```
-
-**请求头**
-
-```
 Authorization: Bearer <token>
 Content-Type: multipart/form-data
 ```
 
-**请求参数**
-
-| 参数名 | 类型 | 必填 | 说明 |
-|--------|------|------|------|
-| file | file | 是 | 文件（支持 JPG、PNG、GIF、WebP、PDF） |
+| 参数 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| file | file | 是 | 支持 JPG、PNG、GIF、WebP、PDF 等 |
 
 **响应**
 
 ```json
 {
-  "code": 200,
+  "code": 0,
   "message": "上传成功",
   "data": {
-    "id": 1,
-    "filename": "image.jpg",
-    "url": "https://example.com/uploads/2026/06/image.jpg",
+    "filename": "1783049034191.jpg",
+    "url": "http://localhost:8080/uploads/1783049034191.jpg",
     "size": 102400,
-    "mime_type": "image/jpeg",
-    "created_at": "2026-06-15T10:00:00Z"
+    "mime_type": "image/jpeg"
   }
 }
 ```
 
-### 9.2 获取媒体列表（后台）
-
-**请求**
+### 9.2 获取媒体列表
 
 ```
 GET /media
-```
-
-**请求头**
-
-```
 Authorization: Bearer <token>
 ```
 
-**查询参数**
+### 9.3 删除媒体文件
 
-| 参数名 | 类型 | 必填 | 说明 |
-|--------|------|------|------|
-| page | int | 否 | 页码 |
-| page_size | int | 否 | 每页数量 |
-| type | string | 否 | 类型：image/document |
-| keyword | string | 否 | 搜索关键词 |
+```
+DELETE /media/:filename
+Authorization: Bearer <token>
+```
+
+说明：根据文件名从 `uploads/` 目录物理删除。
+
+---
+
+## 十、关于页面
+
+### 10.1 获取关于页面内容（前台）
+
+```
+GET /about
+```
 
 **响应**
 
 ```json
 {
-  "code": 200,
+  "code": 0,
   "message": "success",
   "data": {
-    "list": [
-      {
-        "id": 1,
-        "filename": "image.jpg",
-        "url": "https://example.com/uploads/2026/06/image.jpg",
-        "size": 102400,
-        "mime_type": "image/jpeg",
-        "created_at": "2026-06-15T10:00:00Z"
-      }
-    ],
-    "total": 50,
-    "page": 1,
-    "page_size": 20
+    "id": 1,
+    "content": "# 关于我\n\n这里是关于页面 Markdown 内容...",
+    "updated_at": "2026-07-10T00:00:00Z"
   }
 }
 ```
 
-### 9.3 删除媒体文件（后台）
-
-**请求**
+### 10.2 更新关于页面（后台）
 
 ```
-DELETE /media/:id
-```
-
-**请求头**
-
-```
+PUT /admin/about
 Authorization: Bearer <token>
-```
 
-**响应**
-
-```json
 {
-  "code": 200,
-  "message": "文件删除成功",
-  "data": null
+  "content": "# 关于我\n\n更新后的内容..."
 }
 ```
 
 ---
 
-## 十、娱乐模块（影视/游戏）
+## 十一、仪表盘（后台）
 
-### 10.1 获取娱乐列表（前台）
-
-**请求**
-
-```
-GET /entertainment
-```
-
-**查询参数**
-
-| 参数名 | 类型 | 必填 | 说明 |
-|--------|------|------|------|
-| year | int | 否 | 年份 |
-| type | string | 否 | 类型：movie/tv/game |
-
-**响应**
-
-```json
-{
-  "code": 200,
-  "message": "success",
-  "data": {
-    "movies": [
-      {
-        "id": 1,
-        "title": "挽救计划",
-        "title_en": "Project Hail Mary",
-        "type": "movie",
-        "year": 2026,
-        "cover": "https://example.com/cover.jpg",
-        "rating": 8.8,
-        "rating_external": 8.2,
-        "comment": "男主演技很棒，非常好的科幻电影",
-        "status": "watched",
-        "link": "https://www.themoviedb.org/movie/687163"
-      }
-    ],
-    "tv": [],
-    "games": [
-      {
-        "id": 1,
-        "title": "Slay the Spire 2",
-        "type": "game",
-        "year": 2026,
-        "cover": "https://example.com/cover.jpg",
-        "rating": 9.6,
-        "rating_external": 9.6,
-        "platform": "PC",
-        "playtime": "35H",
-        "comment": "看起来跟一代差不多，玩起来还是沉迷",
-        "status": "completed"
-      }
-    ]
-  }
-}
-```
-
-### 10.2 获取娱乐列表（后台）
-
-**请求**
-
-```
-GET /admin/entertainment
-```
-
-**请求头**
-
-```
-Authorization: Bearer <token>
-```
-
-**查询参数**
-
-| 参数名 | 类型 | 必填 | 说明 |
-|--------|------|------|------|
-| page | int | 否 | 页码 |
-| page_size | int | 否 | 每页数量 |
-| type | string | 否 | 类型：movie/tv/game |
-| year | int | 否 | 年份 |
-| status | string | 否 | 状态 |
-
-**响应**
-
-```json
-{
-  "code": 200,
-  "message": "success",
-  "data": {
-    "list": [
-      {
-        "id": 1,
-        "title": "挽救计划",
-        "title_en": "Project Hail Mary",
-        "type": "movie",
-        "year": 2026,
-        "cover": "https://example.com/cover.jpg",
-        "rating": 8.8,
-        "rating_external": 8.2,
-        "comment": "男主演技很棒，非常好的科幻电影",
-        "status": "watched",
-        "link": "https://www.themoviedb.org/movie/687163",
-        "created_at": "2026-06-15T00:00:00Z"
-      }
-    ],
-    "total": 12,
-    "page": 1,
-    "page_size": 10
-  }
-}
-```
-
-### 10.3 创建娱乐条目（后台）
-
-**请求**
-
-```
-POST /admin/entertainment
-```
-
-**请求头**
-
-```
-Authorization: Bearer <token>
-```
-
-**请求体**
-
-```json
-{
-  "title": "新电影",
-  "title_en": "New Movie",
-  "type": "movie",
-  "year": 2026,
-  "cover": "https://example.com/cover.jpg",
-  "rating": 8.5,
-  "rating_external": 8.0,
-  "comment": "电影评论",
-  "status": "watched",
-  "link": "https://www.themoviedb.org/movie/xxx"
-}
-```
-
-**响应**
-
-```json
-{
-  "code": 200,
-  "message": "创建成功",
-  "data": {
-    "id": 13
-  }
-}
-```
-
-### 10.4 更新娱乐条目（后台）
-
-**请求**
-
-```
-PUT /admin/entertainment/:id
-```
-
-**请求头**
-
-```
-Authorization: Bearer <token>
-```
-
-**请求体**
-
-```json
-{
-  "title": "更新后的标题",
-  "rating": 9.0,
-  "status": "completed"
-}
-```
-
-**响应**
-
-```json
-{
-  "code": 200,
-  "message": "更新成功",
-  "data": null
-}
-```
-
-### 10.5 删除娱乐条目（后台）
-
-**请求**
-
-```
-DELETE /admin/entertainment/:id
-```
-
-**请求头**
-
-```
-Authorization: Bearer <token>
-```
-
-**响应**
-
-```json
-{
-  "code": 200,
-  "message": "删除成功",
-  "data": null
-}
-```
-
----
-
-## 十一、系统设置模块
-
-### 11.1 获取系统设置（后台）
-
-**请求**
-
-```
-GET /admin/settings
-```
-
-**请求头**
-
-```
-Authorization: Bearer <token>
-```
-
-**响应**
-
-```json
-{
-  "code": 200,
-  "message": "success",
-  "data": {
-    "site_name": "Liu Houliang - 个人博客",
-    "site_description": "日常落灰的个人博客，分享 Golang、AI 和 NAS 折腾经验",
-    "site_url": "https://liuhouliang.com",
-    "site_keywords": "博客,Golang,AI,NAS",
-    "seo_title": "Liu Houliang - Go 开发者",
-    "seo_description": "分享 Golang 开发、AI 和 NAS 折腾经验",
-    "seo_keywords": "Golang,AI,NAS,编程,技术",
-    "page_size": 10,
-    "favicon": "https://example.com/favicon.ico",
-    "logo": "https://example.com/logo.png"
-  }
-}
-```
-
-### 11.2 更新系统设置（后台）
-
-**请求**
-
-```
-PUT /admin/settings
-```
-
-**请求头**
-
-```
-Authorization: Bearer <token>
-```
-
-**请求体**
-
-```json
-{
-  "site_name": "新的博客名称",
-  "site_description": "新的博客描述",
-  "site_url": "https://new-url.com",
-  "site_keywords": "新关键词",
-  "seo_title": "新的 SEO 标题",
-  "seo_description": "新的 SEO 描述",
-  "seo_keywords": "新 SEO 关键词",
-  "page_size": 15
-}
-```
-
-**响应**
-
-```json
-{
-  "code": 200,
-  "message": "设置保存成功",
-  "data": null
-}
-```
-
----
-
-## 十二、仪表盘模块
-
-### 12.1 获取仪表盘统计（后台）
-
-**请求**
+### 11.1 获取仪表盘统计
 
 ```
 GET /admin/dashboard/stats
-```
-
-**请求头**
-
-```
 Authorization: Bearer <token>
 ```
 
@@ -1882,53 +1027,66 @@ Authorization: Bearer <token>
 
 ```json
 {
-  "code": 200,
+  "code": 0,
   "message": "success",
   "data": {
-    "article_count": 6,
-    "published_count": 5,
-    "draft_count": 1,
-    "total_views": 1050,
-    "total_likes": 1200,
-    "comment_count": 12,
-    "pending_comment_count": 3,
-    "link_count": 4,
-    "category_count": 3,
-    "tag_count": 12,
-    "daily_question_count": 30
+    "article_count": 20,
+    "published_count": 18,
+    "draft_count": 2,
+    "total_views": 12500,
+    "today_views": 36,
+    "comment_count": 256,
+    "pending_count": 3
   }
 }
 ```
 
-### 12.2 获取最近文章（后台）
-
-**请求**
+### 11.2 获取最近文章
 
 ```
-GET /admin/dashboard/recent-articles
-```
-
-**请求头**
-
-```
+GET /admin/dashboard/recent-articles?limit=5
 Authorization: Bearer <token>
 ```
 
-**响应**
+查询参数 `limit`：1 ~ 20，默认 5。
 
-```json
-{
-  "code": 200,
-  "message": "success",
-  "data": [
-    {
-      "id": 1,
-      "title": "我的博客主题已开源",
-      "view_count": 252,
-      "created_at": "2026-04-24T10:00:00Z"
-    }
-  ]
-}
+---
+
+## 十二、审计日志（后台）
+
+### 12.1 获取审计日志列表
+
+```
+GET /admin/audit-logs
+Authorization: Bearer <token>
+```
+
+**查询参数**
+
+| 参数 | 类型 | 说明 |
+|------|------|------|
+| page | int | 页码 |
+| page_size | int | 每页数量 |
+| action | string | 操作类型过滤（登录/创建文章/删除评论 等） |
+| module | string | 模块过滤（auth/article/comment 等） |
+| keyword | string | 操作者/详情 搜索 |
+
+**说明**：仅记录管理员写操作（创建/更新/删除/登录等），读操作不记录。
+
+---
+
+## 十三、RSS / Sitemap（公开，无需 Token）
+
+### 13.1 RSS 订阅
+
+```
+GET /rss.xml   或  GET /rss
+```
+
+### 13.2 Sitemap
+
+```
+GET /sitemap.xml
 ```
 
 ---
@@ -1946,27 +1104,20 @@ Authorization: Bearer <token>
 - `approved` - 已通过
 - `rejected` - 已拒绝
 
-**友链状态**
-- `pending` - 待审核
-- `approved` - 已通过
-- `rejected` - 已拒绝
-
 **每日一问状态**
 - `0` - 禁用
 - `1` - 启用
 
-**娱乐状态**
-- `watching` - 在看
-- `watched` - 已看
-- `playing` - 在玩
-- `completed` - 已完成
+**评论排序方式**
+- `hot` - 热度优先（点赞数×2 + 所有层级回复数，同分按时间倒序）
+- `time_desc` - 时间倒序（最新在前）
+- `time_asc` - 时间正序（最早在前）
 
-### 2. 数据类型说明
+### 2. 头像获取规则
 
-**娱乐类型**
-- `movie` - 电影
-- `tv` - 剧集
-- `game` - 游戏
+1. 邮箱为 QQ 邮箱（含 `@vip.qq.com`）→ 提取 QQ 号，走 `https://thirdqq.qlogo.cn/g?b=qq&nk={QQ号}&s=100`
+2. 其他邮箱 → 走 Gravatar
+3. 无邮箱或 Gravatar 无头像 → 后端返回空字符串，前端走 `ui-avatars.com` 生成首字母头像兜底
 
 ### 3. 媒体类型
 
@@ -1978,3 +1129,10 @@ Authorization: Bearer <token>
 - 默认页码：1
 - 默认每页数量：10
 - 最大每页数量：50
+
+### 5. 模块变更记录
+
+| 版本 | 变更内容 |
+|------|----------|
+| v2026-07-11 | 移除娱乐模块(entertainment)、移除友链模块(link)；新增评论排序 sort_by；新增文章 /articles/search；补充用户/关于/审计日志/RSS/Sitemap 接口 |
+| v2026-07-10 | 评论响应补充 is_admin、reply_to、like_count；新增 OptionalAuth；新增修改密码 PUT /auth/password |

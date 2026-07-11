@@ -318,83 +318,6 @@ func UpdateCommentStatus() {}
 // @Router /admin/comments/{id} [delete]
 func DeleteComment() {}
 
-// ==================== 友链模块 ====================
-
-// @Summary 获取友链列表（前台）
-// @Description 获取所有已审核的友链
-// @Tags 友链
-// @Produce json
-// @Success 200 {object} response.Response{data=[]response.LinkResponse}
-// @Router /links [get]
-func GetLinkList() {}
-
-// @Summary 申请友链
-// @Description 提交友链申请
-// @Tags 友链
-// @Accept json
-// @Produce json
-// @Param request body request.ApplyLinkRequest true "申请友链请求"
-// @Success 200 {object} response.Response
-// @Router /links/apply [post]
-func ApplyLink() {}
-
-// @Summary 获取友链列表（后台）
-// @Description 管理员获取所有友链
-// @Tags 友链
-// @Security BearerAuth
-// @Produce json
-// @Param page query int false "页码" default(1)
-// @Param page_size query int false "每页数量" default(10)
-// @Param status query string false "友链状态" Enums(pending, approved, rejected)
-// @Success 200 {object} response.Response{data=[]response.LinkResponse}
-// @Router /admin/links [get]
-func GetAdminLinkList() {}
-
-// @Summary 创建友链
-// @Description 创建新友链
-// @Tags 友链
-// @Security BearerAuth
-// @Accept json
-// @Produce json
-// @Param request body request.CreateLinkRequest true "创建友链请求"
-// @Success 200 {object} response.Response{data=object{id=int}}
-// @Router /admin/links [post]
-func CreateLink() {}
-
-// @Summary 更新友链
-// @Description 更新友链信息
-// @Tags 友链
-// @Security BearerAuth
-// @Accept json
-// @Produce json
-// @Param id path int true "友链 ID"
-// @Param request body request.UpdateLinkRequest true "更新友链请求"
-// @Success 200 {object} response.Response
-// @Router /admin/links/{id} [put]
-func UpdateLink() {}
-
-// @Summary 删除友链
-// @Description 删除指定友链
-// @Tags 友链
-// @Security BearerAuth
-// @Produce json
-// @Param id path int true "友链 ID"
-// @Success 200 {object} response.Response
-// @Router /admin/links/{id} [delete]
-func DeleteLink() {}
-
-// @Summary 审核友链
-// @Description 审核友链状态
-// @Tags 友链
-// @Security BearerAuth
-// @Accept json
-// @Produce json
-// @Param id path int true "友链 ID"
-// @Param request body request.UpdateLinkStatusRequest true "更新友链状态请求"
-// @Success 200 {object} response.Response
-// @Router /admin/links/{id}/status [put]
-func UpdateLinkStatus() {}
-
 // ==================== 每日一问模块 ====================
 
 // @Summary 获取今日问题
@@ -504,28 +427,6 @@ func GetMediaList() {}
 // @Success 200 {object} response.Response
 // @Router /admin/media/{id} [delete]
 func DeleteMedia() {}
-
-// ==================== 系统设置模块 ====================
-
-// @Summary 获取系统设置
-// @Description 获取博客系统设置
-// @Tags 系统设置
-// @Security BearerAuth
-// @Produce json
-// @Success 200 {object} response.Response{data=response.SettingsResponse}
-// @Router /admin/settings [get]
-func GetSettings() {}
-
-// @Summary 更新系统设置
-// @Description 更新博客系统设置
-// @Tags 系统设置
-// @Security BearerAuth
-// @Accept json
-// @Produce json
-// @Param request body request.UpdateSettingsRequest true "更新设置请求"
-// @Success 200 {object} response.Response
-// @Router /admin/settings [put]
-func UpdateSettings() {}
 
 // ==================== 仪表盘模块 ====================
 
