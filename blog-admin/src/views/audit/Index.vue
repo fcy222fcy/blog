@@ -1,7 +1,7 @@
 <template>
-  <div>
-    <div class="card">
-      <div class="card-header">
+  <div class="audit-page">
+    <div class="card audit-card">
+      <div class="card-header audit-card-header">
         <div class="card-title">操作日志</div>
         <div class="filter-group">
           <div class="custom-select-wrapper" v-click-outside="closeActionDropdown">
@@ -39,7 +39,7 @@
         </div>
       </div>
 
-      <div class="card-body" style="padding: 0;">
+      <div class="card-body audit-table-body" style="padding: 0;">
         <div v-if="loading" style="padding: 60px; text-align: center; color: var(--card-text-color-tertiary);">
           加载中...
         </div>
@@ -76,7 +76,7 @@
         </table>
       </div>
 
-      <div class="card-body" v-if="total > pageSize">
+      <div class="card-body audit-pagination-body" v-if="total > pageSize">
         <div class="pagination">
           <div class="pagination-info">
             共 <span>{{ total }}</span> 条记录
@@ -195,9 +195,37 @@ const vClickOutside = {
 </script>
 
 <style scoped>
+.audit-page {
+  width: 100%;
+}
+
+.audit-card {
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden;
+}
+
+.audit-card-header {
+  padding: 16px 20px;
+  gap: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.audit-table-body {
+  overflow-x: auto;
+  width: 100%;
+}
+
+.audit-pagination-body {
+  padding: 12px 20px;
+  border-top: 1px solid var(--card-separator-color);
+}
+
 .filter-group {
   display: flex;
-  gap: 12px;
+  gap: 8px;
   flex-wrap: wrap;
   align-items: center;
 }
@@ -211,7 +239,7 @@ const vClickOutside = {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 8px 32px 8px 12px;
+  padding: 7px 30px 7px 11px;
   border: 1px solid var(--card-separator-color);
   border-radius: var(--card-border-radius);
   font-size: 13px;
@@ -220,7 +248,7 @@ const vClickOutside = {
   background: var(--card-background);
   cursor: pointer;
   transition: all 0.15s ease;
-  min-width: 100px;
+  min-width: 96px;
 }
 
 .custom-select:hover {
@@ -259,7 +287,7 @@ const vClickOutside = {
 }
 
 .dropdown-item {
-  padding: 10px 12px;
+  padding: 8px 12px;
   font-size: 13px;
   color: var(--card-text-color-main);
   cursor: pointer;
@@ -291,7 +319,7 @@ const vClickOutside = {
 .action-badge {
   display: inline-flex;
   align-items: center;
-  padding: 4px 10px;
+  padding: 3px 8px;
   border-radius: 4px;
   font-size: 12px;
   font-weight: 600;
@@ -306,30 +334,36 @@ const vClickOutside = {
 .data-table {
   width: 100%;
   border-collapse: collapse;
-  table-layout: fixed;
 }
 .data-table th {
-  padding: 12px 12px;
+  padding: 9px 12px;
   text-align: left;
-  border-bottom: 2px solid var(--card-separator-color);
-  font-size: 13px;
+  border-bottom: 1px solid var(--card-separator-color);
+  font-size: 12px;
   font-weight: 600;
   color: var(--card-text-color-secondary);
   background: var(--body-background);
-  white-space: nowrap;
 }
+.data-table th:nth-child(1) { width: 6%; }
+.data-table th:nth-child(2) { width: 10%; }
+.data-table th:nth-child(3) { width: 8%; text-align: center; }
+.data-table th:nth-child(4) { width: 10%; }
+.data-table th:nth-child(5) { width: 40%; }
+.data-table th:nth-child(6) { width: 16%; }
+.data-table th:nth-child(7) { width: 10%; }
 .data-table td {
-  padding: 10px 12px;
+  padding: 9px 12px;
   border-bottom: 1px solid var(--card-separator-color);
   font-size: 13px;
   color: var(--card-text-color-main);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
-.data-table tbody tr {
-  height: 48px;
-}
+.data-table td:nth-child(1) { width: 6%; }
+.data-table td:nth-child(2) { width: 10%; }
+.data-table td:nth-child(3) { width: 8%; }
+.data-table td:nth-child(4) { width: 10%; }
+.data-table td:nth-child(5) { width: 40%; }
+.data-table td:nth-child(6) { width: 16%; }
+.data-table td:nth-child(7) { width: 10%; }
 .data-table tbody tr:hover {
   background: rgba(var(--accent-color-rgb), 0.02);
 }
