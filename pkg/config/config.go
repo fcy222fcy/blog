@@ -24,6 +24,7 @@ type Config struct {
 
 // AppConfig 应用通用配置
 type AppConfig struct {
+	UploadDir  string `mapstructure:"upload_dir"`
 	SeedData   bool   `mapstructure:"seed_data"`    // 启动时若库为空，自动填充初始数据
 	InitSQLDir string `mapstructure:"init_sql_dir"` // init_data.sql 所在目录，默认 scripts
 }
@@ -103,6 +104,7 @@ func Load() (*Config, error) {
 	// 设置默认值（未配置时的兜底）
 	viper.SetDefault("app.seed_data", true)
 	viper.SetDefault("app.init_sql_dir", "")
+	viper.SetDefault("app.upload_dir", "uploads")
 	viper.SetDefault("server.port", 9090)
 
 	// 读取环境变量
@@ -164,6 +166,7 @@ func applyEnvOverrides(config *Config) {
 
 	overrideBool(&config.App.SeedData, "APP_SEED_DATA")
 	overrideString(&config.App.InitSQLDir, "APP_INIT_SQL_DIR")
+	overrideString(&config.App.UploadDir, "APP_UPLOAD_DIR", "UPLOAD_DIR")
 }
 
 func loadDotEnv(path string) {

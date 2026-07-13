@@ -33,23 +33,23 @@ type Router struct {
 	config *config.Config
 
 	// 各模块 controller
-	authController         *auth.Controller
-	userController         *user.Controller
-	articleController      *article.Controller
-	categoryController     *category.Controller
-	tagController          *tag.Controller
-	commentController      *comment.Controller
+	authController          *auth.Controller
+	userController          *user.Controller
+	articleController       *article.Controller
+	categoryController      *category.Controller
+	tagController           *tag.Controller
+	commentController       *comment.Controller
 	dailyQuestionController *daily_question.Controller
-	aboutPageController    *about_page.Controller
-	mediaController        *media.Controller
-	auditLogController     *audit_log.Controller
-	rssHandler             *rss.Handler
-	sitemapHandler         *sitemap.Handler
+	aboutPageController     *about_page.Controller
+	mediaController         *media.Controller
+	auditLogController      *audit_log.Controller
+	rssHandler              *rss.Handler
+	sitemapHandler          *sitemap.Handler
 
 	// 仓库（用于仪表盘统计）
-	articleRepo  repository.ArticleRepository
-	commentRepo  repository.CommentRepository
-	visitRepo    repository.VisitRepository
+	articleRepo repository.ArticleRepository
+	commentRepo repository.CommentRepository
+	visitRepo   repository.VisitRepository
 
 	// 审计日志服务（供中间件使用）
 	auditLogSvc service.AuditLogService
@@ -79,24 +79,24 @@ func NewRouter(
 	}
 
 	return &Router{
-		engine:                 engine,
-		config:                 config,
-		authController:         auth.NewController(authSvc),
-		userController:         user.NewController(userSvc),
-		articleController:      article.NewController(articleSvc),
-		categoryController:     category.NewController(categorySvc),
-		tagController:          tag.NewController(tagSvc),
-		commentController:      comment.NewController(commentSvc),
+		engine:                  engine,
+		config:                  config,
+		authController:          auth.NewController(authSvc),
+		userController:          user.NewController(userSvc),
+		articleController:       article.NewController(articleSvc),
+		categoryController:      category.NewController(categorySvc),
+		tagController:           tag.NewController(tagSvc),
+		commentController:       comment.NewController(commentSvc),
 		dailyQuestionController: daily_question.NewController(dailyQuestionSvc),
-		aboutPageController:    about_page.NewController(aboutPageSvc),
-		mediaController:        media.NewController(),
-		auditLogController:     audit_log.NewController(auditLogSvc),
-		rssHandler:             rss.NewHandler(articleRepo),
-		sitemapHandler:         sitemap.NewHandler(articleRepo),
-		articleRepo:            articleRepo,
-		commentRepo:            commentRepo,
-		visitRepo:              visitRepo,
-		auditLogSvc:            auditLogSvc,
+		aboutPageController:     about_page.NewController(aboutPageSvc),
+		mediaController:         media.NewController(config.App.UploadDir),
+		auditLogController:      audit_log.NewController(auditLogSvc),
+		rssHandler:              rss.NewHandler(articleRepo),
+		sitemapHandler:          sitemap.NewHandler(articleRepo),
+		articleRepo:             articleRepo,
+		commentRepo:             commentRepo,
+		visitRepo:               visitRepo,
+		auditLogSvc:             auditLogSvc,
 	}
 }
 
@@ -140,7 +140,7 @@ func (r *Router) Setup() *gin.Engine {
 	r.registerAboutPageRoutes(apiV1)
 
 	// 静态文件服务 - 上传的文件
-	r.engine.Static("/uploads", "./uploads")
+	r.engine.Static("/uploads", r.mediaController.UploadDir())
 
 	return r.engine
 }
@@ -220,13 +220,13 @@ func (r *Router) getDashboardStats(c *gin.Context) {
 		"code":    0,
 		"message": "success",
 		"data": gin.H{
-			"article_count":      articleCount,
-			"published_count":    publishedCount,
-			"draft_count":        articleCount - publishedCount,
-			"total_views":        totalViews,
-			"today_views":        todayViews,
-			"comment_count":      commentCount,
-			"pending_count":      pendingCommentCount,
+			"article_count":   articleCount,
+			"published_count": publishedCount,
+			"draft_count":     articleCount - publishedCount,
+			"total_views":     totalViews,
+			"today_views":     todayViews,
+			"comment_count":   commentCount,
+			"pending_count":   pendingCommentCount,
 		},
 	})
 }
@@ -251,12 +251,12 @@ func (r *Router) getRecentArticles(c *gin.Context) {
 
 	// 转换为简化响应格式
 	type recentArticle struct {
-		ID          uint   `json:"id"`
-		Title       string `json:"title"`
-		Summary     string `json:"summary"`
-		Cover       string `json:"cover"`
-		ViewCount   int64  `json:"view_count"`
-		CreatedAt   string `json:"created_at"`
+		ID        uint   `json:"id"`
+		Title     string `json:"title"`
+		Summary   string `json:"summary"`
+		Cover     string `json:"cover"`
+		ViewCount int64  `json:"view_count"`
+		CreatedAt string `json:"created_at"`
 	}
 
 	var result []recentArticle

@@ -65,6 +65,7 @@ services:
       DB_HOST: mysql
       REDIS_HOST: redis
       APP_INIT_SQL_DIR: /app/scripts
+      APP_UPLOAD_DIR: ${APP_UPLOAD_DIR:-/app/uploads}
       TZ: Asia/Shanghai
     expose:
       - "9090"

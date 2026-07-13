@@ -14,16 +14,16 @@ import (
 )
 
 const (
-	BaseUploadDir = "./uploads"
+	DefaultUploadDir = "uploads"
 )
 
 var allowedCategories = map[string]bool{
-	"avatar":      true,
-	"article":     true,
-	"daily":       true,
+	"avatar":        true,
+	"article":       true,
+	"daily":         true,
 	"entertainment": true,
-	"link":        true,
-	"common":      true,
+	"link":          true,
+	"common":        true,
 }
 
 func normalizeCategory(cat string) string {
@@ -35,11 +35,27 @@ func normalizeCategory(cat string) string {
 }
 
 // Controller 媒体控制器
-type Controller struct{}
+type Controller struct {
+	uploadDir string
+}
 
 // NewController 创建媒体控制器
-func NewController() *Controller {
-	return &Controller{}
+func NewController(uploadDir string) *Controller {
+	uploadDir = strings.TrimSpace(uploadDir)
+	if uploadDir == "" {
+		uploadDir = DefaultUploadDir
+	}
+	if !filepath.IsAbs(uploadDir) {
+		if absoluteDir, err := filepath.Abs(uploadDir); err == nil {
+			uploadDir = absoluteDir
+		}
+	}
+
+	return &Controller{uploadDir: filepath.Clean(uploadDir)}
+}
+
+func (c *Controller) UploadDir() string {
+	return c.uploadDir
 }
 
 // Upload 上传文件
@@ -84,7 +100,7 @@ func (c *Controller) Upload(ctx *gin.Context) {
 	}
 
 	// 生成分类目录
-	uploadDir := filepath.Join(BaseUploadDir, category)
+	uploadDir := filepath.Join(c.uploadDir, category)
 	if err := os.MkdirAll(uploadDir, 0755); err != nil {
 		response.ServerError(ctx, "创建上传目录失败")
 		return
@@ -131,7 +147,7 @@ func (c *Controller) List(ctx *gin.Context) {
 
 	// 扫描上传目录（递归），构造所有文件列表
 	var mediaList []gin.H
-	baseDir := BaseUploadDir
+	baseDir := c.uploadDir
 
 	// 先检查根目录是否存在
 	if _, err := os.Stat(baseDir); os.IsNotExist(err) {
@@ -235,8 +251,8 @@ func (c *Controller) List(ctx *gin.Context) {
 //   - 新格式：通过 query 传 category（如 ?category=avatar），filename 为纯文件名
 //     目标文件 = uploads/<category>/<filename>
 //   - 兼容格式：不传 category，filename 允许 "分类/文件名" 或 "文件名"
-//     - 含 "/"：自动解析第一段为分类
-//     - 不含 "/"：视为旧根目录文件，分类 = common
+//   - 含 "/"：自动解析第一段为分类
+//   - 不含 "/"：视为旧根目录文件，分类 = common
 func (c *Controller) Delete(ctx *gin.Context) {
 	filenameParam := strings.TrimSpace(ctx.Param("filename"))
 	if filenameParam == "" {
@@ -271,7 +287,7 @@ func (c *Controller) Delete(ctx *gin.Context) {
 		return
 	}
 
-	filePath := filepath.Join(BaseUploadDir, relPath)
+	filePath := filepath.Join(c.uploadDir, relPath)
 
 	// 检查文件是否存在
 	if _, err := os.Stat(filePath); os.IsNotExist(err) {

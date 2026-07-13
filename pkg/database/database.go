@@ -201,7 +201,7 @@ func findMatchingBracket(s string, open int) int {
 	return -1
 }
 
-// splitSQLStatements 按分号拆分 SQL 语句，正确处理引号、反引号、MySQL '' 转义和注释
+// splitSQLStatements 按分号拆分 SQL 语句，正确处理引号、反引号、MySQL ” 转义和注释
 func splitSQLStatements(f *os.File) []string {
 	var (
 		stmts   []string
@@ -255,6 +255,7 @@ func splitSQLStatements(f *os.File) []string {
 			switch r {
 			case '\'':
 				if !inD && !inBack {
+					cur.WriteRune(r)
 					if inS {
 						// MySQL 标准 '' 转义为单引号字符
 						if i+1 < len(runes) && runes[i+1] == '\'' {
@@ -272,6 +273,7 @@ func splitSQLStatements(f *os.File) []string {
 				}
 			case '"':
 				if !inS && !inBack {
+					cur.WriteRune(r)
 					if inD {
 						if i+1 < len(runes) && runes[i+1] == '"' {
 							cur.WriteRune('"')
@@ -288,6 +290,7 @@ func splitSQLStatements(f *os.File) []string {
 				}
 			case '`':
 				if !inS && !inD {
+					cur.WriteRune(r)
 					inBack = !inBack
 					i++
 					continue
@@ -300,27 +303,12 @@ func splitSQLStatements(f *os.File) []string {
 					continue
 				}
 			case '\\':
-				// 兼容反斜杠转义 \' / \" / \n 等
+				// 保留转义字符，避免改变传给 MySQL 的原始 SQL。
 				if (inS || inD) && i+1 < len(runes) {
-					next := runes[i+1]
-					switch next {
-					case '\'', '"', '\\':
-						cur.WriteRune(next)
-						i += 2
-						continue
-					case 'n':
-						cur.WriteByte('\n')
-						i += 2
-						continue
-					case 't':
-						cur.WriteByte('\t')
-						i += 2
-						continue
-					case 'r':
-						cur.WriteByte('\r')
-						i += 2
-						continue
-					}
+					cur.WriteRune(r)
+					cur.WriteRune(runes[i+1])
+					i += 2
+					continue
 				}
 			}
 

@@ -234,6 +234,7 @@
 import { ref, h, onMounted, onBeforeUnmount, reactive, computed } from 'vue'
 import { ElMessage } from 'element-plus'
 import { getAboutPage, updateAboutPage } from '../../api/about'
+import { parseProjects, parseSkills } from '../../utils/aboutData'
 
 const saveStatus = ref('idle')
 const newSkill = ref('')
@@ -465,13 +466,8 @@ onMounted(async () => {
       form.value.subtitle = res.data.subtitle || ''
       form.value.bio = res.data.bio || ''
 
-      try {
-        skills.value = JSON.parse(res.data.skills || '[]')
-      } catch (e) { skills.value = [] }
-
-      try {
-        projects.value = JSON.parse(res.data.projects || '[]')
-      } catch (e) { projects.value = [] }
+      skills.value = parseSkills(res.data.skills)
+      projects.value = parseProjects(res.data.projects)
 
       try {
         aboutMe.value = JSON.parse(res.data.about_me || '[]')

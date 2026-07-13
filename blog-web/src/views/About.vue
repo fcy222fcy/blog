@@ -27,7 +27,7 @@
 
       <h2>🚀 项目 & 链接</h2>
       <div class="project-grid">
-        <a v-for="project in projects" :key="project.name" :href="project.url" class="project-card" target="_blank">
+        <a v-for="(project, index) in projects" :key="`${project.name}-${index}`" :href="project.url || undefined" class="project-card" :target="project.url ? '_blank' : undefined" :rel="project.url ? 'noopener noreferrer' : undefined">
           <div class="project-icon-box">
             <component v-if="isSvgIcon(project.icon)" :is="renderIcon(project.icon)" class="inline-icon" />
             <template v-else>{{ project.icon }}</template>
@@ -94,6 +94,7 @@
 import { ref, onMounted, h } from 'vue'
 import { getAboutPage } from '../api/about'
 import { handleError } from '../utils/errorHandler'
+import { parseProjects, parseSkills } from '../utils/aboutData'
 import Loading from '../components/common/Loading.vue'
 
 const loading = ref(false)
@@ -252,14 +253,8 @@ const fetchAbout = async () => {
     if (res.data) {
       aboutData.value = res.data
 
-      // 解析 JSON 字符串
-      try {
-        skills.value = JSON.parse(res.data.skills || '[]')
-      } catch (e) { skills.value = [] }
-
-      try {
-        projects.value = JSON.parse(res.data.projects || '[]')
-      } catch (e) { projects.value = [] }
+      skills.value = parseSkills(res.data.skills)
+      projects.value = parseProjects(res.data.projects)
 
       try {
         aboutMe.value = JSON.parse(res.data.about_me || '[]')
