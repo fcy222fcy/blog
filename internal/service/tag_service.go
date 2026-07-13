@@ -5,23 +5,34 @@ import (
 	"blog/internal/model/dto/response"
 	"blog/internal/model/entity"
 	"blog/internal/repository"
+	"blog/pkg/redis"
 	bizerrors "blog/pkg/errors"
 	"blog/pkg/logger"
+	"context"
 	"fmt"
+	"time"
 )
 
 // tagService 标签服务实现
 type tagService struct {
-	tagRepo repository.TagRepository
+	tagRepo     repository.TagRepository
+	redisClient *redis.Client
 }
 
 // NewTagService 创建标签服务
-func NewTagService(tagRepo repository.TagRepository) TagService {
-	return &tagService{tagRepo: tagRepo}
+func NewTagService(tagRepo repository.TagRepository, redisClient *redis.Client) TagService {
+	return &tagService{tagRepo: tagRepo, redisClient: redisClient}
 }
 
 // GetTagList 获取标签列表
 func (s *tagService) GetTagList() ([]response.TagResponse, error) {
+	if s.redisClient != nil {
+		var cachedList []response.TagResponse
+		if err := s.redisClient.GetJSON(context.Background(), "tag:list", &cachedList); err == nil {
+			return cachedList, nil
+		}
+	}
+
 	tags, err := s.tagRepo.List()
 	if err != nil {
 		return nil, fmt.Errorf("获取标签列表失败, %w", err)
@@ -38,6 +49,11 @@ func (s *tagService) GetTagList() ([]response.TagResponse, error) {
 			CreatedAt:    tag.CreatedAt,
 		})
 	}
+
+	if s.redisClient != nil {
+		go s.redisClient.SetJSON(context.Background(), "tag:list", result, 30*time.Minute)
+	}
+
 	return result, nil
 }
 
@@ -61,6 +77,9 @@ func (s *tagService) CreateTag(req *request.CreateTagRequest) (uint, error) {
 	}
 
 	logger.Infof("创建标签成功, id=%d, name=%s", tag.ID, tag.Name)
+
+	s.invalidateTagCache()
+
 	return tag.ID, nil
 }
 
@@ -93,6 +112,9 @@ func (s *tagService) UpdateTag(id uint, req *request.UpdateTagRequest) error {
 	}
 
 	logger.Infof("更新标签成功, id=%d", id)
+
+	s.invalidateTagCache()
+
 	return nil
 }
 
@@ -119,5 +141,19 @@ func (s *tagService) DeleteTag(id uint) error {
 	}
 
 	logger.Infof("删除标签成功, id=%d", id)
+
+	s.invalidateTagCache()
+
 	return nil
+}
+
+func (s *tagService) invalidateTagCache() {
+	if s.redisClient == nil {
+		return
+	}
+	ctx := context.Background()
+	keys := []string{
+		"tag:list",
+	}
+	go s.redisClient.Del(ctx, keys...)
 }

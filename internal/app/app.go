@@ -17,14 +17,16 @@ import (
 	"blog/pkg/email"
 	"blog/pkg/jwt"
 	"blog/pkg/logger"
+	"blog/pkg/redis"
 )
 
 // App 应用结构
 type App struct {
-	config *config.Config
-	engine *http.Server
-	router *api.Router
-	db     *database.Database
+	config     *config.Config
+	engine     *http.Server
+	router     *api.Router
+	db         *database.Database
+	redisClient *redis.Client
 }
 
 // NewApp 创建应用实例
@@ -43,10 +45,13 @@ func (a *App) Run() {
 	// 3. 初始化数据库
 	a.initDatabase()
 
-	// 4. 初始化依赖
+	// 4. 初始化 Redis
+	a.initRedis()
+
+	// 5. 初始化依赖
 	a.initDependencies()
 
-	// 5. 启动 HTTP 服务
+	// 6. 启动 HTTP 服务
 	a.startHTTPServer()
 }
 
@@ -78,6 +83,18 @@ func (a *App) initDatabase() {
 	if err := a.db.AutoMigrate(); err != nil {
 		log.Fatalf("数据库迁移失败: %v", err)
 	}
+
+	// 根据配置决定是否自动填充初始数据（仅当库为空时才会执行）
+	if a.config.App.SeedData {
+		if _, err := a.db.SeedIfEmpty(a.config.App.InitSQLDir); err != nil {
+			log.Fatalf("初始数据填充失败: %v", err)
+		}
+	}
+}
+
+// initRedis 初始化 Redis
+func (a *App) initRedis() {
+	a.redisClient = redis.NewClient(a.config.Redis)
 }
 
 // initDependencies 初始化依赖注入
@@ -97,9 +114,9 @@ func (a *App) initDependencies() {
 	jwtInstance := jwt.NewJWT(a.config.JWT)
 	userSvc := service.NewUserService(userRepo, a.config)
 	authSvc := service.NewAuthService(userRepo, jwtInstance, a.config)
-	articleSvc := service.NewArticleService(articleRepo, categoryRepo, tagRepo, visitRepo)
-	categorySvc := service.NewCategoryService(categoryRepo)
-	tagSvc := service.NewTagService(tagRepo)
+	articleSvc := service.NewArticleService(articleRepo, categoryRepo, tagRepo, visitRepo, a.redisClient)
+	categorySvc := service.NewCategoryService(categoryRepo, a.redisClient)
+	tagSvc := service.NewTagService(tagRepo, a.redisClient)
 	emailSvc := email.NewEmailService(a.config.Email)
 	commentSvc := service.NewCommentService(commentRepo, articleRepo, userRepo, emailSvc, a.config)
 	dailyQuestionSvc := service.NewDailyQuestionService(dailyQuestionRepo)
@@ -158,6 +175,13 @@ func (a *App) shutdown() {
 	// 关闭 HTTP 服务
 	if err := a.engine.Close(); err != nil {
 		log.Printf("关闭 HTTP 服务失败: %v", err)
+	}
+
+	// 关闭 Redis 连接
+	if a.redisClient != nil {
+		if err := a.redisClient.Close(); err != nil {
+			log.Printf("关闭 Redis 连接失败: %v", err)
+		}
 	}
 
 	// 关闭数据库连接

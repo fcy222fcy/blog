@@ -5,23 +5,34 @@ import (
 	"blog/internal/model/dto/response"
 	"blog/internal/model/entity"
 	"blog/internal/repository"
+	"blog/pkg/redis"
 	bizerrors "blog/pkg/errors"
 	"blog/pkg/logger"
+	"context"
 	"fmt"
+	"time"
 )
 
 // categoryService 分类服务实现
 type categoryService struct {
 	categoryRepo repository.CategoryRepository
+	redisClient  *redis.Client
 }
 
 // NewCategoryService 创建分类服务
-func NewCategoryService(categoryRepo repository.CategoryRepository) CategoryService {
-	return &categoryService{categoryRepo: categoryRepo}
+func NewCategoryService(categoryRepo repository.CategoryRepository, redisClient *redis.Client) CategoryService {
+	return &categoryService{categoryRepo: categoryRepo, redisClient: redisClient}
 }
 
 // GetCategoryList 获取分类列表
 func (s *categoryService) GetCategoryList() ([]response.CategoryResponse, error) {
+	if s.redisClient != nil {
+		var cachedList []response.CategoryResponse
+		if err := s.redisClient.GetJSON(context.Background(), "category:list", &cachedList); err == nil {
+			return cachedList, nil
+		}
+	}
+
 	categories, err := s.categoryRepo.List()
 	if err != nil {
 		return nil, fmt.Errorf("获取分类列表失败, %w", err)
@@ -40,6 +51,11 @@ func (s *categoryService) GetCategoryList() ([]response.CategoryResponse, error)
 			ArticleCount: count,
 		})
 	}
+
+	if s.redisClient != nil {
+		go s.redisClient.SetJSON(context.Background(), "category:list", result, 30*time.Minute)
+	}
+
 	return result, nil
 }
 
@@ -88,6 +104,9 @@ func (s *categoryService) CreateCategory(req *request.CreateCategoryRequest) (ui
 	}
 
 	logger.Infof("创建分类成功, id=%d, name=%s", category.ID, category.Name)
+
+	s.invalidateCategoryCache()
+
 	return category.ID, nil
 }
 
@@ -129,6 +148,9 @@ func (s *categoryService) UpdateCategory(id uint, req *request.UpdateCategoryReq
 	}
 
 	logger.Infof("更新分类成功, id=%d", id)
+
+	s.invalidateCategoryCache()
+
 	return nil
 }
 
@@ -155,5 +177,19 @@ func (s *categoryService) DeleteCategory(id uint) error {
 	}
 
 	logger.Infof("删除分类成功, id=%d", id)
+
+	s.invalidateCategoryCache()
+
 	return nil
+}
+
+func (s *categoryService) invalidateCategoryCache() {
+	if s.redisClient == nil {
+		return
+	}
+	ctx := context.Background()
+	keys := []string{
+		"category:list",
+	}
+	go s.redisClient.Del(ctx, keys...)
 }

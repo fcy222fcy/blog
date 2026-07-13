@@ -9,11 +9,7 @@ type Comment struct {
 	UserID       *uint     `gorm:"index" json:"user_id"`
 	User         *User     `gorm:"foreignKey:UserID" json:"user,omitempty"`
 
-	// 访客评论信息
-	VisitorID    *uint     `gorm:"index" json:"visitor_id"`
-	Visitor      *Visitor  `gorm:"foreignKey:VisitorID" json:"visitor,omitempty"`
-
-	// 兼容字段（可以考虑后续迁移时移除）
+	// 兼容字段（内联存储访客信息）
 	Nickname     string    `gorm:"type:varchar(50)" json:"nickname"`
 	Email        string    `gorm:"type:varchar(100)" json:"email"`
 	Website      string    `gorm:"type:varchar(200)" json:"website"`

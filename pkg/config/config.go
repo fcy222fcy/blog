@@ -1,8 +1,11 @@
 package config
 
 import (
+	"bufio"
 	"fmt"
 	"os"
+	"strconv"
+	"strings"
 
 	"github.com/spf13/viper"
 )
@@ -16,6 +19,13 @@ type Config struct {
 	Log     LogConfig     `mapstructure:"log"`
 	Email   EmailConfig   `mapstructure:"email"`
 	Blogger BloggerConfig `mapstructure:"blogger"`
+	App     AppConfig     `mapstructure:"app"`
+}
+
+// AppConfig 应用通用配置
+type AppConfig struct {
+	SeedData   bool   `mapstructure:"seed_data"`    // 启动时若库为空，自动填充初始数据
+	InitSQLDir string `mapstructure:"init_sql_dir"` // init_data.sql 所在目录，默认 scripts
 }
 
 // ServerConfig 服务器配置
@@ -32,9 +42,9 @@ type MySQLConfig struct {
 	DBName   string `mapstructure:"dbname"`
 }
 
-// DSN 获取数据库连接字符串
+// DSN 获取数据库连接字符串，默认启用 multiStatements 以便批量执行 SQL
 func (m *MySQLConfig) DSN() string {
-	return fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8mb4&parseTime=True&loc=Local",
+	return fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8mb4&parseTime=True&loc=Local&multiStatements=true",
 		m.Username, m.Password, m.Host, m.Port, m.DBName)
 }
 
@@ -83,12 +93,20 @@ type BloggerConfig struct {
 
 // Load 加载配置
 func Load() (*Config, error) {
+	loadDotEnv(".env")
+
 	viper.SetConfigName("config")
 	viper.SetConfigType("yaml")
 	viper.AddConfigPath("configs")
 	viper.AddConfigPath(".")
 
+	// 设置默认值（未配置时的兜底）
+	viper.SetDefault("app.seed_data", true)
+	viper.SetDefault("app.init_sql_dir", "")
+	viper.SetDefault("server.port", 9090)
+
 	// 读取环境变量
+	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
 	viper.AutomaticEnv()
 
 	// 读取配置文件
@@ -102,15 +120,133 @@ func Load() (*Config, error) {
 	}
 
 	// 环境变量覆盖敏感配置
-	if password := os.Getenv("MYSQL_PASSWORD"); password != "" {
-		config.MySQL.Password = password
-	}
-	if password := os.Getenv("REDIS_PASSWORD"); password != "" {
-		config.Redis.Password = password
-	}
-	if secret := os.Getenv("JWT_SECRET"); secret != "" {
-		config.JWT.Secret = secret
-	}
+	applyEnvOverrides(&config)
 
 	return &config, nil
+}
+
+func applyEnvOverrides(config *Config) {
+	overrideInt(&config.Server.Port, "SERVER_PORT", "BACKEND_PORT")
+
+	overrideString(&config.MySQL.Host, "DB_HOST", "MYSQL_HOST")
+	overrideInt(&config.MySQL.Port, "DB_PORT", "MYSQL_PORT")
+	overrideString(&config.MySQL.Username, "DB_USER", "MYSQL_USER", "MYSQL_USERNAME")
+	overrideString(&config.MySQL.Password, "DB_PASSWORD", "MYSQL_PASSWORD")
+	overrideString(&config.MySQL.DBName, "DB_NAME", "MYSQL_DATABASE", "MYSQL_DBNAME")
+
+	overrideString(&config.Redis.Host, "REDIS_HOST")
+	overrideInt(&config.Redis.Port, "REDIS_PORT")
+	overrideString(&config.Redis.Password, "REDIS_PASSWORD")
+	overrideInt(&config.Redis.DB, "REDIS_DB")
+
+	overrideString(&config.JWT.Secret, "JWT_SECRET")
+	overrideInt(&config.JWT.ExpireHour, "JWT_EXPIRE_HOURS", "JWT_EXPIRE_HOUR")
+
+	overrideString(&config.Log.Level, "LOG_LEVEL")
+	overrideString(&config.Log.Filename, "LOG_FILENAME")
+	overrideInt(&config.Log.MaxSize, "LOG_MAX_SIZE")
+	overrideInt(&config.Log.MaxBackups, "LOG_MAX_BACKUPS")
+	overrideInt(&config.Log.MaxAge, "LOG_MAX_AGE")
+
+	overrideString(&config.Email.Host, "EMAIL_HOST")
+	overrideInt(&config.Email.Port, "EMAIL_PORT")
+	overrideString(&config.Email.Username, "EMAIL_USER", "EMAIL_USERNAME")
+	overrideString(&config.Email.Password, "EMAIL_PASSWORD")
+	overrideString(&config.Email.From, "EMAIL_FROM")
+	overrideString(&config.Email.FromEmail, "EMAIL_FROM_EMAIL")
+
+	overrideUint(&config.Blogger.UserID, "BLOGGER_USER_ID")
+	overrideString(&config.Blogger.Username, "BLOGGER_USERNAME")
+	overrideString(&config.Blogger.Password, "BLOGGER_PASSWORD")
+	overrideString(&config.Blogger.Nickname, "BLOGGER_NICKNAME")
+	overrideString(&config.Blogger.Email, "BLOGGER_EMAIL")
+	overrideString(&config.Blogger.Avatar, "BLOGGER_AVATAR")
+
+	overrideBool(&config.App.SeedData, "APP_SEED_DATA")
+	overrideString(&config.App.InitSQLDir, "APP_INIT_SQL_DIR")
+}
+
+func loadDotEnv(path string) {
+	file, err := os.Open(path)
+	if err != nil {
+		return
+	}
+	defer file.Close()
+
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		key, value, ok := parseDotEnvLine(scanner.Text())
+		if !ok {
+			continue
+		}
+		if _, exists := os.LookupEnv(key); exists {
+			continue
+		}
+		_ = os.Setenv(key, value)
+	}
+}
+
+func parseDotEnvLine(line string) (string, string, bool) {
+	line = strings.TrimSpace(line)
+	if line == "" || strings.HasPrefix(line, "#") {
+		return "", "", false
+	}
+	line = strings.TrimPrefix(line, "export ")
+	parts := strings.SplitN(line, "=", 2)
+	if len(parts) != 2 {
+		return "", "", false
+	}
+	key := strings.TrimSpace(parts[0])
+	value := strings.TrimSpace(parts[1])
+	if key == "" {
+		return "", "", false
+	}
+	if len(value) >= 2 {
+		if (value[0] == '"' && value[len(value)-1] == '"') || (value[0] == '\'' && value[len(value)-1] == '\'') {
+			value = value[1 : len(value)-1]
+		}
+	}
+	return key, value, true
+}
+
+func overrideString(target *string, names ...string) {
+	if value, ok := firstEnv(names...); ok {
+		*target = value
+	}
+}
+
+func overrideInt(target *int, names ...string) {
+	if value, ok := firstEnv(names...); ok {
+		parsed, err := strconv.Atoi(value)
+		if err == nil {
+			*target = parsed
+		}
+	}
+}
+
+func overrideUint(target *uint, names ...string) {
+	if value, ok := firstEnv(names...); ok {
+		parsed, err := strconv.ParseUint(value, 10, 0)
+		if err == nil {
+			*target = uint(parsed)
+		}
+	}
+}
+
+func overrideBool(target *bool, names ...string) {
+	if value, ok := firstEnv(names...); ok {
+		parsed, err := strconv.ParseBool(value)
+		if err == nil {
+			*target = parsed
+		}
+	}
+}
+
+func firstEnv(names ...string) (string, bool) {
+	for _, name := range names {
+		if value, ok := os.LookupEnv(name); ok {
+			return value, true
+		}
+	}
+	return "", false
 }

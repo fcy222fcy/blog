@@ -278,31 +278,42 @@ const fetchAbout = async () => {
     // 使用默认数据
     aboutData.value = {
       title: 'Liu Houliang',
-      subtitle: 'Go 开发者 / 独立游戏开发者',
-      bio: '来自中国的程序员，擅长游戏和后端开发，喜欢玩游戏和骑自行车。'
+      subtitle: '后端开发者 / 独立开发者 / 游戏爱好者',
+      bio: '来自中国的全栈开发者，专注于 Go 语言后端服务与 Windows 桌面软件开发，同时在业余时间进行独立游戏开发探索。日常喜欢写博客记录技术踩坑经验、分享开发心得，周末热爱户外骑行放松身心，用代码构建可靠的系统，用文字记录成长的点滴。'
     }
-    skills.value = ['Golang', 'Erlang', 'Unity', 'Docker']
+    skills.value = ['Golang', 'Erlang', 'C# / WPF', 'Unity', 'Docker', 'Vue 3', 'MySQL', 'Gin', 'GORM']
     projects.value = [
-      { name: 'GitHub', description: '我的 GitHub 主页，包含各种编程项目。', url: 'https://github.com/fcy222fcy?tab=repositories', icon: 'github' },
-      { name: 'DesktopSnap', description: 'Windows 桌面图标保存和恢复工具。', url: 'https://desktopsnap.liuhouliang.com/', icon: 'monitor' }
+      { name: 'GitHub', description: '我的代码主页，收录了博客系统、Go 工具库、WPF 桌面应用、Unity 游戏 Demo 等 30+ 个开源项目，累计收获 100+ Stars。', url: 'https://github.com/fcy222fcy?tab=repositories', icon: 'github' },
+      { name: 'DesktopSnap', description: '一款已上架微软商店的 Windows 桌面图标布局工具，支持一键保存/恢复桌面图标位置、分辨率切换自动还原、多配置文件管理，累计下载 5000+ 次。', url: 'https://desktopsnap.liuhouliang.com/', icon: 'monitor' },
+      { name: '个人博客系统', description: '基于 Go + Gin + GORM + Vue 3 自主研发的博客系统，支持 Markdown 文章、分类标签、每日一题、评论系统、后台管理，完全从零实现前后端分离。', url: 'https://liuhouliang.com/', icon: 'feather' },
+      { name: 'Cloudflare Workers AI Demo', description: '基于 Cloudflare Workers + Workers AI + Vectorize 构建的个人知识库 AI 问答助手，支持 RAG 语义检索，部署成本几乎为零。', url: '#', icon: 'zap' }
     ]
     aboutMe.value = [
-      { label: '职业', value: 'Go 开发者', icon: 'briefcase' },
-      { label: '爱好', value: '游戏 / 骑行', icon: 'gamepad' },
-      { label: '技术栈', value: 'Go / Erlang / Unity', icon: 'code' },
-      { label: '邮箱', value: 'admin@liuhouliang.com', icon: 'mail' }
+      { label: '职业', value: '后端开发工程师，专注高并发服务与分布式系统设计，日常主导 Go 微服务架构开发与性能调优工作。', icon: 'briefcase' },
+      { label: '爱好', value: '周末骑行 50-100 公里放松身心；热爱独立游戏，业余时间用 Unity 尝试 Roguelike 与解谜类游戏原型。', icon: 'bike' },
+      { label: '技术栈', value: '后端：Go / Erlang / Gin；桌面：C# / WPF；游戏：Unity / C#；前端：Vue 3 / JavaScript；运维：Docker / MySQL / Redis。', icon: 'layers' },
+      { label: '技术方向', value: '长期关注 Serverless、边缘计算（Cloudflare Workers）、AI 原生应用开发，以及独立软件产品商业化探索。', icon: 'compass' },
+      { label: '联系邮箱', value: 'admin@liuhouliang.com（欢迎技术交流、合作邀请、友情链接互换）', icon: 'mail' }
     ]
     aboutSite.value = [
-      { label: '框架', value: 'Go + Gin', icon: 'server' },
-      { label: '前端', value: 'Vue 3', icon: 'layers' },
-      { label: '部署', value: 'Docker', icon: 'database' }
+      { label: '后端架构', value: 'Go 1.22 + Gin 框架 + GORM ORM，遵循 DDD 分层架构，模块清晰，易于扩展与单元测试覆盖。', icon: 'server' },
+      { label: '前端技术', value: 'Vue 3 Composition API + Vite 构建，使用 Pinia 状态管理、Axios 请求封装，支持深浅主题切换与响应式布局。', icon: 'layers' },
+      { label: '部署方式', value: 'Docker + Docker Compose 一键部署，Nginx 反向代理，分离静态资源与 API，MySQL 8.0 数据持久化，SQL 脚本初始化数据。', icon: 'package' },
+      { label: '功能模块', value: '文章管理 / 分类标签 / 每日一题 / 评论系统 / 友链管理 / 关于页面 / 后台管理面板，完整博客功能齐备。', icon: 'box' },
+      { label: '存储方案', value: 'MySQL 8.0 存储业务数据，文章内容 Markdown 原生存储，前端配合 Markdown-it + Highlight.js 渲染，无第三方平台依赖。', icon: 'database' }
     ]
     siteHistory.value = [
-      { date: '2024-02', content: '网站接入 AdSense，浏览量逐渐增加，尝试商业化探索' },
-      { date: '2023-01', content: '迁移到 Hugo 博客，使用 Stack 主题，构建速度飞跃' },
-      { date: '2021-01', content: '升级到 VuePress 2.0，并将部署流程转移到 Cloudflare Pages' },
-      { date: '2019-11', content: '第一版博客正式上线，基于 VuePress 构建' },
-      { date: '2019-10', content: '购买了 liuhouliang.com 域名' }
+      { date: '2025-04', content: '启动最新重构：从 Hugo 迁移到自研 Go + Vue 3 博客系统，实现真正可控的前后端全栈，支持每日一题、评论、后台管理等新功能' },
+      { date: '2024-12', content: '博客访问量累计突破 50 万 PV，AdSense 收入累计超过 100 美元，完成第一次独立网站的正向现金流闭环' },
+      { date: '2024-08', content: '推出 Windows 桌面软件 DesktopSnap 并上架微软商店，解决了多年来分辨率切换导致桌面图标乱序的个人痛点，并分享给更多用户' },
+      { date: '2024-02', content: '网站正式接入 Google AdSense，开始尝试独立博客商业化，同时学习 SEO 优化、长尾关键词布局、内容运营技巧' },
+      { date: '2023-06', content: '开始持续输出技术类长文，包括 Go 语言踩坑、Cloudflare Workers AI 实战、独立开发心路历程，逐步形成个人写作风格' },
+      { date: '2023-01', content: '博客系统从 VuePress 迁移到 Hugo + Stack 主题，构建速度从秒级降到毫秒级，极大提升了写作与发布的流畅体验' },
+      { date: '2021-09', content: '尝试将博客部署到 Cloudflare Pages，CDN 全球加速 + 自动缓存，国内访问速度显著提升，运维成本降为零' },
+      { date: '2021-01', content: '跟随 Vue 3 正式版发布，将博客升级到 VuePress 2.0，体验 Composition API 与 Vite 带来的开发效率提升' },
+      { date: '2020-05', content: '开始坚持记录 LeetCode 每日一题，手写题解与 Go 语言代码，累计完成 500+ 道算法题，形成系统的算法知识体系' },
+      { date: '2019-11', content: '第一版个人博客正式上线，基于 VuePress 1.x 构建，初始仅有 10 篇左右的读书笔记与 Vue 入门文章' },
+      { date: '2019-10', content: '在阿里云购买了 liuhouliang.com 域名，正式开启独立个人博客之路，迈出了在互联网上留下个人痕迹的第一步' }
     ]
   } finally {
     loading.value = false

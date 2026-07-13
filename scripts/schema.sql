@@ -83,20 +83,64 @@ CREATE TABLE IF NOT EXISTS comments (
     updated_at DATETIME(3) NULL,
     deleted_at DATETIME(3) NULL,
     content TEXT NOT NULL,
+    user_id BIGINT UNSIGNED NULL,
     nickname VARCHAR(50) NULL,
     email VARCHAR(100) NULL,
     website VARCHAR(200) NULL,
     avatar VARCHAR(500) NULL,
     article_id BIGINT UNSIGNED,
     parent_id BIGINT UNSIGNED NULL,
+    reply_to_id BIGINT UNSIGNED NULL,
+    like_count INT DEFAULT 0,
     status VARCHAR(20) DEFAULT 'pending',
     ip VARCHAR(50) NULL,
     user_agent VARCHAR(500) NULL,
+    os VARCHAR(50) NULL,
+    os_version VARCHAR(50) NULL,
+    browser VARCHAR(50) NULL,
+    browser_version VARCHAR(50) NULL,
     INDEX idx_comments_deleted_at (deleted_at),
+    INDEX idx_comments_user_id (user_id),
     INDEX idx_comments_article_id (article_id),
     INDEX idx_comments_parent_id (parent_id),
+    INDEX idx_comments_reply_to_id (reply_to_id),
+    INDEX idx_comments_status (status),
     CONSTRAINT fk_comments_article FOREIGN KEY (article_id) REFERENCES articles(id),
-    CONSTRAINT fk_comments_parent FOREIGN KEY (parent_id) REFERENCES comments(id)
+    CONSTRAINT fk_comments_parent FOREIGN KEY (parent_id) REFERENCES comments(id),
+    CONSTRAINT fk_comments_user FOREIGN KEY (user_id) REFERENCES users(id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 评论点赞记录表
+CREATE TABLE IF NOT EXISTS comment_like_logs (
+    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    comment_id BIGINT UNSIGNED NOT NULL,
+    visitor_ip VARCHAR(50) NOT NULL,
+    created_at DATETIME(3) NULL,
+    INDEX idx_comment_like_comment_id (comment_id),
+    INDEX idx_comment_like_visitor_ip (visitor_ip),
+    UNIQUE KEY uk_comment_like (comment_id, visitor_ip),
+    CONSTRAINT fk_comment_like_comment FOREIGN KEY (comment_id) REFERENCES comments(id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 审计日志表
+CREATE TABLE IF NOT EXISTS audit_logs (
+    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    created_at DATETIME(3) NULL,
+    updated_at DATETIME(3) NULL,
+    deleted_at DATETIME(3) NULL,
+    operator_id BIGINT UNSIGNED NULL,
+    operator_name VARCHAR(50) NULL,
+    action VARCHAR(50) NOT NULL,
+    target_type VARCHAR(50) NULL,
+    target_id BIGINT UNSIGNED NULL,
+    target_title VARCHAR(200) NULL,
+    detail TEXT NULL,
+    ip VARCHAR(50) NULL,
+    user_agent VARCHAR(500) NULL,
+    INDEX idx_audit_logs_deleted_at (deleted_at),
+    INDEX idx_audit_logs_operator_id (operator_id),
+    INDEX idx_audit_logs_action (action),
+    INDEX idx_audit_logs_target (target_type, target_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- 每日一问表

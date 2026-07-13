@@ -192,7 +192,7 @@ func generateChineseText(count int) string {
 // TestArticleService_Create 测试创建文章
 func TestArticleService_Create(t *testing.T) {
 	articleRepo := newMockArticleRepo()
-	svc := NewArticleService(articleRepo, nil, nil, nil)
+	svc := NewArticleService(articleRepo, nil, nil, nil, nil)
 
 	t.Run("成功创建文章", func(t *testing.T) {
 		req := &request.CreateArticleRequest{
@@ -247,7 +247,7 @@ func TestArticleService_Create(t *testing.T) {
 // TestArticleService_Update 测试更新文章
 func TestArticleService_Update(t *testing.T) {
 	articleRepo := newMockArticleRepo()
-	svc := NewArticleService(articleRepo, nil, nil, nil)
+	svc := NewArticleService(articleRepo, nil, nil, nil, nil)
 
 	article := &entity.Article{
 		Title:      "原始标题",
@@ -294,7 +294,7 @@ func TestArticleService_Update(t *testing.T) {
 // TestArticleService_Delete 测试删除文章
 func TestArticleService_Delete(t *testing.T) {
 	articleRepo := newMockArticleRepo()
-	svc := NewArticleService(articleRepo, nil, nil, nil)
+	svc := NewArticleService(articleRepo, nil, nil, nil, nil)
 
 	article := &entity.Article{
 		Title:      "待删除文章",
@@ -320,7 +320,7 @@ func TestArticleService_Delete(t *testing.T) {
 // TestArticleService_BatchDelete 测试批量删除
 func TestArticleService_BatchDelete(t *testing.T) {
 	articleRepo := newMockArticleRepo()
-	svc := NewArticleService(articleRepo, nil, nil, nil)
+	svc := NewArticleService(articleRepo, nil, nil, nil, nil)
 
 	for i := 0; i < 3; i++ {
 		articleRepo.Create(&entity.Article{

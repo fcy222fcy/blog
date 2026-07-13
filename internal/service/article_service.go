@@ -5,8 +5,10 @@ import (
 	"blog/internal/model/dto/response"
 	"blog/internal/model/entity"
 	"blog/internal/repository"
+	"blog/pkg/redis"
 	bizerrors "blog/pkg/errors"
 	"blog/pkg/logger"
+	"context"
 	"fmt"
 	"regexp"
 	"sort"
@@ -84,6 +86,7 @@ type articleService struct {
 	categoryRepo repository.CategoryRepository
 	tagRepo      repository.TagRepository
 	visitRepo    repository.VisitRepository
+	redisClient  *redis.Client
 }
 
 // NewArticleService 创建文章服务
@@ -92,26 +95,55 @@ func NewArticleService(
 	categoryRepo repository.CategoryRepository,
 	tagRepo repository.TagRepository,
 	visitRepo repository.VisitRepository,
+	redisClient *redis.Client,
 ) ArticleService {
 	return &articleService{
 		articleRepo:  articleRepo,
 		categoryRepo: categoryRepo,
 		tagRepo:      tagRepo,
 		visitRepo:    visitRepo,
+		redisClient:  redisClient,
 	}
 }
 
 // GetArticleList 获取文章列表（前台）
 func (s *articleService) GetArticleList(req *request.ArticleListRequest) (*response.PageResponse, error) {
+	if s.redisClient != nil {
+		cacheKey := fmt.Sprintf("article:list:%d:%d:%d:%d:%s",
+			req.Page, req.GetPageSize(), req.Category, req.Tag, req.Keyword)
+		var cachedPage response.PageResponse
+		if err := s.redisClient.GetJSON(context.Background(), cacheKey, &cachedPage); err == nil {
+			return &cachedPage, nil
+		}
+	}
+
 	list, total, err := s.articleRepo.ListPublished(req.GetOffset(), req.GetPageSize(), req.Category, req.Tag, req.Keyword)
 	if err != nil {
 		return nil, fmt.Errorf("获取文章列表失败, %w", err)
 	}
-	return response.NewPageResponse(list, total, req.Page, req.GetPageSize()), nil
+
+	pageResp := response.NewPageResponse(list, total, req.Page, req.GetPageSize())
+
+	if s.redisClient != nil {
+		cacheKey := fmt.Sprintf("article:list:%d:%d:%d:%d:%s",
+			req.Page, req.GetPageSize(), req.Category, req.Tag, req.Keyword)
+		go s.redisClient.SetJSON(context.Background(), cacheKey, pageResp, 5*time.Minute)
+	}
+
+	return pageResp, nil
 }
 
 // GetArticleDetail 获取文章详情（前台）
 func (s *articleService) GetArticleDetail(slug string, clientIP string) (*response.ArticleDetailResponse, error) {
+	if s.redisClient != nil {
+		cacheKey := fmt.Sprintf("article:detail:%s", slug)
+		var cachedDetail response.ArticleDetailResponse
+		if err := s.redisClient.GetJSON(context.Background(), cacheKey, &cachedDetail); err == nil {
+			go s.incrementViewCountAsync(cachedDetail.ID, clientIP)
+			return &cachedDetail, nil
+		}
+	}
+
 	article, err := s.articleRepo.FindBySlug(slug)
 	if err != nil {
 		return nil, fmt.Errorf("获取文章详情失败, %w", err)
@@ -120,7 +152,6 @@ func (s *articleService) GetArticleDetail(slug string, clientIP string) (*respon
 		return nil, bizerrors.New(bizerrors.CodeArticleNotFound, bizerrors.GetMessage(bizerrors.CodeArticleNotFound))
 	}
 
-	// 防刷量：同一 IP 24 小时内只计数一次
 	viewIncremented := false
 	if clientIP != "" && s.visitRepo != nil {
 		since := time.Now().Add(-24 * time.Hour)
@@ -134,7 +165,6 @@ func (s *articleService) GetArticleDetail(slug string, clientIP string) (*respon
 			viewIncremented = true
 		}
 	} else {
-		// 无法判断 IP 时仍增加浏览量
 		_ = s.articleRepo.IncrementViewCount(article.ID)
 		viewIncremented = true
 	}
@@ -155,7 +185,7 @@ func (s *articleService) GetArticleDetail(slug string, clientIP string) (*respon
 		tags = append(tags, response.TagResponse{ID: t.ID, Name: t.Name, Slug: t.Slug})
 	}
 
-	return &response.ArticleDetailResponse{
+	detail := &response.ArticleDetailResponse{
 		ID:           article.ID,
 		Title:        article.Title,
 		Slug:         article.Slug,
@@ -171,7 +201,60 @@ func (s *articleService) GetArticleDetail(slug string, clientIP string) (*respon
 		ReadingTime:  article.ReadingTime,
 		CreatedAt:    article.CreatedAt,
 		UpdatedAt:    article.UpdatedAt,
-	}, nil
+	}
+
+	if s.redisClient != nil {
+		cacheKey := fmt.Sprintf("article:detail:%s", slug)
+		go s.redisClient.SetJSON(context.Background(), cacheKey, detail, 10*time.Minute)
+	}
+
+	return detail, nil
+}
+
+func (s *articleService) invalidateArticleCache(slug string) {
+	if s.redisClient == nil {
+		return
+	}
+	ctx := context.Background()
+	var keys []string
+	if slug != "" {
+		keys = append(keys, fmt.Sprintf("article:detail:%s", slug))
+	}
+	keys = append(keys,
+		"category:list",
+		"tag:list",
+		"article:archives",
+	)
+	go s.redisClient.Del(ctx, keys...)
+}
+
+func (s *articleService) invalidateAllArticleListCache() {
+	if s.redisClient == nil {
+		return
+	}
+	ctx := context.Background()
+	keys := []string{
+		"category:list",
+		"tag:list",
+		"article:archives",
+	}
+	go s.redisClient.Del(ctx, keys...)
+}
+
+func (s *articleService) incrementViewCountAsync(articleID uint, clientIP string) {
+	if clientIP != "" && s.visitRepo != nil {
+		since := time.Now().Add(-24 * time.Hour)
+		hasVisited, _ := s.visitRepo.HasVisited(articleID, clientIP, since)
+		if !hasVisited {
+			_ = s.articleRepo.IncrementViewCount(articleID)
+			_ = s.visitRepo.Create(&entity.VisitLog{
+				ArticleID: articleID,
+				IP:        clientIP,
+			})
+		}
+	} else {
+		_ = s.articleRepo.IncrementViewCount(articleID)
+	}
 }
 
 // GetArticleArchives 获取文章归档
@@ -306,6 +389,8 @@ func (s *articleService) CreateArticle(req *request.CreateArticleRequest) (uint,
 
 	logger.Infof("文章创建成功, id: %d, title: %s, tags: %d, slug: %s", article.ID, article.Title, len(tags), article.Slug)
 
+	s.invalidateAllArticleListCache()
+
 	return article.ID, nil
 }
 
@@ -378,6 +463,9 @@ func (s *articleService) UpdateArticle(id uint, req *request.UpdateArticleReques
 	}
 
 	logger.Infof("文章更新成功, id: %d", id)
+
+	s.invalidateArticleCache(article.Slug)
+
 	return nil
 }
 
@@ -396,6 +484,9 @@ func (s *articleService) DeleteArticle(id uint) error {
 	}
 
 	logger.Infof("文章删除成功, id: %d", id)
+
+	s.invalidateArticleCache(article.Slug)
+
 	return nil
 }
 
@@ -406,6 +497,9 @@ func (s *articleService) BatchDeleteArticles(ids []uint) error {
 	}
 
 	logger.Infof("批量删除文章成功, ids: %v", ids)
+
+	s.invalidateAllArticleListCache()
+
 	return nil
 }
 

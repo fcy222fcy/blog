@@ -106,7 +106,7 @@ func (r *Router) Setup() *gin.Engine {
 	r.engine.Use(middleware.Recovery())
 	r.engine.Use(middleware.Logger())
 	// 使用配置的 CORS 来源，如果没有配置则限制为同源
-	r.engine.Use(middleware.CORS("http://localhost:3000", "http://localhost:8888"))
+	r.engine.Use(middleware.CORS("http://localhost:3000", "http://localhost:9090"))
 
 	// API v1 路由组
 	apiV1 := r.engine.Group("/api/v1")
