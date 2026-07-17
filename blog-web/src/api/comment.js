@@ -11,3 +11,7 @@ export const createComment = (data) => {
 export const likeComment = (commentId) => {
   return request.post(`/comments/${commentId}/like`)
 }
+
+export const unlikeComment = (commentId) => {
+  return request.delete(`/comments/${commentId}/like`)
+}

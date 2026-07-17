@@ -2,6 +2,8 @@ package repository
 
 import (
 	"blog/internal/model/entity"
+	"strings"
+	"time"
 
 	"gorm.io/gorm"
 )
@@ -226,24 +228,100 @@ func (r *articleRepository) GetRecent(limit int) ([]entity.Article, error) {
 	return articles, err
 }
 
-// Search 搜索文章（标题、内容、摘要模糊搜索）
+// escapeLikePattern 转义 SQL LIKE 通配符（% 和 _），防止用户输入被当作通配符
+func escapeLikePattern(s string) string {
+	s = strings.ReplaceAll(s, `\`, `\\`)
+	s = strings.ReplaceAll(s, `%`, `\%`)
+	s = strings.ReplaceAll(s, `_`, `\_`)
+	return s
+}
+
+// Search 搜索文章（标题、内容、摘要、标签名、分类名模糊搜索），按相关性排序
 func (r *articleRepository) Search(keyword string, offset, limit int) ([]*entity.Article, int64, error) {
 	var articles []*entity.Article
 	var total int64
 
-	likePattern := "%" + keyword + "%"
-	query := r.db.Model(&entity.Article{}).
-		Where("status = ?", "published").
-		Where("title LIKE ? OR content LIKE ? OR summary LIKE ?", likePattern, likePattern, likePattern)
+	// 按空格拆分关键词，每个词独立匹配（OR 逻辑）
+	words := strings.Fields(keyword)
+	if len(words) == 0 {
+		return nil, 0, nil
+	}
 
-	if err := query.Count(&total).Error; err != nil {
+	// 构建每个词的 LIKE 条件
+	// whereArgs: 用于 WHERE 和子查询的参数（title, content, summary, category, tag）
+	// scoreArgs: 用于相关性评分 CASE WHEN 的参数（title, summary, tag）
+	var titleConds, contentConds, summaryConds, catConds, tagConds []string
+	var titleScoreConds, summaryScoreConds, tagScoreConds []string
+	var whereArgs, scoreArgs []interface{}
+
+	for _, w := range words {
+		likeVal := "%" + escapeLikePattern(w) + "%"
+		titleConds = append(titleConds, "a.title LIKE ?")
+		contentConds = append(contentConds, "a.content LIKE ?")
+		summaryConds = append(summaryConds, "a.summary LIKE ?")
+		catConds = append(catConds, "c.name LIKE ?")
+		tagConds = append(tagConds, "t.name LIKE ?")
+		whereArgs = append(whereArgs, likeVal, likeVal, likeVal, likeVal, likeVal)
+
+		titleScoreConds = append(titleScoreConds, "a.title LIKE ?")
+		summaryScoreConds = append(summaryScoreConds, "a.summary LIKE ?")
+		tagScoreConds = append(tagScoreConds, "t.name LIKE ?")
+		scoreArgs = append(scoreArgs, likeVal, likeVal, likeVal)
+	}
+
+	titleExpr := "(" + strings.Join(titleConds, " OR ") + ")"
+	contentExpr := "(" + strings.Join(contentConds, " OR ") + ")"
+	summaryExpr := "(" + strings.Join(summaryConds, " OR ") + ")"
+	catExpr := "(" + strings.Join(catConds, " OR ") + ")"
+	tagExpr := "(" + strings.Join(tagConds, " OR ") + ")"
+	whereCondition := titleExpr + " OR " + contentExpr + " OR " + summaryExpr + " OR " + catExpr + " OR " + tagExpr
+
+	// 相关性评分 CASE WHEN：标题(10) > 摘要(5) > 标签(3) > 内容(1)
+	titleScoreExpr := "(" + strings.Join(titleScoreConds, " OR ") + ")"
+	summaryScoreExpr := "(" + strings.Join(summaryScoreConds, " OR ") + ")"
+	tagScoreExpr := "(" + strings.Join(tagScoreConds, " OR ") + ")"
+	relevanceScore := "CASE WHEN " + titleScoreExpr + " THEN 10 WHEN " + summaryScoreExpr + " THEN 5 WHEN " + tagScoreExpr + " THEN 3 ELSE 1 END"
+
+	// 子查询：匹配标签名的文章 ID（只用 tag 的 whereArgs）
+	tagStart := len(words) * 4 // tag 条件在 whereArgs 中的起始位置
+	tagSubQuery := r.db.Model(&entity.Article{}).
+		Select("DISTINCT articles.id").
+		Joins("JOIN article_tags ON article_tags.article_id = articles.id").
+		Joins("JOIN tags t ON t.id = article_tags.tag_id").
+		Where("articles.status = ?", "published").
+		Where(tagExpr, whereArgs[tagStart:]...)
+
+	// 主查询 + COUNT 共用的 WHERE 条件
+	mainWhere := append(whereArgs, tagSubQuery)
+
+	query := r.db.Model(&entity.Article{}).
+		Table("articles a").
+		Joins("LEFT JOIN categories c ON c.id = a.category_id").
+		Joins("LEFT JOIN article_tags at2 ON at2.article_id = a.id").
+		Joins("LEFT JOIN tags t ON t.id = at2.tag_id").
+		Where("a.status = ?", "published").
+		Where("("+whereCondition+") OR a.id IN (?)", mainWhere...).
+		Group("a.id").
+		Select("a.*, "+relevanceScore+" AS relevance_score")
+
+	// COUNT 查询（不带排序和分页）
+	countQuery := r.db.Model(&entity.Article{}).
+		Table("articles a").
+		Joins("LEFT JOIN categories c ON c.id = a.category_id").
+		Joins("LEFT JOIN article_tags at2 ON at2.article_id = a.id").
+		Joins("LEFT JOIN tags t ON t.id = at2.tag_id").
+		Where("a.status = ?", "published").
+		Where("("+whereCondition+") OR a.id IN (?)", mainWhere...).
+		Group("a.id")
+
+	if err := countQuery.Count(&total).Error; err != nil {
 		return nil, 0, err
 	}
 
 	err := query.
 		Preload("Category").Preload("Tags").
+		Order("relevance_score DESC, a.is_top DESC, a.created_at DESC").
 		Offset(offset).Limit(limit).
-		Order("is_top DESC, created_at DESC").
 		Find(&articles).Error
 	if err != nil {
 		return nil, 0, err
@@ -260,4 +338,38 @@ func (r *articleRepository) GetDB() *gorm.DB {
 // UpdateTags 更新文章标签关联
 func (r *articleRepository) UpdateTags(article *entity.Article, tags []entity.Tag) error {
 	return r.db.Model(article).Association("Tags").Replace(tags)
+}
+
+func (r *articleRepository) ListScheduledAfter(now time.Time) ([]*entity.Article, error) {
+	var articles []*entity.Article
+	err := r.db.
+		Where("status = ? AND scheduled_at > ?", entity.ArticleStatusScheduled, now).
+		Find(&articles).Error
+	return articles, err
+}
+
+func (r *articleRepository) PublishScheduledArticle(id uint, now time.Time) (bool, error) {
+	result := r.db.Model(&entity.Article{}).
+		Where("id = ? AND status = ? AND scheduled_at <= ?", id, entity.ArticleStatusScheduled, now).
+		Updates(map[string]interface{}{
+			"status":       entity.ArticleStatusPublished,
+			"scheduled_at": nil,
+		})
+	if result.Error != nil {
+		return false, result.Error
+	}
+	return result.RowsAffected > 0, nil
+}
+
+func (r *articleRepository) PublishDueScheduledArticles(now time.Time) (int64, error) {
+	result := r.db.Model(&entity.Article{}).
+		Where("status = ? AND scheduled_at <= ?", entity.ArticleStatusScheduled, now).
+		Updates(map[string]interface{}{
+			"status":       entity.ArticleStatusPublished,
+			"scheduled_at": nil,
+		})
+	if result.Error != nil {
+		return 0, result.Error
+	}
+	return result.RowsAffected, nil
 }

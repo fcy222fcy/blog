@@ -52,6 +52,7 @@ const (
 	CodeTagHasArticles        = 4004
 	CodeDailyQuestionDateExists = 4005
 	CodeCommentAlreadyLiked   = 4006
+	CodeCommentNotLiked       = 4007
 )
 
 // 错误码消息映射
@@ -83,6 +84,7 @@ var CodeMessages = map[int]string{
 	CodePageNotFound:          "页面不存在",
 	CodeRecordNotFound:        "记录不存在",
 	CodeCommentAlreadyLiked:   "您已经点赞过了",
+	CodeCommentNotLiked:       "您还没有点赞过",
 }
 
 // GetMessage 获取错误码对应的消息

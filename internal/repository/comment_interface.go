@@ -42,4 +42,10 @@ type CommentRepository interface {
 
 	// HasLiked 检查是否已点赞
 	HasLiked(commentID uint, visitorIP string) (bool, error)
+
+	// DecrementLikeCount 减少评论点赞数
+	DecrementLikeCount(commentID uint) error
+
+	// DeleteLikeLog 删除点赞记录
+	DeleteLikeLog(commentID uint, visitorIP string) error
 }

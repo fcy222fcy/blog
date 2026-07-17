@@ -434,3 +434,36 @@ func (s *commentService) LikeComment(commentID uint, visitorIP string) error {
 
 	return nil
 }
+
+// UnlikeComment 取消点赞评论
+func (s *commentService) UnlikeComment(commentID uint, visitorIP string) error {
+	// 检查评论是否存在
+	comment, err := s.commentRepo.FindByID(commentID)
+	if err != nil {
+		return fmt.Errorf("查询评论失败, %w", err)
+	}
+	if comment == nil {
+		return bizerrors.New(bizerrors.CodeCommentNotFound, bizerrors.GetMessage(bizerrors.CodeCommentNotFound))
+	}
+
+	// 检查是否已点赞（未点赞则无法取消）
+	hasLiked, err := s.commentRepo.HasLiked(commentID, visitorIP)
+	if err != nil {
+		return fmt.Errorf("查询点赞记录失败, %w", err)
+	}
+	if !hasLiked {
+		return bizerrors.New(bizerrors.CodeCommentNotLiked, bizerrors.GetMessage(bizerrors.CodeCommentNotLiked))
+	}
+
+	// 减少点赞数
+	if err := s.commentRepo.DecrementLikeCount(commentID); err != nil {
+		return fmt.Errorf("减少点赞数失败, %w", err)
+	}
+
+	// 删除点赞日志
+	if err := s.commentRepo.DeleteLikeLog(commentID, visitorIP); err != nil {
+		return fmt.Errorf("删除点赞日志失败, %w", err)
+	}
+
+	return nil
+}

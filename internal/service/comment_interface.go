@@ -27,4 +27,7 @@ type CommentService interface {
 
 	// LikeComment 点赞评论（防重复）
 	LikeComment(commentID uint, visitorIP string) error
+
+	// UnlikeComment 取消点赞评论
+	UnlikeComment(commentID uint, visitorIP string) error
 }

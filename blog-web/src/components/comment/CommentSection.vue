@@ -356,7 +356,7 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted, watch, nextTick } from 'vue'
 import { useRoute } from 'vue-router'
-import { getCommentsByArticle, createComment, likeComment } from '../../api/comment'
+import { getCommentsByArticle, createComment, likeComment, unlikeComment } from '../../api/comment'
 import { login, register } from '../../api/auth'
 import { getUserProfile, updateUserProfile } from '../../api/user'
 import EmojiPicker from 'vue3-emoji-picker'
@@ -939,25 +939,44 @@ const submitReply = async () => {
 // 检查是否已点赞
 const likedComments = ref(new Set())
 
-// 点赞评论
+// 切换点赞/取消点赞
 const handleLikeComment = async (comment) => {
-  // 检查本地是否已点赞
-  if (likedComments.value.has(comment.id)) {
-    return
-  }
+  const isLiked = likedComments.value.has(comment.id)
 
-  try {
-    await likeComment(comment.id)
+  if (isLiked) {
+    // 取消点赞（乐观更新）
+    likedComments.value.delete(comment.id)
+    comment.like_count = Math.max(0, (comment.like_count || 0) - 1)
+    localStorage.removeItem(`liked_comment_${comment.id}`)
+
+    try {
+      await unlikeComment(comment.id)
+    } catch (error) {
+      console.error('取消点赞失败:', error)
+      // 回滚：恢复点赞状态
+      likedComments.value.add(comment.id)
+      comment.like_count = (comment.like_count || 0) + 1
+      localStorage.setItem(`liked_comment_${comment.id}`, 'true')
+    }
+  } else {
+    // 点赞（乐观更新）
     comment.like_count = (comment.like_count || 0) + 1
     likedComments.value.add(comment.id)
-    // 持久化到 localStorage
     localStorage.setItem(`liked_comment_${comment.id}`, 'true')
-  } catch (error) {
-    console.error('点赞失败:', error)
-    // 如果是已点赞的业务错误，也标记为已点赞
-    if (error.response?.data?.code === 4006) {
-      likedComments.value.add(comment.id)
-      localStorage.setItem(`liked_comment_${comment.id}`, 'true')
+
+    try {
+      await likeComment(comment.id)
+    } catch (error) {
+      console.error('点赞失败:', error)
+      // 回滚：取消点赞状态
+      likedComments.value.delete(comment.id)
+      comment.like_count = Math.max(0, (comment.like_count || 0) - 1)
+      localStorage.removeItem(`liked_comment_${comment.id}`)
+      // 如果是已点赞的业务错误，也标记为已点赞
+      if (error.response?.data?.code === 4006) {
+        likedComments.value.add(comment.id)
+        localStorage.setItem(`liked_comment_${comment.id}`, 'true')
+      }
     }
   }
 }

@@ -285,3 +285,18 @@ func (r *commentRepository) HasLiked(commentID uint, visitorIP string) (bool, er
 		Count(&count).Error
 	return count > 0, err
 }
+
+// DecrementLikeCount 减少评论点赞数
+func (r *commentRepository) DecrementLikeCount(commentID uint) error {
+	return r.db.Model(&entity.Comment{}).
+		Where("id = ? AND like_count > 0", commentID).
+		UpdateColumn("like_count", gorm.Expr("like_count - 1")).
+		Error
+}
+
+// DeleteLikeLog 删除点赞记录
+func (r *commentRepository) DeleteLikeLog(commentID uint, visitorIP string) error {
+	return r.db.Where("comment_id = ? AND visitor_ip = ?", commentID, visitorIP).
+		Delete(&entity.CommentLikeLog{}).
+		Error
+}
