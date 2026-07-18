@@ -5,9 +5,9 @@ import (
 	"blog/internal/model/dto/response"
 	"blog/internal/model/entity"
 	"blog/internal/repository"
-	"blog/pkg/redis"
 	bizerrors "blog/pkg/errors"
 	"blog/pkg/logger"
+	"blog/pkg/redis"
 	"context"
 	"fmt"
 	"regexp"
@@ -87,6 +87,7 @@ type articleService struct {
 	tagRepo      repository.TagRepository
 	visitRepo    repository.VisitRepository
 	redisClient  *redis.Client
+	scheduler    ArticlePublishScheduler
 }
 
 // NewArticleService 创建文章服务
@@ -104,6 +105,18 @@ func NewArticleService(
 		visitRepo:    visitRepo,
 		redisClient:  redisClient,
 	}
+}
+
+func (s *articleService) SetPublishScheduler(scheduler ArticlePublishScheduler) {
+	s.scheduler = scheduler
+}
+
+func (s *articleService) HandleScheduledArticlePublished(article *entity.Article) {
+	if article != nil {
+		s.invalidateArticleCache(article.Slug)
+		return
+	}
+	s.invalidateAllArticleListCache()
 }
 
 // GetArticleList 获取文章列表（前台）
@@ -239,6 +252,24 @@ func (s *articleService) invalidateAllArticleListCache() {
 		"article:archives",
 	}
 	go s.redisClient.Del(ctx, keys...)
+	// 清除文章列表分页缓存（article:list:*）
+	go s.redisClient.DelByPattern(ctx, "article:list:*")
+}
+
+func (s *articleService) refreshArticleSchedule(article *entity.Article) {
+	if s.scheduler == nil || article == nil {
+		return
+	}
+	if err := s.scheduler.RefreshArticle(article); err != nil {
+		logger.Warnf("刷新文章定时任务失败, id: %d, error: %v", article.ID, err)
+	}
+}
+
+func (s *articleService) unscheduleArticle(id uint) {
+	if s.scheduler == nil {
+		return
+	}
+	s.scheduler.UnscheduleArticle(id)
 }
 
 func (s *articleService) incrementViewCountAsync(articleID uint, clientIP string) {
@@ -390,6 +421,7 @@ func (s *articleService) CreateArticle(req *request.CreateArticleRequest) (uint,
 	logger.Infof("文章创建成功, id: %d, title: %s, tags: %d, slug: %s", article.ID, article.Title, len(tags), article.Slug)
 
 	s.invalidateAllArticleListCache()
+	s.refreshArticleSchedule(article)
 
 	return article.ID, nil
 }
@@ -465,6 +497,7 @@ func (s *articleService) UpdateArticle(id uint, req *request.UpdateArticleReques
 	logger.Infof("文章更新成功, id: %d", id)
 
 	s.invalidateArticleCache(article.Slug)
+	s.refreshArticleSchedule(article)
 
 	return nil
 }
@@ -486,6 +519,7 @@ func (s *articleService) DeleteArticle(id uint) error {
 	logger.Infof("文章删除成功, id: %d", id)
 
 	s.invalidateArticleCache(article.Slug)
+	s.unscheduleArticle(id)
 
 	return nil
 }
@@ -499,20 +533,23 @@ func (s *articleService) BatchDeleteArticles(ids []uint) error {
 	logger.Infof("批量删除文章成功, ids: %v", ids)
 
 	s.invalidateAllArticleListCache()
+	for _, id := range ids {
+		s.unscheduleArticle(id)
+	}
 
 	return nil
 }
 
 // regexpCache 预编译正则缓存（避免 MustCompile panic，启动时安全编译）
 var (
-	regexpOnce   sync.Once
-	reFenced     *regexp.Regexp
-	reInlineCode *regexp.Regexp
+	regexpOnce    sync.Once
+	reFenced      *regexp.Regexp
+	reInlineCode  *regexp.Regexp
 	reHTMLComment *regexp.Regexp
-	reHTMLTag    *regexp.Regexp
-	reImage      *regexp.Regexp
-	reLink       *regexp.Regexp
-	reLinePrefix *regexp.Regexp
+	reHTMLTag     *regexp.Regexp
+	reImage       *regexp.Regexp
+	reLink        *regexp.Regexp
+	reLinePrefix  *regexp.Regexp
 	// 下列正则改为「从外向内逐条剥离」的独立写法，完全避免反向引用（RE2 不支持 \1）
 	reTripleStar  *regexp.Regexp
 	reDoubleStar  *regexp.Regexp

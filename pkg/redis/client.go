@@ -53,6 +53,22 @@ func (c *Client) Del(ctx context.Context, keys ...string) error {
 	return c.client.Del(ctx, keys...).Err()
 }
 
+// DelByPattern 按 pattern 删除匹配的 key（如 "article:list:*"）
+func (c *Client) DelByPattern(ctx context.Context, pattern string) error {
+	iter := c.client.Scan(ctx, 0, pattern, 100).Iterator()
+	var keys []string
+	for iter.Next(ctx) {
+		keys = append(keys, iter.Val())
+	}
+	if err := iter.Err(); err != nil {
+		return err
+	}
+	if len(keys) == 0 {
+		return nil
+	}
+	return c.client.Del(ctx, keys...).Err()
+}
+
 func (c *Client) Exists(ctx context.Context, key string) (bool, error) {
 	val, err := c.client.Exists(ctx, key).Result()
 	if err != nil {

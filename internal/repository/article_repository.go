@@ -31,10 +31,12 @@ func (r *articleRepository) FindByID(id uint) (*entity.Article, error) {
 	return &article, nil
 }
 
-// FindBySlug 根据 slug 查找文章
+// FindBySlug 根据 slug 查找已发布文章
 func (r *articleRepository) FindBySlug(slug string) (*entity.Article, error) {
 	var article entity.Article
-	err := r.db.Preload("Category").Preload("Tags").Where("slug = ?", slug).First(&article).Error
+	err := r.db.Preload("Category").Preload("Tags").
+		Where("slug = ? AND status = ?", slug, entity.ArticleStatusPublished).
+		First(&article).Error
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return nil, nil
