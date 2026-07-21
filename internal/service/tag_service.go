@@ -6,6 +6,7 @@ import (
 	"blog/internal/model/entity"
 	"blog/internal/repository"
 	"blog/pkg/redis"
+	"blog/pkg/slug"
 	bizerrors "blog/pkg/errors"
 	"blog/pkg/logger"
 	"context"
@@ -67,9 +68,20 @@ func (s *tagService) CreateTag(req *request.CreateTagRequest) (uint, error) {
 		return 0, bizerrors.New(bizerrors.CodeTagNameExists, bizerrors.GetMessage(bizerrors.CodeTagNameExists))
 	}
 
+	// 如果 slug 为空，自动生成
+	tagSlug := req.Slug
+	if tagSlug == "" {
+		tagSlug = slug.Generate(req.Name)
+		// 确保 slug 唯一
+		existingSlug, _ := s.tagRepo.FindBySlug(tagSlug)
+		if existingSlug != nil {
+			tagSlug = fmt.Sprintf("%s-%d", tagSlug, time.Now().Unix())
+		}
+	}
+
 	tag := &entity.Tag{
 		Name: req.Name,
-		Slug: req.Slug,
+		Slug: tagSlug,
 	}
 
 	if err := s.tagRepo.Create(tag); err != nil {

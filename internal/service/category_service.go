@@ -6,6 +6,7 @@ import (
 	"blog/internal/model/entity"
 	"blog/internal/repository"
 	"blog/pkg/redis"
+	"blog/pkg/slug"
 	bizerrors "blog/pkg/errors"
 	"blog/pkg/logger"
 	"context"
@@ -91,9 +92,20 @@ func (s *categoryService) CreateCategory(req *request.CreateCategoryRequest) (ui
 		return 0, bizerrors.New(bizerrors.CodeCategoryNameExists, bizerrors.GetMessage(bizerrors.CodeCategoryNameExists))
 	}
 
+	// 如果 slug 为空，自动生成
+	categorySlug := req.Slug
+	if categorySlug == "" {
+		categorySlug = slug.Generate(req.Name)
+		// 确保 slug 唯一
+		existingSlug, _ := s.categoryRepo.FindBySlug(categorySlug)
+		if existingSlug != nil {
+			categorySlug = fmt.Sprintf("%s-%d", categorySlug, time.Now().Unix())
+		}
+	}
+
 	category := &entity.Category{
 		Name:        req.Name,
-		Slug:        req.Slug,
+		Slug:        categorySlug,
 		Description: req.Description,
 		Icon:        req.Icon,
 		SortOrder:   req.SortOrder,
