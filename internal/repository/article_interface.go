@@ -2,6 +2,7 @@ package repository
 
 import (
 	"blog/internal/model/entity"
+	"time"
 
 	"gorm.io/gorm"
 )
@@ -60,5 +61,11 @@ type ArticleRepository interface {
 	UpdateTags(article *entity.Article, tags []entity.Tag) error
 
 	// GetDB 获取数据库实例（用于事务）
+	ListScheduledAfter(now time.Time) ([]*entity.Article, error)
+
+	PublishScheduledArticle(id uint, now time.Time) (bool, error)
+
+	PublishDueScheduledArticles(now time.Time) (int64, error)
+
 	GetDB() *gorm.DB
 }

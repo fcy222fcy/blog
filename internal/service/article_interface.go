@@ -3,10 +3,19 @@ package service
 import (
 	"blog/internal/model/dto/request"
 	"blog/internal/model/dto/response"
+	"blog/internal/model/entity"
 )
 
 // ArticleService 文章服务接口
+type ArticlePublishScheduler interface {
+	RefreshArticle(article *entity.Article) error
+	UnscheduleArticle(id uint)
+}
+
 type ArticleService interface {
+	SetPublishScheduler(scheduler ArticlePublishScheduler)
+	HandleScheduledArticlePublished(article *entity.Article)
+
 	// GetArticleList 获取文章列表（前台）
 	GetArticleList(req *request.ArticleListRequest) (*response.PageResponse, error)
 

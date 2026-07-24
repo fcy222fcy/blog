@@ -1,5 +1,11 @@
 package entity
 
+const (
+	DailyQuestionStatusDisabled  = 0
+	DailyQuestionStatusPublished = 1
+	DailyQuestionStatusScheduled = 2
+)
+
 // DailyQuestion 每日一问
 type DailyQuestion struct {
 	BaseEntity

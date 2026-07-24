@@ -32,7 +32,7 @@ func (r *dailyQuestionRepository) FindByID(id uint) (*entity.DailyQuestion, erro
 // GetAllPublished 获取所有已发布问题
 func (r *dailyQuestionRepository) GetAllPublished() ([]*entity.DailyQuestion, error) {
 	var questions []*entity.DailyQuestion
-	err := r.db.Where("status = 1").Order("date DESC").Find(&questions).Error
+	err := r.db.Where("status = ?", entity.DailyQuestionStatusPublished).Order("date DESC").Find(&questions).Error
 	return questions, err
 }
 
@@ -88,7 +88,7 @@ func (r *dailyQuestionRepository) List(offset, limit int, status int) ([]*entity
 // GetLatest 获取最新问题
 func (r *dailyQuestionRepository) GetLatest() (*entity.DailyQuestion, error) {
 	var question entity.DailyQuestion
-	err := r.db.Where("status = 1").Order("date DESC").First(&question).Error
+	err := r.db.Where("status = ?", entity.DailyQuestionStatusPublished).Order("date DESC").First(&question).Error
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return nil, nil
@@ -101,7 +101,7 @@ func (r *dailyQuestionRepository) GetLatest() (*entity.DailyQuestion, error) {
 // GetPrevious 获取前一天的问题
 func (r *dailyQuestionRepository) GetPrevious(date string) (*entity.DailyQuestion, error) {
 	var question entity.DailyQuestion
-	err := r.db.Where("status = 1 AND date < ?", date).
+	err := r.db.Where("status = ? AND date < ?", entity.DailyQuestionStatusPublished, date).
 		Order("date DESC").First(&question).Error
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
@@ -115,7 +115,7 @@ func (r *dailyQuestionRepository) GetPrevious(date string) (*entity.DailyQuestio
 // GetNext 获取后一天的问题
 func (r *dailyQuestionRepository) GetNext(date string) (*entity.DailyQuestion, error) {
 	var question entity.DailyQuestion
-	err := r.db.Where("status = 1 AND date > ?", date).
+	err := r.db.Where("status = ? AND date > ?", entity.DailyQuestionStatusPublished, date).
 		Order("date ASC").First(&question).Error
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
@@ -176,6 +176,16 @@ func (r *dailyQuestionRepository) BatchUpdateStatus(ids []uint, status int) erro
 }
 
 // BatchDelete 批量删除
+func (r *dailyQuestionRepository) PublishScheduledQuestions(today string) (int64, error) {
+	result := r.db.Model(&entity.DailyQuestion{}).
+		Where("status = ? AND date <= ?", entity.DailyQuestionStatusScheduled, today).
+		Update("status", entity.DailyQuestionStatusPublished)
+	if result.Error != nil {
+		return 0, result.Error
+	}
+	return result.RowsAffected, nil
+}
+
 func (r *dailyQuestionRepository) BatchDelete(ids []uint) error {
 	return r.db.Delete(&entity.DailyQuestion{}, ids).Error
 }

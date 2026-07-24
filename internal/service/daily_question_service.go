@@ -156,7 +156,10 @@ func (s *dailyQuestionService) CreateQuestion(req *request.CreateDailyQuestionRe
 		Question: req.Question,
 		Answer:   req.Answer,
 		Date:     req.Date,
-		Status:   1,
+		Status:   entity.DailyQuestionStatusPublished,
+	}
+	if req.Status == entity.DailyQuestionStatusScheduled {
+		question.Status = entity.DailyQuestionStatusScheduled
 	}
 
 	err := s.dailyQuestionRepo.Create(question)

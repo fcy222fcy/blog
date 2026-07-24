@@ -53,5 +53,7 @@ type DailyQuestionRepository interface {
 	BatchUpdateStatus(ids []uint, status int) error
 
 	// BatchDelete 批量删除
+	PublishScheduledQuestions(today string) (int64, error)
+
 	BatchDelete(ids []uint) error
 }

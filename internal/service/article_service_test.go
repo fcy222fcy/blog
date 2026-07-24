@@ -134,6 +134,38 @@ func (m *mockArticleRepository) UpdateTags(article *entity.Article, tags []entit
 	return nil
 }
 
+func (m *mockArticleRepository) ListScheduledAfter(now time.Time) ([]*entity.Article, error) {
+	var result []*entity.Article
+	for _, article := range m.articles {
+		if article.Status == entity.ArticleStatusScheduled && article.ScheduledAt != nil && article.ScheduledAt.After(now) {
+			result = append(result, article)
+		}
+	}
+	return result, nil
+}
+
+func (m *mockArticleRepository) PublishScheduledArticle(id uint, now time.Time) (bool, error) {
+	article, ok := m.articles[id]
+	if !ok || article.Status != entity.ArticleStatusScheduled || article.ScheduledAt == nil || article.ScheduledAt.After(now) {
+		return false, nil
+	}
+	article.Status = entity.ArticleStatusPublished
+	article.ScheduledAt = nil
+	return true, nil
+}
+
+func (m *mockArticleRepository) PublishDueScheduledArticles(now time.Time) (int64, error) {
+	var count int64
+	for _, article := range m.articles {
+		if article.Status == entity.ArticleStatusScheduled && article.ScheduledAt != nil && !article.ScheduledAt.After(now) {
+			article.Status = entity.ArticleStatusPublished
+			article.ScheduledAt = nil
+			count++
+		}
+	}
+	return count, nil
+}
+
 func (m *mockArticleRepository) GetDB() *gorm.DB {
 	return nil
 }

@@ -10,7 +10,9 @@ import (
 	"time"
 
 	"blog/internal/api"
+	"blog/internal/model/entity"
 	"blog/internal/repository"
+	"blog/internal/scheduler"
 	"blog/internal/service"
 	"blog/pkg/config"
 	"blog/pkg/database"
@@ -22,11 +24,13 @@ import (
 
 // App 应用结构
 type App struct {
-	config     *config.Config
-	engine     *http.Server
-	router     *api.Router
-	db         *database.Database
-	redisClient *redis.Client
+	config                 *config.Config
+	engine                 *http.Server
+	router                 *api.Router
+	db                     *database.Database
+	redisClient            *redis.Client
+	articleScheduler       *scheduler.ArticleScheduler
+	dailyQuestionScheduler *scheduler.DailyQuestionScheduler
 }
 
 // NewApp 创建应用实例
@@ -123,6 +127,19 @@ func (a *App) initDependencies() {
 	aboutPageSvc := service.NewAboutPageService(aboutPageRepo)
 	auditLogSvc := service.NewAuditLogService(auditLogRepo)
 
+	a.articleScheduler = scheduler.NewArticleScheduler(articleRepo, func(article *entity.Article) {
+		articleSvc.HandleScheduledArticlePublished(article)
+	})
+	articleSvc.SetPublishScheduler(a.articleScheduler)
+	if err := a.articleScheduler.Start(); err != nil {
+		log.Fatalf("启动文章定时发布失败: %v", err)
+	}
+
+	a.dailyQuestionScheduler = scheduler.NewDailyQuestionScheduler(dailyQuestionRepo)
+	if err := a.dailyQuestionScheduler.Start(); err != nil {
+		log.Fatalf("启动每日一问定时发布失败: %v", err)
+	}
+
 	// Router
 	a.router = api.NewRouter(
 		authSvc,
@@ -178,6 +195,13 @@ func (a *App) shutdown() {
 	}
 
 	// 关闭 Redis 连接
+	if a.articleScheduler != nil {
+		a.articleScheduler.Stop()
+	}
+	if a.dailyQuestionScheduler != nil {
+		a.dailyQuestionScheduler.Stop()
+	}
+
 	if a.redisClient != nil {
 		if err := a.redisClient.Close(); err != nil {
 			log.Printf("关闭 Redis 连接失败: %v", err)
